@@ -10,8 +10,8 @@ import sys
 import argparse
 
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
-import efetch.efetch_analyzer
-import wally.wally
+import entrezpy.efetch.efetch_analyzer
+import entrezpy.wally.wally
 
 class GenomeAssembler(efetch.efetch_analyzer.EfetchAnalyzer):
 

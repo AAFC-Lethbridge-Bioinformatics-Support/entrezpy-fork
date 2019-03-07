@@ -1,7 +1,7 @@
 # README
 
 ## Synopsis
-entrezpy is a dedicated Python library to query and retrieve data from Entrez
+`entrezpy` is a dedicated Python library to query and retrieve data from Entrez
 databases at NCBI in analysis pipelines. It supports multi-threading, has no
 external dependencies, and simplifies the construction of complex queries. Its
 design allows to adjust for specific data types and formats without the need to
@@ -36,6 +36,19 @@ sys.path.insert(1, os.path.join(sys.path[0], 'path/to/entrezpy/src'))
 import esearch.esearcher
 import esearch.esearch_analyzer
 ```
+
+
+### Create documentation
+
+`entrezpy` is documented with `doxygen`(http://doxygen.nl/). To create the
+documentation, `doxygen` has to be installed. The following command will create
+the `entrzpy` LaTeX documentation at `doc/dox/latex/refman.pdf` and HTML
+documentation at `doc/dox/html/index.html` ( `$REPOROOT` indicates the root
+directory of the repository)
+
+0. `cd $REPOROOT`
+0. `doxygen entrezpy.dox`
+
 ### Examples
 
 Ready to use examples using ncbipy-eutils are given in the repository

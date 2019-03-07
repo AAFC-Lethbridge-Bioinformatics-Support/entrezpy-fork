@@ -2,31 +2,57 @@
 #-------------------------------------------------------------------------------
 #  \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
 #  \copyright 2018 The University of Sydney
-#  \description https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.EFetch
+#  \description Demonstrate Entrezpy's efetch functionality and use as library.
+#   The examples are stored as parameters in the list `examples` (see [0]).
+#               Outline to use efetch as library:
+                  0. Create an instance of an Efetch analyzer. See below for
+                     more detail.
+                  1. Create an instance of Efetcher() with the minimum required
+                     parameters: The name of the instance and user email. The
+                     former corresponds to the Eutils tool parameter [1].
+  References:
+    [0]: https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.EFetch
+    [1]: https://www.ncbi.nlm.nih.gov/books/NBK25497/#chapter2.Usage_Guidelines_and_Requiremen
+    [2]: https://docs.python.org/3/library/argparse.html#module-argparse
 #-------------------------------------------------------------------------------
 
+#def __init__(self, tool, email, apikey=None, threads=0, id=None):
+# Standard Python libraries
 import os
 import sys
 import time
 import argparse
 
+""" Setup Entrezpy
+Set the proper import path to the required classes relative to this file by
+updating sys.payth.
+$reporoot
+|-- examples
+|   |-- entrezpy.efetch-examples.py
+`-- src
+    `-- entrezpy
+"""
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
-import efetch.efetcher
-import efetch.efetch_analyzer
+import entrezpy.efetch.efetcher
+import entrezpy.efetch.efetch_analyzer
 
 def main():
+  # Python argument parser. See [2]
   ap = argparse.ArgumentParser(description="ncbipy-epost examples from \
                 https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.EFetch")
   ap.add_argument('--email',
                   type=str,
                   required=True,
-                  help='email required by NCBI'),
+                  help='email required by NCBI')
   ap.add_argument('--apikey',
                   type=str,
                   default=None,
                   help='NCBI apikey (optional)')
 
   args = ap.parse_args()
+
+  # Prepare list of examples. Each example is a parameter dictionary as expected
+  # by efetch
   examples = [
               {'db' : 'pubmed','id' : [17284678,9997], 'retmode':'text', 'rettype': 'abstract'},
               {'db': 'pubmed', 'id': [11748933,11700088], 'retmode':'xml'},
@@ -47,8 +73,10 @@ def main():
     for j in ['xml', 'text']:
       examples[i].update({'retmode':j})
       print("## Query {} in {}\nParameter:{}".format(i, j, examples[i]))
-      a = efetch.efetch_analyzer.EfetchAnalyzer()
-      ef = efetch.efetcher.Efetcher('efetcher', args.email, args.apikey)
+      # Instantiate an Efetch analyzer to pass into the fetch request to analyse
+      # the results.
+      a = entrezpy.efetch.efetch_analyzer.EfetchAnalyzer()
+      ef = entrezpy.efetch.efetcher.Efetcher('efetcher', args.email, args.apikey)
       ef.inquire(examples[i], analyzer=a)
       if not a.isSuccess():
         print("Status:\tFailed:\n\tError: {}\n".format(a.error))

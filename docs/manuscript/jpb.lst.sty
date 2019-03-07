@@ -1,0 +1,109 @@
+% copied from https://tex.stackexchange.com/a/83883
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{lst_deepblue}{rgb}{0,0,0.5}
+\definecolor{lst_deepred}{rgb}{0.6,0,0}
+\definecolor{lst_deepgreen}{rgb}{0,0.5,0}
+\definecolor{lst_grey}{rgb}{0.2,0.2,0.2}
+\definecolor{background}{rgb}{0.9,0.9,0.9}
+\usepackage{inconsolata}
+\usepackage{listings}
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\footnotesize\ttfamily,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\footnotesize\bfseries\color{lst_deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\footnotesize\bfseries\color{lst_deepred},    % Custom highlighting style
+stringstyle=\color{lst_deepgreen},
+captionpos=b,
+keepspaces=true,
+numbers=left,
+numbersep=3pt,
+showspaces=false,
+numberstyle=\tiny\color{lst_grey},
+aboveskip=5pt,
+upquote=true,
+columns=fixed,
+extendedchars=true,
+breaklines=true,
+%frame=false,
+showstringspaces=true,
+showtabs=true,
+tab=\rightarrowfill,
+tabsize=1,
+%backgroundcolor=\color{background},
+}}
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+
+% Bash style for highlighting
+\newcommand\bashstyle{\lstset{
+language=Bash,
+basicstyle=\footnotesize\ttfamily,
+keywordstyle=\footnotesize\bfseries\color{lst_deepblue},
+emphstyle=\footnotesize\bfseries\color{lst_deepred},    % Custom highlighting style
+stringstyle=\color{lst_deepgreen},
+captionpos=b,
+keepspaces=true,
+numbers=left,
+numbersep=3pt,
+showspaces=false,
+numberstyle=\tiny\color{lst_grey}
+}}
+% Bash environment
+\lstnewenvironment{bash}[1][]
+{
+\bashstyle
+\lstset{#1}
+}
+{}
+
+% Bash for external files
+\newcommand\bashexternal[2][]{{
+\bashstyle
+\lstinputlisting[#1]{#2}}}
+
+% Bahs for inline
+\newcommand\bashinline[1]{{\bashstyle\lstinline!#1!}}
+
+%\begin{document}
+
+%\section{``In-text'' listing highlighting}
+
+%\begin{python}
+%class MyClass(Yourclass):
+    %def __init__(self, my, yours):
+        %bla = '5 1 2 3 4'
+        %print bla
+%\end{python}
+
+%\section{External listing highlighting}
+
+%\pythonexternal{demo.py}
+
+%\section{Inline highlighting}
+
+%Definition \pythoninline{class MyClass} means \dots
+
+%\end{document}
