@@ -5,39 +5,79 @@
 #                queries.
 #-------------------------------------------------------------------------------
 
-import os
 import sys
 import json
-import time
-import logging
+import uuid
+import base64
 import queue
+import logging
 
-#sys.path.insert(1, os.path.join(sys.path[0], '../'))
-from ..esearch import esearcher
-from ..esearch import esearch_analyzer
-from ..elink import elinker
-from ..elink import elink_analyzer
-from ..epost import eposter
-from ..epost import epost_analyzer
-from ..efetch import efetcher
-from ..esummary import esummarizer
-from ..esummary import esummary_analyzer
 
-from . import wally_query
+from .esearch import esearcher
+from .esearch import esearch_analyzer
+from .elink import elinker
+from .elink import elink_analyzer
+from .epost import eposter
+from .epost import epost_analyzer
+from .efetch import efetcher
+from .esummary import esummarizer
+from .esummary import esummary_analyzer
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
-## Wally simplifies to create pipelines and queries for entrzpy.
+## Wally simplifies to create pipelines and queries for entrezpy.
 # Wally stores the results from previous requests, allowing to retrieve them
 # later if required, reducing the need to redownload data within a pipeline.
 class Wally:
 
   ## Static dictionaries to store results in analyzers and individual queries
-  # for pipelines in queries.
+  # for pipelines in queries. Queries are visible to all instances of Wally.
   analyzers = {}
   queries = {}
+
+  class Query:
+    """ Entrezpy query for a Wally pipeline
+      Wally assembles pipelines using several Query() instances. If a dependency
+      is given, it uses those parameters as basis using
+      `:func: resolve_dependency`.
+
+      :param function: Eutils function
+      :type function: str
+      :param parameter: function parameters
+      :type parameter: dict
+      :param dependency: query id from earlier query
+      :type dependency: uuid4 string
+      :param analyzer: analyzer instance for this query
+      :type analyzer: instance of EutilsAnalyzer
+
+    """
+    def __init__(self, function, parameter, dependency=None, analyzer=None):
+      if not parameter and not dependency:
+        logger.error(json.dumps({__name__:{'Error': 'Missing expected parameters' \
+                                           'parameter and/or `dependency`.',
+                                           'action' : 'abort'}}))
+        sys.exit()
+      if not parameter:
+        parameter = {}
+      self.id = base64.urlsafe_b64encode(uuid.uuid4().bytes).decode()
+      self.function = function
+      self.parameter = parameter
+      self.dependency = dependency
+      self.analyzer = analyzer
+
+    ## resolve dependencies to get parameters from an earlier query
+    # If earlier requets are given as dependencies as well as new parameters, the
+    # new parameters will overwrite those from the dependency.
+    # @param[in] analyzers dictionary global Wally.analzyers dictionary
+    def resolve_dependency(self):
+      if self.dependency:
+        parameter = Wally.analyzers[self.dependency].result.get_link_parameter()
+        if self.function == 'elink':
+          parameter['dbfrom'] = parameter['db']
+        parameter.update(self.parameter)
+        self.parameter = parameter
 
   ## Nested class handling requets piplines. Wally will return an instance
   # of Pipeline which can be than populated with requests. Individual requests
@@ -56,34 +96,36 @@ class Wally:
 
     ## add search, link, post and sumary queries to pipeline
     # @param[in] parameter dictionary with entrez parameters for search
-    # @param[in] dependency uuid.uuid4()  id for earlier search
+    # @param[in] dependency query id for earlier search
     # @param[in] analyzer analyzer instance to use for this search
     # @param[out] WallyQuery() instance
     def add_search(self, parameter=None, dependency=None, analyzer=None):
-      return self.add_query(wally_query.WallyQuery('esearch', parameter, dependency, analyzer))
+      return self.add_query(Wally.Query('esearch', parameter, dependency, analyzer))
 
     ## add link query. Same options as add_search()
     def add_link(self, parameter=None, dependency=None, analyzer=None):
-      return self.add_query(wally_query.WallyQuery('elink', parameter, dependency, analyzer))
+      return self.add_query(Wally.Query('elink', parameter, dependency, analyzer))
 
     ## add post query. Same options as add_search()
     def add_post(self, parameter=None, dependency=None, analyzer=None):
-      return self.add_query(wally_query.WallyQuery('epost', parameter, dependency, analyzer))
+      return self.add_query(Wally.Query('epost', parameter, dependency, analyzer))
 
     ## add summary query. Same options as add_search()
     def add_summary(self, parameter=None, dependency=None, analyzer=None):
-      return self.add_query(wally_query.WallyQuery('esummary', parameter, dependency, analyzer))
+      return self.add_query(Wally.Query('esummary', parameter, dependency, analyzer))
 
     ## add fetch query to pipeline. Same options as add_search(), but
     # requires an analyzer
     def add_fetch(self, parameter=None, dependency=None, analyzer=None):
-      if analyzer == None:
-        sys.exit("Wally.Pipline error: fetch requests require an analyzer but none given. Abort.")
-      return self.add_query(wally_query.WallyQuery('efetch', parameter, dependency, analyzer))
+      if not analyzer:
+        logger.error(json.dumps({__name__ : {'Error' :
+                                             {'Missing required parameter' : 'analyzer',
+                                              'action' : 'abort'}}}))
+      return self.add_query(Wally.Query('efetch', parameter, dependency, analyzer))
 
     ## add query to global and local storage
     # @param[in] query WallyQuery()
-    # @param[out] uuid.uuid4() query id for added query
+    # @param[out] query.id, uuid4() query id for added query
     def add_query(self, query):
       self.queries.put(query.id)
       self.query_map[query.id] = query
@@ -108,17 +150,18 @@ class Wally:
   def run(self, qry):
     while not qry.queries.empty():
       q = Wally.queries[qry.queries.get()]
-      q.resolve_dependency(Wally.analyzers)
-      logger.info(json.dumps({"Inquire" : {"id" : q.id, "category": q.category}}))
-      if q.category == 'esearch':
+      q.resolve_dependency()
+      logger.info(json.dumps({__name__ : {'Inquiring' : {'query_id' : q.id,
+                                                         'function' : q.function}}}))
+      if q.function == 'esearch':
         Wally.analyzers[q.id] = self.search(q)
-      if q.category == 'elink':
+      if q.function == 'elink':
         Wally.analyzers[q.id] = self.link(q)
-      if q.category == 'efetch':
+      if q.function == 'efetch':
         Wally.analyzers[q.id] = self.fetch(q)
-      if q.category == 'epost':
+      if q.function == 'epost':
         Wally.analyzers[q.id] = self.post(q)
-      if q.category == 'esummary':
+      if q.function == 'esummary':
         Wally.analyzers[q.id] = self.summarize(q)
       self.check_query(q)
     return Wally.analyzers[q.id]
@@ -130,9 +173,8 @@ class Wally:
     if not Wally.analyzers[query.id]:
       sys.exit("Request errors in query {}".format(query.id))
     if not Wally.analyzers[query.id].isSuccess():
-      logger.info(json.dumps({"Wally-Info":{"msg": "Error in response",
-                                                  "query": {"id":query.id},
-                                                  "action":"abort"}}))
+      logger.info(json.dumps({__name__ : {'response error': {'query_id' : query.id,
+                                                             'action' : 'abort'}}}))
       sys.exit()
 
   ## return a stored result from a previous run.
@@ -154,33 +196,25 @@ class Wally:
   # @param[in] query WallyQuery()
   # @param[in] analzyer analyzer class
   def search(self, query, analyzer=esearch_analyzer.EsearchAnalyzer):
-    analyzer=analyzer()
-    if query.analyzer:
-      analyzer = query.analyzer
-    esearch = esearcher.Esearcher(self.tool, self.email, self.apikey, threads=self.threads, id=query.id)
-    return esearch.inquire(parameter=query.parameter, analyzer=analyzer)
+    analyzer = query.analyzer if query.analyzer else analyzer()
+    return esearcher.Esearcher(self.tool, self.email, self.apikey, threads=self.threads,
+                               id=query.id).inquire(query.parameter, analyzer)
 
   def summarize(self, query, analyzer=esummary_analyzer.EsummaryAnalzyer):
-    analyzer=analyzer()
-    if query.analyzer:
-      analyzer = query.analyzer
-    esummary = esummarizer.Esummarizer(self.tool, self.email, self.apikey, threads=self.threads, id=query.id)
-    return esummary.inquire(parameter=query.parameter, analyzer=analyzer)
+    analyzer = query.analyzer if query.analyzer else analyzer()
+    return esummarizer.Esummarizer(self.tool, self.email, self.apikey, threads=self.threads,
+                                   id=query.id).inquire(query.parameter, analyzer)
 
   def link(self, query, analyzer=elink_analyzer.ElinkAnalyzer):
-    analyzer=analyzer()
-    if query.analyzer:
-      analyzer = query.analyzer
-    linker = elinker.Elinker(self.tool, self.email, self.apikey, threads=self.threads, id=query.id)
-    return linker.inquire(parameter=query.parameter, analyzer=analyzer)
+    analyzer = query.analyzer if query.analyzer else analyzer()
+    return elinker.Elinker(self.tool, self.email, self.apikey, threads=self.threads,
+                           id=query.id).inquire(query.parameter, analyzer)
 
   def post(self, query, analyzer=epost_analyzer.EpostAnalyzer):
-    analyzer=analyzer()
-    if query.analyzer:
-      analyzer = query.analyzer
-    poster = eposter.Eposter(self.tool, self.email, self.apikey, threads=self.threads, id=query.id)
-    return poster.inquire(parameter=query.parameter, analyzer=analyzer)
+    analyzer = query.analyzer if query.analyzer else analyzer()
+    return eposter.Eposter(self.tool, self.email, self.apikey, threads=self.threads,
+                           id=query.id).inquire(query.parameter, analyzer)
 
   def fetch(self, query):
-    fetcher = efetcher.Efetcher(self.tool, self.email, self.apikey, threads=self.threads, id=query.id)
-    return fetcher.inquire(parameter=query.parameter, analyzer=query.analyzer)
+    return efetcher.Efetcher(self.tool, self.email, self.apikey, threads=self.threads,
+                             id=query.id).inquire(query.parameter, query.analyzer)

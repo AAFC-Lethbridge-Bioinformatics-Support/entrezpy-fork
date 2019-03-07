@@ -1,8 +1,27 @@
-#-------------------------------------------------------------------------------
-#  \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
-#  \copyright 2018 The University of Sydney
-#  \description
-#-------------------------------------------------------------------------------
+# Copyright 2018, 2019 The University of Sydney
+# This file is part of entrezpy.
+#
+#  Entrezpy is free software: you can redistribute it and/or modify it under the
+#  terms of the GNU Lesser General Public License as published by the Free
+#  Software Foundation, either version 3 of the License, or (at your option) any
+#  later version.
+#
+#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+"""
+.. module:: entrezpy.elink.elink_parameter
+  :synopsis:
+    This module is part of entrezpy. It implements the Elink parameters
+    for NCBI E-Utils queries. It inherits
+    :class:`entrezpy_base.parameter.EutilsParameter`.
+
+.. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
+"""
+
 
 import io
 import os
@@ -11,33 +30,54 @@ import math
 import json
 import logging
 
-sys.path.insert(1, os.path.join(sys.path[0], '../'))
-import entrezpy_base.parameter
+import entrezpy.base.parameter
+
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
-## ElinkParameter implements checks and configures an EftechQuery().
-# ElinkParameter inherits entrezpy_base.parameter.EutilsParameter.
-# A link query knows its size due to the id parameter or earlier result
-# stored on the Entrez history server using WebEnv and query_key.
-# The default retmode (fetch format) is set to JSON and the default command
-# (cmd) to neighbor.
-# ELink has no set maximum for the number of UIDs which can be linked. This
-# fixes the query_size, request_size and expected_requests to 1
-class ElinkParameter(entrezpy_base.parameter.EutilsParameter):
 
-  ## These commands can work without a db parameter
+class ElinkParameter(entrezpy.base.parameter.EutilsParameter):
+  """ElinkParameter checks query specific parameters and configures a
+  :class:`entrezpy.elink.elink_query.ElinkQuery` instance. A link gets its size
+  from :attr:`entrezpy.elink.elink_parameter.ElinkParameter.uids` (from the `id`
+  Eutils parameter) or earlier result stored on the Entrez history server.
+  :attr:`entrezpy.elink.elink_parameter.ElinkParameter.retmode` is JSON where
+  possible and :attr:`entrezpy.elink.elink_parameter.ElinkParameter.cmd` is
+  `neighbor`. ELink has no set maximum for UIDs which can be linked in one
+  query, fixing :attr:`entrezpy.elink.elink_parameter.ElinkParameter.query_size`,
+  :attr:`entrezpy.elink.elink_parameter.ElinkParameter.request_size`, and
+  :attr:`entrezpy.elink.elink_parameter.ElinkParameter.expected_requests` to 1.
+
+  :param dict parameter: Eutils Elink parameter
+  """
+
   nodb_cmds = {'acheck', 'ncheck', 'lcheck', 'llinks', 'llinkslib', 'prlinks'}
+  """Elink commands not requiring the `db` parameter"""
+
   retmodes = {'llinkslib' : 'xml'}
+  """The llinkslib elink command is the only command only returning XML"""
+
+  def_retmode = 'json'
+  """Use JSON whenever possible"""
+
 
   def __init__(self, parameter):
+      #:ivar str dbfrom: source database
+  #:ivar str cmd: elink command
+  #:ivar int querykey: Entrez querykey
+  #:ivar str webevn: Entrez webenv
+  #:ivar list uids: UIDs to link
+  #:ivar str retmode: data format of response
+  #:ivar str linkname: Elink linkname
+  #:ivar str term: query term to use in Elink
+  #:ivar str term: query term to use in Elink
     super().__init__(parameter)
     self.cmd = parameter.get('cmd', 'neighbor')
     self.dbfrom = parameter.get('dbfrom')
     self.uids = parameter.get('id', [])
-    self.retmode = ElinkParameter.retmodes.get(self.cmd, parameter.get('retmode', 'json'))
+    self.retmode = self.set_retmode(parameter.get('retmode'))
     self.linkname = parameter.get('linkname')
     self.term = parameter.get('term')
     self.holding = parameter.get('holding')
@@ -45,37 +85,43 @@ class ElinkParameter(entrezpy_base.parameter.EutilsParameter):
     self.reldate = parameter.get('reldate')
     self.mindate = parameter.get('mindate')
     self.maxdate = parameter.get('maxdate')
+    self.doseq = parameter.get('link', True)
     self.query_size = 1
     self.request_size = 1
     self.expected_requests = 1
-    if parameter.get('retmode') == 'ref':
-      logger.info(json.dumps({__name__:"retmode ref is not used. Check documentation."}))
-      parameter['retmode'] = 'json'
-    self.retmode = ElinkParameter.retmodes.get(self.cmd, parameter.get('retmode', 'json'))
     self.check()
+    logger.debug(json.dumps({__name__ : {'dump' : self.dump()}}))
 
   ## Implemented check() function
   # Testing for required parameters and aborting if they are missing/wrong
   # When using the history server, elink queries require WebEnv and query_key
   def check(self):
     if self.cmd not in ElinkParameter.nodb_cmds and not self.haveDb():
-      logger.error(json.dumps({__name__+": error":{"msg": "Missing parameter", "parameter":
-                                                              {"db":self.db,"cmd":self.cmd},
-                                                              "action":"abort"}}))
+      logger.error(json.dumps({__name__ : {
+                              'error' : { "Bad parameters" : {"db": self.db, "cmd":self.cmd}},
+                              'action' : 'abort'}}))
       sys.exit()
     if self.dbfrom == None:
-      logger.error(json.dumps({__name__+": error":{"msg": "Missing parameter",
-                                                         "parameter": {"dbfrom":self.dbfrom},
-                                                          "action":"abort"}}))
+      logger.error(json.dumps({__name__ : {
+                              'error' : {'Missing required parameter' : 'dbfrom'},
+                              'action' : 'abort'}}))
       sys.exit()
 
     if not self.uids and not self.haveWebenv and not self.haveQuerykey:
-      logger.error(json.dumps({__name__+": error":{"msg": "Missing required parameters",
-                                                          "parameters": {"ids":self.uids,
-                                                                         "QueryKey":self.querykey,
-                                                                         "WebEnv":self.webenv},
-                                                           "action":"abort"}}))
+      logger.error(json.dumps({__name__ : {
+                              'error' : {'Missing required parameters': {
+                                          'ids' : self.uids,
+                                          'QueryKey' : self.querykey,
+                                          'WebEnv' : self.webenv}},
+                              'action' : 'abort'}}))
       sys.exit()
+
+  def set_retmode(self, retmode):
+    if retmode == 'ref':
+      logger.info(json.dumps({__name__ : "retmode ref not supported. Check documentation." \
+                                         "Using {}".format(ElinkParameter.def_retmode)}))
+      return ElinkParameter.def_retmode
+    return ElinkParameter.retmodes.get(self.cmd, ElinkParameter.def_retmode)
 
   def dump(self):
     return {'db' : self.db,
@@ -89,6 +135,7 @@ class ElinkParameter(entrezpy_base.parameter.EutilsParameter):
             'term' : self.term,
             'holding' : self.holding,
             'datetype' : self.datetype,
+            'doseq' : self.doseq,
             'reldate' : self.reldate,
             'mindate' : self.mindate,
             'maxdate' : self.maxdate,

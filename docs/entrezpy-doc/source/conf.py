@@ -19,10 +19,9 @@
 #
 import os
 import subprocess
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
-
-
+import sys
+sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(1, os.path.join(sys.path[0], '../../../src/'))
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -32,7 +31,11 @@ import subprocess
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = []
+extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.inheritance_diagram',
+              'sphinx.ext.graphviz']
+autoclass_content = 'both'
+autodoc_member_order = 'bysource'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -41,14 +44,14 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = '.md'
+source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
 
 # General information about the project.
 project = 'entrezpy'
-copyright = '2019, Jan P Buchmann'
+copyright = '2018-2019, The University Of Sydney'
 author = 'Jan P Buchmann'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -71,7 +74,6 @@ language = None
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
 exclude_patterns = []
-
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
@@ -104,6 +106,7 @@ html_static_path = ['_static']
 # refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
 html_sidebars = {
     '**': [
+        'globaltoc.html',
         'relations.html',  # needs 'show_related': True theme option to display
         'searchbox.html',
     ]
@@ -165,9 +168,3 @@ texinfo_documents = [
      author, 'entrezpy', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-# -- Doxygen
-#   https://stackoverflow.com/questions/36064976/using-doxygen-in-read-the-docs
-#   https://breathe.readthedocs.io/en/latest/readthedocs.html
-
-subprocess.call('cd ../doxygen; doxygen', shell=True)

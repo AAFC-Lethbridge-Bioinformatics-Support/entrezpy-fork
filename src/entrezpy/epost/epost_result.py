@@ -1,32 +1,67 @@
-#-------------------------------------------------------------------------------
-#  \file epost_result.py
-#  \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
-#  \copyright 2018 The University of Sydney
-#  \version 0.0.0
-#  \description
-#-------------------------------------------------------------------------------
+# Copyright 2018, 2019 The University of Sydney
+# This file is part of entrezpy.
+#
+#  Entrezpy is free software: you can redistribute it and/or modify it under the
+#  terms of the GNU Lesser General Public License as published by the Free
+#  Software Foundation, either version 3 of the License, or (at your option) any
+#  later version.
+#
+#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+"""
+.. module:: epost_result
+   :synopsis: This module is part of entrezpy. It exports the EpostResult class
+              for EpostAnalyzer. It inherits entrezpy.base.result.EutilsResult
 
-import os
-import sys
+.. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
+"""
+
+
 import json
+import logging
 
-sys.path.insert(1, os.path.join(sys.path[0], '../'))
+import entrezpy.base.result
 
-from entrezpy_base import result
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
 
-class EpostResult(result.EutilsResult):
 
-  def __init__(self, db=None, webenv=None, querykey=0, size=1):
-    super().__init__('epost', db=db, webenv=webenv, querykey=querykey)
-    self.size = size
+class EpostResult(entrezpy.base.result.EutilsResult):
+  """ EpostResult stors the WebEnv and QueryKey from posting UIDs to the
+  History server. Since no limit is imposed on the number of UIDs which can be
+  posted in one query, the size of the result is the size of the request and
+  only one WebEnv and QueryKey are returned.
+
+  :param request: entrezpy Epost request instance
+  :request type: :class:`entrezpy.epost.epost_request.EpostRequest`
+  :param dict response: response
+  """
+  def __init__(self, response, request):
+    """
+    :ivar list uids: posted UIDs
+    """
+    super().__init__('epost', request.query_id, request.db, response.pop('webenv'),
+                     response.pop('querykey'))
+    self.uids = request.uids
 
   def dump(self):
-    return json.dumps({'db':self.db,'webenv':self.webenv,'size':self.size,
-                       'querykey':self.querykey, 'len_uids': len(self.uids),
-                       'uids' : self.uids, "typ":self.typ})
+    return {'db' : self.db, 'webenv' : self.webenv, 'size' : self.size,
+            'querykey' : self.querykey, 'len_uids' : len(self.uids),
+            'uids' : self.uids, 'function' : self.function}
 
   def get_link_parameter(self):
-    return {'WebEnv' : self.webenv,
-            'QueryKey' : self.querykey,
-            'db' : self.db,
+    return {'WebEnv' : self.webenv, 'QueryKey' : self.querykey, 'db' : self.db,
             'size' : self.size}
+
+  def size(self):
+    return len(self.uids)
+
+  def isEmpty(self):
+    if self.size > 0:
+      return False
+    return True

@@ -11,12 +11,10 @@ import math
 import json
 import logging
 
-sys.path.insert(1, os.path.join(sys.path[0], '../'))
-import entrezpy_base.parameter
+from ..entrezpy_base import parameter
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
-logger.addHandler(logging.StreamHandler())
 
 ## EsummaryParameter implements checks and configures an Esummary() query.
 # EsummaryParameter inherits entrezpy_base.parameter.EutilsParameter.
@@ -25,7 +23,7 @@ logger.addHandler(logging.StreamHandler())
 # The default retmode (fetch format) is set to JSON but if XML is returned
 # it defautls to the new 2.0 version.
 
-class EsummaryParameter(entrezpy_base.parameter.EutilsParameter):
+class EsummaryParameter(parameter.EutilsParameter):
 
   ## maximum number of data sets per request
   max_request_size = {'xml' : 10000, 'json' : 500}
@@ -75,17 +73,16 @@ class EsummaryParameter(entrezpy_base.parameter.EutilsParameter):
 
   def check(self):
     if not self.haveDb():
-      logger.error(json.dumps({"Parameter-error":{"msg": "Missing parameter", "parameter":
-                                                              {"db":self.db,"action":"abort"}}}))
+      logger.error(json.dumps({__name__:{"Missing parameter": "db", "action":"abort"}}))
       sys.exit()
+
     if not self.haveExpectedRequets():
-      logger.error(json.dumps({"Parameter-error":{"msg": "Calculating expected requests failed",
-                                                                "parameter": {"expected requests":self.expected_requests, "action":"abort"}}}))
+      logger.error(json.dumps({__name__:{"Failed calculating expected requests" :self.expected_requests,
+                                         "action":"abort"}}))
       sys.exit()
     if not self.uids and not self.haveQuerykey() and not self.haveWebenv():
-      logger.error(json.dumps({"Parameter-error":{"msg": "Missing required parameters",
-                                                         "parameters": {"ids":self.uids,
-                                                                        "QueryKey":self.querykey,
-                                                                        "WebEnv":self.webenv},
-                                                         "action":"abort"}}))
+      logger.error(json.dumps({__name__:{"Missing required parameters" : {"ids":self.uids,
+                                                                          "QueryKey":self.querykey,
+                                                                          "WebEnv":self.webenv},
+                                          "action":"abort"}}))
       sys.exit()

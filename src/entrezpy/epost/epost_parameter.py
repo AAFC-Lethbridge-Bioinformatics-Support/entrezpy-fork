@@ -1,49 +1,82 @@
-#-------------------------------------------------------------------------------
-#  \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
-#  \copyright 2018 The University of Sydney
-#  \description
-#-------------------------------------------------------------------------------
+# Copyright 2018, 2019 The University of Sydney
+# This file is part of entrezpy.
+#
+#  Entrezpy is free software: you can redistribute it and/or modify it under the
+#  terms of the GNU Lesser General Public License as published by the Free
+#  Software Foundation, either version 3 of the License, or (at your option) any
+#  later version.
+#
+#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+"""
+.. module:: entrezpy.elink.epost_parameter
+  :synopsis:
+    This module is part of entrezpy. It implements the Epost parameters
+    for NCBI E-Utils Epost queries. It inherits
+    :class:`entrezpy_base.parameter.EutilsParameter`.
 
-import io
-import os
+.. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
+"""
+
+
 import sys
-import math
 import json
 import logging
 
-sys.path.insert(1, os.path.join(sys.path[0], '../'))
-import entrezpy_base.parameter
+import entrezpy.base.parameter
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
 
-## EpostParameter implements checks and configures an EpostQuery().
-# EpostParameter inherits entrezpy_base.parameter.EutilsParameter.
-# An EPost query posts uids to the history server. If no WebEnv is given,
-# a new WebEnv with query key is creted and returned. If a WebEvn is is given,
-# the uids will be added to this webenv and an associated query key returned.
-# This sets request_size = 1 and expected_requests = 1 and the query size
-# is the length of passed uids.
-# The documentation on Epost [0] doesn't mention any maximum uids to post.
-#
-# [0] : https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.EPost
-class EpostParameter(entrezpy_base.parameter.EutilsParameter):
 
+class EpostParameter(entrezpy.base.parameter.EutilsParameter):
+  """EpostParameter checks query specific parameters and configures a
+  :class:`entrezpy.epost.epost_query.EpostQuery` instance. Force XML since
+  Epost responds only XML. Epost requests don't have follow-ups.
+
+  :param dict parameter: Eutils Epost parameters
+  """
   def __init__(self, parameter):
+    """
+    :ivar list uids: UIDs to post
+    :ivar str retmode: fix retmode to XML
+    :ivar int query_size: size of query, here number of UIDs
+    :ivar int request_size: size of request, here nuber if UIDs
+    :ivar int expected_requests: number of expected requests, here 1
+    """
     super().__init__(parameter)
     self.uids = parameter.get('id', [])
-    self.retmode = parameter.get('retmode', 'xml')
+    self.retmode = 'xml'
     self.query_size = len(self.uids)
-    self.request_size = 1
+    self.request_size = self.query_size
     self.expected_requests = 1
     self.check()
 
   def check(self):
+    """Implements :meth:`entrezpy.base.parameter.EutilsParameter.check`
+    by checking for missing database parameter and UIDs.
+    """
     if not self.haveDb():
-      logger.error(json.dumps({"Parameter-error":{"msg": "Missing parameter", "parameter":
-                                                              {"term":self.db,"action":"abort"}}}))
-      sys.exit()
+      sys.exit(logger.error(json.dumps({__name__:{'Missing parameter': 'db', 'action' : 'abort'}})))
     if self.query_size == 0:
-      logger.error(json.dumps({"Parameter-error":{"msg": "Missing uids",
-                                                         "parameter": {"uids":self.uids,
-                                                         "action":"abort"}}}))
-      sys.exit()
+      sys.exit(logger.error(json.dumps({__name__:{'Missing uids' : self.uids, 'action':'abort'}})))
+
+  def dump(self):
+    """Dump instance variables
+
+    :rtype: dict
+    """
+    return {'db' : self.db,
+            'WebEnv':self.webenv,
+            'query_key' : self.querykey,
+            'uids' : self.uids,
+            'retmode' : self.retmode,
+            'doseq' : self.doseq,
+            'query_size' : self.query_size,
+            'request_size' : self.request_size,
+            'expected_requets' : self.expected_requests}

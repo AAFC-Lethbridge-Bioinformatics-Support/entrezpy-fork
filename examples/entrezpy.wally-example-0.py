@@ -12,7 +12,7 @@ import time
 import argparse
 
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
-import wally.wally
+from entrezpy import wally
 
 def main():
   ap = argparse.ArgumentParser(description='Simple ncbipy-esearch-example')
@@ -36,7 +36,7 @@ def main():
   args = ap.parse_args()
 
   start = time.time()
-  w = wally.wally.Wally(args.email, args.apikey, threads=args.threads)
+  w = wally.Wally(args.email, args.apikey, threads=args.threads)
   px = w.new_pipeline()
   pid = px.add_search({'db' : 'gene', 'term' : 'tp53[preferred symbol] AND human[organism]', 'retmode':'count'})
   if args.use_history:

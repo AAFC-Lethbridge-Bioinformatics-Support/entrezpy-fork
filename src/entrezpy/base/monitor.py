@@ -48,10 +48,10 @@ class QueryMonitor:
 
   def __init__(self):
     self.observers = {}
-    self.locks = {}
+    #self.locks = {}
 
   def register_query(self, query):
-    self.locks[query.id] = threading.Lock()
+    #self.locks[query.id] = threading.Lock()
     self.observers[query.id] = self.Observer()
 
   def get_observer(self, query_id):

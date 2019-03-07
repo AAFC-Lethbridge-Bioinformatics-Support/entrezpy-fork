@@ -1,30 +1,51 @@
-#-------------------------------------------------------------------------------
-#  \file epost_request.py
-#  \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
-#  \copyright 2018 The University of Sydney
-#  \version 0.0.0
-#  \description
-#-------------------------------------------------------------------------------
+# Copyright 2018, 2019 The University of Sydney
+# This file is part of entrezpy.
+#
+#  Entrezpy is free software: you can redistribute it and/or modify it under the
+#  terms of the GNU Lesser General Public License as published by the Free
+#  Software Foundation, either version 3 of the License, or (at your option) any
+#  later version.
+#
+#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+"""
+.. module:: epost_request
+  :synopsis:
+    This module is part of entrezpy. It exports the EpostRequest class
+    for ElinkAnalyzer. It inherits :class:`entrezpy.base.result.EutilsRequest`.
 
-import os
-import sys
-import json
+.. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
+"""
+import entrezpy.base.request
 
-sys.path.insert(1, os.path.join(sys.path[0], '../'))
-from entrezpy_base import request
+class EpostRequest(entrezpy.base.request.EutilsRequest):
+  """ EpostRequest implements a single request as part of an Epost
+  query. It stores and prepares the parameters for a single request.
+  See :class:`entrezpy.epost.epost_parameter.EpostParameter` for parameter
+  description.
 
-class EpostRequest(request.EutilsRequest):
-
-  def __init__(self, parameter):
-    super().__init__('epost', parameter.db)
-    self.uids =  parameter.uids
+  :param parameter: request parameter
+  :param type: :class:`entrezpy.epost.epost_parameter.EpostParameter`
+  """
+  def __init__(self, eutil, parameter):
+    super().__init__(eutil, parameter.db)
+    self.uids = parameter.uids
     self.size = len(parameter.uids)
     self.webenv = parameter.webenv
     self.retmode = parameter.retmode
 
-  def prepare_qry(self):
-    print("asasas", self.db)
+  def get_post_parameter(self):
+    """Implements :meth:`entrezpy.base.request.EutilsRequest.get_post_parameter`"""
     return self.prepare_base_qry(extend={'id' : ','.join(str(x) for x in self.uids),
                                          'WebEnv' : self.webenv})
+
   def dump(self):
+    """Dump instance attributes
+
+    :rtype: dict
+    """
     return self.dump_internals({'retmode':self.retmode, 'WebEnv':self.webenv})

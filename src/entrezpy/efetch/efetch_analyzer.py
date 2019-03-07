@@ -4,10 +4,6 @@
 #  \description
 #-------------------------------------------------------------------------------
 
-
-import io
-import os
-import sys
 import json
 import logging
 
@@ -15,7 +11,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
-#sys.path.insert(1, os.path.join(sys.path[0], '../'))
 from ..entrezpy_base import analyzer
 
 class EfetchAnalyzer(analyzer.EutilsAnalyzer):
@@ -31,26 +26,10 @@ class EfetchAnalyzer(analyzer.EutilsAnalyzer):
       self.result += response.getvalue()
 
   def analyze_error(self, response, request):
-    self.error = response
-    logger.info(json.dumps({__name__:{"Response-Error":
-                                        {
-                                          "tool": request.tool,
-                                          "request-id": request.id,
-                                          "query-id":request.query_id,
-                                          "error": self.error
-                                        }}}))
-    logger.debug(json.dumps({__name__:{"Response-Error":
-                                        {
-                                          "tool": request.tool,
-                                          "request-id": request.id,
-                                          "query-id":request.query_id,
-                                          "error": self.error,
-                                          "request-dump":request.dump_internals()
-                                        }}}))
+    logger.info(json.dumps({__name__:{'Response-Error': {
+                                      'request-dump' : request.dump_internals(),
+                                       'error' : response}}}))
 
-def main():
-
-  return 0
-
-if __name__ == '__main__':
-  main()
+    logger.debug(json.dumps({__name__:{'Response-Error': {
+                                       'request-dump' : request.dump_internals(),
+                                       'error' : response}}}))

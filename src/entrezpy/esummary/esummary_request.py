@@ -8,8 +8,7 @@ import os
 import sys
 import json
 
-sys.path.insert(1, os.path.join(sys.path[0], '../'))
-from entrezpy_base import request
+from ..entrezpy_base import request
 
 class EsummaryRequest(request.EutilsRequest):
 

@@ -1,61 +1,96 @@
-#-------------------------------------------------------------------------------
-#  \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
-#  \copyright  GNU Lesser General Public License
-#  \description Elinker class to link EDirect search results.
-#-------------------------------------------------------------------------------
+# Copyright 2018, 2019 The University of Sydney
+# This file is part of entrezpy.
+#
+#  Entrezpy is free software: you can redistribute it and/or modify it under the
+#  terms of the GNU Lesser General Public License as published by the Free
+#  Software Foundation, either version 3 of the License, or (at your option) any
+#  later version.
+#
+#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+"""
+.. module:: elinker
+   :synopsis: This module is part of entrezpy. It exports the ELinker class
+              implementing Elink queries. It inherits
+              :class:`entrezpy.base.query.EutilsQuerys`
+.. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
+"""
 
-import os
-import sys
-import time
+
 import json
 import logging
 
-sys.path.insert(1, os.path.join(sys.path[0], '../'))
-from entrezpy_base import query
-from . import elink_parameter
-from . import elink_request
-from . import elink_analyzer
+import entrezpy.base.query
+import entrezpy.elink.elink_parameter
+import entrezpy.elink.elink_request
+import entrezpy.elink.elink_analyzer
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
 
-## Elinker implements elink queries to E-Utilities [0]
-# Elinker inherits query.EutilsQuery and implements the inquire() method
-# to link data sets on NCBI Entrez servers. All parameters described in [0] are
-# acccepted. Elink queries consist of one request linking uids or an earlier
-# requests on the history server within the same or different Enrez database.
-# [0]: https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.ELink
+class Elinker(entrezpy.base.query.EutilsQuery):
+  """Elinker implements elink queries to E-Utilities [0].
+  Elinker implements the inquire() method to link data sets on NCBI Entrez
+  servers. All parameters described in [0] are acccepted. Elink queries consist
+  of one request linking UIDs or an earlier requests on the history server
+  within the same or different Entrez database. [0]:
+  https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.ELink
+  """
 
-class Elinker(query.EutilsQuery):
+  def __init__(self, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
+    """Inits Elinker instance with given attributes
 
-  def __init__(self, tool, email, apikey=None, threads=0, id=None):
-    super().__init__('elink.fcgi', tool, email, apikey, threads, id=id)
+      :param str tool: tool name
+      :param str email: user email
+      :param str apikey: NCBI apikey
+      :param str apikey_var: enviroment variable storing NCBI apikey
+      :param int threads: set threads for multithreading
+      :param str qid: unique query id
+    """
+    super().__init__('elink.fcgi', tool, email, apikey, apikey_var, threads, qid)
 
-  ## Implemented inquire() from query.EutilsQuery
-  # Elink consists of one query.
-  # @params[in] parameter dictionary with aguments as described in [0]
-  # @params[in] analyzer  analyzer instance
-  # @return the analyzer instance if no request errors have been encountered
-  # @return None if request errors have been encountered
-  def inquire(self, parameter, analyzer=elink_analyzer.ElinkAnalyzer()):
-    logger.debug(logger.debug({'tool':self.tool, 'url':self.url, 'threads': self.num_threads, 'email':self.contact}))
-    p = elink_parameter.ElinkParameter(parameter)
+  def inquire(self, parameter, analyzer=entrezpy.elink.elink_analyzer.ElinkAnalyzer()):
+    """ Implements virtual function inquire()
+
+      1. Prepares parameter instance :class:`entrezpy.elink.elink_parameter.ElinkerParameter`
+      2. Starts threading monitor :func:`monitor_start`
+      3. Adds ElinkRequests to queue :func:`add_request`
+      4. Runs and analyzes all requests
+      5. Checks for errors :func:`check_requests`
+
+    :param dict parameter: ELink parameter
+    :param analyzer analyzer: analyzer for Elink Results, default is
+      :class:`entrezpy.elink.elink_analyzer.ElinkAnalyzer`
+    :return: analyzer  or None if request errors have been encountered
+    :rtype: :class:`entrezpy.base.analyzer.EntrezpyAnalyzer` instance or None
+    """
+    logger.debug(json.dumps({__name__ : {'dump' : self.dump()}}))
+    p = entrezpy.elink.elink_parameter.ElinkParameter(parameter)
     self.monitor_start(p)
-    self.add_request(elink_request.ElinkRequest(p), analyzer)
+    self.add_request(entrezpy.elink.elink_request.ElinkRequest(self.eutil, p), analyzer)
     self.request_pool.drain()
     self.monitor_stop()
     if self.check_requests() == 0:
       return analyzer
     return None
 
-  ## Function to test if request errors were encountered
-  # It checks if the failed request list populated by
-  # EutilsQuery.RequestPool
-  # @return 0 if no request error
-  # @return 1 if error requets
   def check_requests(self):
+    """Test for request errors
+
+      :return: 1 if request errors else 0
+      :rtype: int
+    """
     if not self.hasFailedRequests():
-      logger.info(json.dumps({__name__+"-"+self.id: "Query requests OK"}))
+      logger.info(json.dumps({__name__ : {'Query status' : {self.id : 'OK'}}}))
       return 0
-    else:
-      logger.info(json.dumps({__name__+"-"+self.id:{"Failed requests" : [x.dump_internals() for x in self.failed_requests]}}))
-      return 1
+    logger.info(json.dumps({__name__ : {'Query status' : {self.id : 'failed'}}}))
+    logger.debug(json.dumps({__name__ : {'Query status' :
+                                         {self.id : 'failed',
+                                          'request-dumps' : [x.dump_internals()
+                                                             for x in self.failed_requests]}}}))
+    return 1

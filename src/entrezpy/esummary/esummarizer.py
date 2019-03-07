@@ -6,13 +6,10 @@
 #  \copyright 2017,2018 The University of Sydney
 #-------------------------------------------------------------------------------
 
-import os
-import sys
 import json
 import logging
 
-sys.path.insert(1, os.path.join(sys.path[0], '../'))
-from entrezpy_base import query
+from ..entrezpy_base import query
 from . import esummary_request
 from . import esummary_analyzer
 from . import esummary_parameter
@@ -23,7 +20,6 @@ logger = logging.getLogger(__name__)
 # It inherits the query.EutilsQuery class and implements the inquire() method
 # to fetch summaries from NCBI Entrez servers. All parameters described in [0]
 # are acccepted.
-#
 # [0]: https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.ESummary
 class Esummarizer(query.EutilsQuery):
 
@@ -35,8 +31,8 @@ class Esummarizer(query.EutilsQuery):
   # Subsequent fetch request are created by increasing the start of the request
   # and keeping the size constant. The request size is adjusted if it's smaller
   # than the default request size.
-  #@params[in] parameter dictionary with aguments as described in [0]
-  #@params[in] analyzer  analyzer instance
+  #@param[in] parameter dictionary with aguments as described in [0]
+  #@param[in] analyzer  analyzer instance
   #@return the analyzer instance if no request errors have been encountered
   #@return None if request errors have been encountered
   def inquire(self, parameter, analyzer=esummary_analyzer.EsummaryAnalzyer()):
@@ -60,7 +56,7 @@ class Esummarizer(query.EutilsQuery):
   #@return 1 if error requets
   def check_requests(self):
     if not self.hasFailedRequests():
-      logger.info(json.dumps({__name__+"-"+self.id: "Query requests OK"}))
+      logger.info(json.dumps({__name__+"-"+self.id: "Requests OK"}))
       return 0
     else:
       logger.info(json.dumps({__name__+"-"+self.id:{"Failed requests" : [x.dump_internals() for x in self.failed_requests]}}))

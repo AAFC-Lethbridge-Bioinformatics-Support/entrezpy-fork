@@ -1,24 +1,40 @@
-#-------------------------------------------------------------------------------
-#  \file esearch_request.py
-#  \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
-#  \description The Esearch request class which inherits edrequest.EdRequest. It
-#               assembles Esearch requests and stores the results.
-#  \copyright 2017,2018 The University of Sydney
-#-------------------------------------------------------------------------------
+# Copyright 2018, 2019 The University of Sydney
+# This file is part of entrezpy.
+#
+#  Entrezpy is free software: you can redistribute it and/or modify it under the
+#  terms of the GNU Lesser General Public License as published by the Free
+#  Software Foundation, either version 3 of the License, or (at your option) any
+#  later version.
+#
+#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+"""
+.. module:: elink_request
+  :synopsis:
+    This module is part of entrezpy. It exports the ElinkRequest class
+    for ElinkAnalyzer. It inherits
+    :class:`entrezpy.base.result.EutilsRequest`.
 
-import os
-import sys
+.. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
+"""
+
+
 import json
 import logging
+
+import entrezpy.base.request
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
-sys.path.insert(1, os.path.join(sys.path[0], '../'))
-import entrezpy_base.request
 
-class EsearchRequest(entrezpy_base.request.EutilsRequest):
+class EsearchRequest(entrezpy.base.request.EutilsRequest):
 
   def __init__(self, parameter, start, size):
     super().__init__('esearch', parameter.db)
@@ -30,7 +46,6 @@ class EsearchRequest(entrezpy_base.request.EutilsRequest):
     self.usehistory = parameter.usehistory
     self.webenv = parameter.webenv
     self.querykey = parameter.querykey
-    self.rettype = parameter.rettype
     self.sort = parameter.sort
     self.field = parameter.field
     self.datetype = parameter.datetype
@@ -42,12 +57,11 @@ class EsearchRequest(entrezpy_base.request.EutilsRequest):
                                            'retstart':self.retstart,
                                            'retmax':self.retmax}}))
 
-  def prepare_qry(self):
+  def get_post_parameter(self):
     qry = self.prepare_base_qry(extend={'term' : self.term,
                                         'retmax' : self.retmax,
                                         'retstart' : self.retstart,
-                                        'retmode' : self.retmode,
-                                        'rettype' : self.rettype})
+                                        'retmode' : self.retmode})
     if self.usehistory:
       qry.update({'usehistory' : 'y'})
     if self.webenv:

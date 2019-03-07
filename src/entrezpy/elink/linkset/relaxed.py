@@ -1,0 +1,61 @@
+# Copyright 2018, 2019 The University of Sydney
+# This file is part of entrezpy.
+#
+#  Entrezpy is free software: you can redistribute it and/or modify it under the
+#  terms of the GNU Lesser General Public License as published by the Free
+#  Software Foundation, either version 3 of the License, or (at your option) any
+#  later version.
+#
+#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+"""
+.. module:: linked
+   :synopsis: This module is part of entrezpy. It exports relaxed Linksets for
+              Elinker() results and handles the required linksetunits. It
+              derives from entrezpy.elink.linkset.bare.LinkSet.
+
+.. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
+"""
+
+import entrezpy.elink.linkset.bare
+
+class RelaxedLinkset(entrezpy.elink.linkset.bare.LinkSet):
+  """
+  The RelaxedLinkset class represents a collection of Elink results where
+  several UID's from a source database (dbfrom) are linked to several UID's
+  from a target database (fromdb). This usually occurs when creating elink
+  commands with one id parameter concatenating several UIDs by a comma, i.e.
+  id=19880848,19822630.
+
+  :param uidsfrom: UIDs from database to link from
+  :type uidsfrom: list
+  :param dbfrom: name of database to link from
+  :type dbfrom: str
+  :param canLink: linkunits can be used for automated follow-up parameter
+  :type canLink: boolean
+  """
+  def __init__(self, uidsfrom, dbfrom, canLink=True):
+    """Inits RelaxedLinkset with source UIDs, source database, set
+    :attribute:
+    """
+    super().__init__('relaxed', dbfrom, canLink)
+    self.uids = {int(x) : 0 for x in uidsfrom} #: UIDs linking from, dict
+
+
+  def get_link_uids(self):
+    """Return list of source UIDs
+
+      :return: UIDs form target database
+      :rtype: list
+    """
+    return [x.uids for x in self.linkunits]
+
+  def dump(self):
+    """
+      :return: dict -- all basis attributes of the instance
+    """
+    return dict({'uids': [x for x in self.uids]}, **self.base_dump())

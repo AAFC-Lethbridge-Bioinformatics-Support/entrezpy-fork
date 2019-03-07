@@ -12,10 +12,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
 
-sys.path.insert(1, os.path.join(sys.path[0], '../'))
-from entrezpy_base import analyzer
+from ..entrezpy_base import analyzer
 from . import esummary_result
 
 class EsummaryAnalzyer(analyzer.EutilsAnalyzer):

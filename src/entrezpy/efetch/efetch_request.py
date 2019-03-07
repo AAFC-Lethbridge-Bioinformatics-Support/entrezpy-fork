@@ -5,9 +5,6 @@
 #  \copyright 2017,2018 The University of Sydney
 #-------------------------------------------------------------------------------
 
-import os
-import sys
-
 from ..entrezpy_base import request
 
 class EfetchRequest(request.EutilsRequest):
@@ -26,7 +23,7 @@ class EfetchRequest(request.EutilsRequest):
     self.seqstop = parameter.seqstop
     self.complexity = parameter.complexity
 
-  def prepare_qry(self):
+  def get_post_parameter(self):
     qry = self.prepare_base_qry()
     if self.retmode != None:
       qry.update({'retmode' : self.retmode})
@@ -43,7 +40,7 @@ class EfetchRequest(request.EutilsRequest):
 
     if self.webenv and self.querykey:
       qry.update({'WebEnv' : self.webenv, 'query_key' : self.querykey,
-                  'retstart' : self.start,'retmax' : self.size})
+                  'retstart' : self.start, 'retmax' : self.size})
     else:
       qry.update({'id' : ','.join(str(x) for x in self.uids)})
     return qry
