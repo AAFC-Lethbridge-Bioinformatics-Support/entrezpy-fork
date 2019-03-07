@@ -1,3 +1,0 @@
-[submodule "doc/wiki"]
-	path = doc/wiki
-	url = git@gitlab.com:ncbipy/entrezpy.wiki.git
