@@ -1,23 +1,23 @@
-# Copyright 2018, 2019 The University of Sydney
-# This file is part of entrezpy.
-#
-#  Entrezpy is free software: you can redistribute it and/or modify it under the
-#  terms of the GNU Lesser General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option) any
-#  later version.
-#
-#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 """
-.. module:: elink_request
+..
+  Copyright 2018, 2019 The University of Sydney
+  This file is part of entrezpy.
+
+  Entrezpy is free software: you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+
+.. module:: entrezpy.elinker.elink_request
   :synopsis:
-    This module is part of entrezpy. It exports the ElinkRequest class
-    for ElinkAnalyzer. It inherits
-    :class:`entrezpy.base.result.EutilsRequest`.
+    Exports ElinkRequest implementing requests from ElinkAnalyzer
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
@@ -48,6 +48,7 @@ class EsearchRequest(entrezpy.base.request.EutilsRequest):
     self.querykey = parameter.querykey
     self.sort = parameter.sort
     self.field = parameter.field
+    self.idtype = parameter.idtype
     self.datetype = parameter.datetype
     self.reldate = parameter.reldate
     self.mindate = parameter.mindate
@@ -80,6 +81,8 @@ class EsearchRequest(entrezpy.base.request.EutilsRequest):
       qry.update({'mindate' : self.mindate})
     if self.maxdate:
       qry.update({'maxdate' : self.maxdate})
+    if self.idtype:
+      qry.update({'idtype' : self.idtype})
     logger.debug(json.dumps({'PreppedRequest':{'id':self.id, 'query-id':self.query_id,
                                               'retstart':self.retstart,'retmax':self.retmax,
                                               'dump':self.dump()}}))
