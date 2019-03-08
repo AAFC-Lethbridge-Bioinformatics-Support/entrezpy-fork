@@ -15,7 +15,7 @@ ESearch
 -------
 
 Esearcher parameters
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 ESearch result
 ~~~~~~~~~~~~~~
@@ -24,7 +24,7 @@ EFetch
 ------
 
 EFetch parameters
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 EFetch result
 ~~~~~~~~~~~~~
@@ -77,8 +77,8 @@ Overall structure
 
 Entrezpy Elinker results are implemented in ElinkerResult. ElinkerResult stores
 Linksets inall received  have the efollowing over structure:
-class Linkset
-`-
+
+
 
 inquire()
 ---------
