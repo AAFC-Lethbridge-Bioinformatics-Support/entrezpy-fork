@@ -55,7 +55,7 @@ class EsearchResult(entrezpy.base.result.EutilsResult):
             'retstart' : self.retstart, 'references' : self.references.dump(),
             'len_uids' : len(self.uids), 'function':self.function}
 
-  def get_link_parameter(self):
+  def get_link_parameter(self, reqnum=0):
     """Assemble follow-up parameters for linking. The first request returns
     all required information, using its querykey.
 
@@ -63,7 +63,7 @@ class EsearchResult(entrezpy.base.result.EutilsResult):
     """
     return {'db' : self.db, 'size' : self.size(), 'id' : self.uids,
             'WebEnv' : self.webenv,
-            'query_key' : self.references.get_querykey(self.webenv, 0)}
+            'query_key' : self.references.get_querykey(self.webenv, reqnum)}
 
 
   def isEmpty(self):

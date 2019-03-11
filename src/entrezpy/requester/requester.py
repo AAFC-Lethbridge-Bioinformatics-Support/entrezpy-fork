@@ -35,7 +35,20 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
 class Requester:
+  """Requester implements the sendong of HTTP POST requests and the receiving
+  of the result. It checks for request connection errors and performs retries
+  when possible. If the maximum number of retries is reached, the request is
+  conisdered failed.  In case of connections errors, abort if the error is not
+  due to timeout. The initial timeout is increased insteps until the maximum
+  timeout has been reached.
 
+  :param float wait: wait time in seconds between requests
+  :param int max_retries: number of rertries before giving up.
+  :param int init_timeout: number of seconds before the initial request is consid
+                           considered a timeout error
+  :param int timeout_max: maximum requet timeout before giving up
+  :param int timeout_steps: increase value for timeout errors
+  """
   def __init__(self, wait, max_retries=9, init_timeout=10, timeout_max=60, timeout_step=5):
     self.wait = wait
     self.max_retries = max_retries
@@ -48,6 +61,11 @@ class Requester:
                                                       'timeout-increase[s]' : self.timeout_step,
                                                       'max-retries' : self.max_retries}}}))
   def request(self, req):
+    """Request the request
+
+    :param req: entrezpy request
+    :type  req: :class:`entrezpy.base.request.EutilsRequest`
+    """
     retries = 0
     success = False
     req_timeout = self.init_timeout

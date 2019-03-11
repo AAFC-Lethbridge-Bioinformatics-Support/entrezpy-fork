@@ -1,32 +1,29 @@
-# Copyright 2018, 2019 The University of Sydney
-# This file is part of entrezpy.
-#
-#  Entrezpy is free software: you can redistribute it and/or modify it under the
-#  terms of the GNU Lesser General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option) any
-#  later version.
-#
-#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 """
+..
+  Copyright 2018, 2019 The University of Sydney
+  This file is part of entrezpy.
+
+  Entrezpy is free software: you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+
 .. module:: entrezpy.elink.elink_parameter
   :synopsis:
-    This module is part of entrezpy. It implements the Elink parameters
-    for NCBI E-Utils queries. It inherits
-    :class:`entrezpy_base.parameter.EutilsParameter`.
+    Exports class ElinkParameters  for NCBI E-Utils queries.
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
 
 
-import io
-import os
 import sys
-import math
 import json
 import logging
 
@@ -92,31 +89,35 @@ class ElinkParameter(entrezpy.base.parameter.EutilsParameter):
     self.check()
     logger.debug(json.dumps({__name__ : {'dump' : self.dump()}}))
 
-  ## Implemented check() function
-  # Testing for required parameters and aborting if they are missing/wrong
-  # When using the history server, elink queries require WebEnv and query_key
   def check(self):
+    """
+    Implements :meth:`entrezpy.base.parameter.check` and aborts if required
+    parameters  are missing.
+    """
     if self.cmd not in ElinkParameter.nodb_cmds and not self.haveDb():
-      logger.error(json.dumps({__name__ : {
-                              'error' : { "Bad parameters" : {"db": self.db, "cmd":self.cmd}},
-                              'action' : 'abort'}}))
+      logger.error(json.dumps({__name__ : {'error' : {'Missing required parameters' : 'db, cmd'},
+                                           'action' : 'abort'}}))
       sys.exit()
-    if self.dbfrom == None:
-      logger.error(json.dumps({__name__ : {
-                              'error' : {'Missing required parameter' : 'dbfrom'},
-                              'action' : 'abort'}}))
+    if not self.dbfrom:
+      logger.error(json.dumps({__name__ : {'error' : {'Missing required parameter' : 'dbfrom'},
+                                           'action' : 'abort'}}))
       sys.exit()
 
     if not self.uids and not self.haveWebenv and not self.haveQuerykey:
-      logger.error(json.dumps({__name__ : {
-                              'error' : {'Missing required parameters': {
-                                          'ids' : self.uids,
-                                          'QueryKey' : self.querykey,
-                                          'WebEnv' : self.webenv}},
-                              'action' : 'abort'}}))
+      logger.error(json.dumps({__name__ : {'error' : {'Missing required parameters' : {
+                                                      'ids' : self.uids,
+                                                      'QueryKey' : self.querykey,
+                                                      'WebEnv' : self.webenv}},
+                                           'action' : 'abort'}}))
       sys.exit()
 
   def set_retmode(self, retmode):
+    """Checks for valid and supported Elink retmodes
+
+    :param str retmode: requested retmode
+    :return: default or cmd adjusted cretmode
+    :rtype: str
+    """
     if retmode == 'ref':
       logger.info(json.dumps({__name__ : "retmode ref not supported. Check documentation." \
                                          "Using {}".format(ElinkParameter.def_retmode)}))
@@ -124,6 +125,9 @@ class ElinkParameter(entrezpy.base.parameter.EutilsParameter):
     return ElinkParameter.retmodes.get(self.cmd, ElinkParameter.def_retmode)
 
   def dump(self):
+    """:return: Instance attributes
+    :rtype: dict
+    """
     return {'db' : self.db,
             'WebEnv':self.webenv,
             'query_key' : self.querykey,

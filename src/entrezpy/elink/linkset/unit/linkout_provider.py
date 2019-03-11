@@ -1,9 +1,26 @@
-#  -------------------------------------------------------------------------------
-#  \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
-#  \copyright 2019 The University of Sydney
-#  \description
-#  -------------------------------------------------------------------------------
+"""
+..
+  Copyright 2018, 2019 The University of Sydney
+  This file is part of entrezpy.
 
+  Entrezpy is free software: you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+
+.. module:: linkout_provider
+   :synopsis: Exports class LinkIn impelementing Elink results for prlinks
+    Elink command.
+
+.. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
+"""
 import entrezpy.elink.linkset.unit.linksetunit
 
 class LinkOutProvider(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
@@ -13,6 +30,11 @@ class LinkOutProvider(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
     return cls(unit)
 
   @staticmethod
+  """COnverts an UrlObj url and  language info in two dicts into single dict
+
+  :param dict urlobj: Elink url JSON result
+  :rtype: dict
+  """
   def set_url(urlobj):
     if not urlobj:
       return None

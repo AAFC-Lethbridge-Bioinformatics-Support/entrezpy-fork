@@ -16,8 +16,7 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: entrezpy.elinker.elink_analyzer
-   :synopsis:
-    Exports the ElinkeAnalzyer class to analyze Elink query results.
+   :synopsis: Exports the ElinkeAnalzyer class to analyze Elink query results.
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """

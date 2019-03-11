@@ -1,22 +1,22 @@
-# Copyright 2018, 2019 The University of Sydney
-# This file is part of entrezpy.
-#
-#  Entrezpy is free software: you can redistribute it and/or modify it under the
-#  terms of the GNU Lesser General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option) any
-#  later version.
-#
-#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 """
-.. module:: linked
-   :synopsis: This module is part of entrezpy. It exports linked Linksets for
-              Elinker() results and handles the required linksetunits. It
-              derives from entrezpy.elink.linkset.bare.LinkSet.
+..
+  Copyright 2018, 2019 The University of Sydney
+  This file is part of entrezpy.
+
+  Entrezpy is free software: you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+
+.. module:: entrezpy.elink.linkset.linked
+   :synopsis: Exports LinkedLinkset class implementing 1-to-many Elink results.
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
@@ -40,6 +40,10 @@ class LinkedLinkset(entrezpy.elink.linkset.bare.LinkSet):
     self.uid = int(uidfrom)
 
   def get_link_uids(self):
+    """Collect UIDs in LinksetUnits
+
+    :rtype: dict
+    """
     link = {}
     for i in self.linkunits:
       if i.db not in link:
@@ -49,7 +53,6 @@ class LinkedLinkset(entrezpy.elink.linkset.bare.LinkSet):
 
   def dump(self):
     """
-      :return: all basis attributes of the instance
       :rtype: dict
     """
     return dict({'uid': self.uid}, **self.base_dump())

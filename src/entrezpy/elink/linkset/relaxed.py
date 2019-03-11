@@ -1,22 +1,23 @@
-# Copyright 2018, 2019 The University of Sydney
-# This file is part of entrezpy.
-#
-#  Entrezpy is free software: you can redistribute it and/or modify it under the
-#  terms of the GNU Lesser General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option) any
-#  later version.
-#
-#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 """
-.. module:: linked
-   :synopsis: This module is part of entrezpy. It exports relaxed Linksets for
-              Elinker() results and handles the required linksetunits. It
-              derives from entrezpy.elink.linkset.bare.LinkSet.
+..
+  Copyright 2018, 2019 The University of Sydney
+  This file is part of entrezpy.
+
+  Entrezpy is free software: you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+
+.. module:: entrezpy.elink.linkset.relaxed
+   :synopsis:
+    Exports RelaxedLinkset class implementing many-to-many Elink results.
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
@@ -39,23 +40,17 @@ class RelaxedLinkset(entrezpy.elink.linkset.bare.LinkSet):
   :type canLink: boolean
   """
   def __init__(self, uidsfrom, dbfrom, canLink=True):
-    """Inits RelaxedLinkset with source UIDs, source database, set
-    :attribute:
-    """
+    """ :attr dict uids: UIDs from source database"""
     super().__init__('relaxed', dbfrom, canLink)
-    self.uids = {int(x) : 0 for x in uidsfrom} #: UIDs linking from, dict
+    self.uids = {int(x) : 0 for x in uidsfrom}
 
 
   def get_link_uids(self):
-    """Return list of source UIDs
-
-      :return: UIDs form target database
-      :rtype: list
+    """:return: UIDs form target database
+       :rtype: list
     """
     return [x.uids for x in self.linkunits]
 
   def dump(self):
-    """
-      :return: dict -- all basis attributes of the instance
-    """
+    """:return: dict -- all basis attributes of the instance"""
     return dict({'uids': [x for x in self.uids]}, **self.base_dump())

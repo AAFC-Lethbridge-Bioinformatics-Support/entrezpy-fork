@@ -15,8 +15,7 @@
  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: bare
-   :synopsis: This module is part of entrezpy. It exports the bare Linkset for
-              Elinker() results and handles the required linksetunits.
+   :synopsis: Exports the base LinkSet class for Elinker() results.
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
@@ -78,7 +77,10 @@ class LinkSet:
 
   @staticmethod
   def new_unit(elink_cmd):
-    """ Return reference to class implementing ELink command result unit."""
+    """ Returns class reference implementing ELink command result unit.
+
+    :param str elink_cmd: Elink command
+    """
     if elink_cmd in LinkSet.link_linksets:
       return LinkSet.link_linksets[elink_cmd]
     if elink_cmd in LinkSet.list_linksets:
@@ -94,13 +96,20 @@ class LinkSet:
     self.canLink = canLink
 
   def add_linkunit(self, lsetunit):
-    """Store populated :class:`entrezpy.elink.linkset.unit.LinksetUnit`"""
+    """:param lsetunit: populated Linkset unit
+       :type  lsetunit: :class:`entrezpy.elink.linkset.unit.LinksetUnit
+    """
     self.linkunits.append(lsetunit)
 
   def size(self):
+    """:rtype: int"""
     return len(self.linkunits)
 
   def base_dump(self):
+    """Dump common instance attributes
+
+    :rtype: dict
+    """
     return {'dbfrom' : self.db, 'category' : self.category,
             'size' : self.size(), 'linkunits' : [x.dump() for x in self.linkunits]}
 
