@@ -1,9 +1,25 @@
-#-------------------------------------------------------------------------------
-#  \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
-#  \copyright 2017, 2018 The University of Sydney
-#  \description:
-#-------------------------------------------------------------------------------
+"""
+..
+  Copyright 2018, 2019 The University of Sydney
+  This file is part of entrezpy.
 
+  Entrezpy is free software: you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+
+.. module:: entrezpy.requester.requester
+  :synopsis: Exports class Requester handling HTTP requests for entrezpy.
+
+.. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
+"""
 import sys
 import random
 import json
@@ -58,9 +74,9 @@ class Requester:
         wait = random.randint(1, 3)
       except urllib.error.URLError as url_err:
         req.set_request_error(url_err.reason)
-        logger.debug(json.dumps({__name__ : {'Request-error' : {'URL-error' :
-                                                                {'reason' : url_err.reason,
-                                                                 'action' : 'retry'}}}}))
+        print(url_err.reason)
+        logger.debug(json.dumps({__name__ : {'Request-error' : {'URL-error' : url_err.reason,
+                                                                'action' : 'retry'}}}))
         retries += 1
         wait = random.randint(1, 3)
       except socket.timeout:
