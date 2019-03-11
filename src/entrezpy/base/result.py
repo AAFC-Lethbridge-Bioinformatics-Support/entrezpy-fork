@@ -62,9 +62,11 @@ class EutilsResult:
     :raises NotImplementedError: if implementation is missing"""
     raise NotImplementedError("Help! Require implementation")
 
-  def get_link_parameter(self):
-    """Assembles parameters for automated follow-ups.
+  def get_link_parameter(self, reqnum=0):
+    """Assembles parameters for automated follow-ups. Use the query key from
+    the first request by default.
 
+    :param int reqnum: request number for which query_key should be returned
     :return: EUtils parameters
     :rtype: dict
     :raises NotImplementedError: if implementation is missing"""

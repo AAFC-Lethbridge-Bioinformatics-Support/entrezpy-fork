@@ -183,3 +183,20 @@ class EutilsAnalyzer:
     :rtype: :class:`entrezpy.base.result.EutilsResult`
     """
     return self.result
+
+  def follow_up(self):
+    """Return follow-up parameters if available
+
+    :return: Follow-up parameters
+    :rtype: dict
+    """
+    return self.result.get_link_parameter()
+
+  def isEmpty(self):
+    """Test for empty result
+
+    :rtype: bool
+    """
+    if self.result.size() == 0:
+      return True
+    return False

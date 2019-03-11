@@ -1,23 +1,23 @@
-# Copyright 2018, 2019 The University of Sydney
-# This file is part of entrezpy.
-#
-#  Entrezpy is free software: you can redistribute it and/or modify it under the
-#  terms of the GNU Lesser General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option) any
-#  later version.
-#
-#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 """
+..
+  Copyright 2018, 2019 The University of Sydney
+  This file is part of entrezpy.
+
+  Entrezpy is free software: you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+
 .. module:: entrezpy.esearch.esearch_parameter
   :synopsis:
-    This module is part of entrezpy. It implements the Esearch parameters
-    for NCBI E-Utils queries. It inherits
-    :class:`entrezpy_base.parameter.EutilsParameter`.
+    Export EsearchParameter for NCBI E-Utils Esearch  queries
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
@@ -65,7 +65,37 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
     self.reldate = parameter.get('reldate')
     self.mindate = parameter.get('mindate')
     self.maxdate = parameter.get('maxdate')
+    self.idtype = parameter.get('idtype')
     self.check()
+
+  def goodDateparam(self):
+    """Check for good paraeters wehn using date
+
+    :rtype: bool
+    """
+    useDate = False
+    if self.useMinMaxDate():
+      if self.reldate:
+        logger.error(json.dumps({__name__: {'Error' : 'Cannot use reldate and Min/Max dates'}}))
+        return False
+      useDate = True
+    if self.reldate:
+      useDate = True
+    if useDate and (not self.datetype):
+      logger.error(json.dumps({__name__: {'Error' : 'Require datetype with dates'}}))
+      return False
+    return True
+
+  def useMinMaxDate(self):
+    """Maxdate and mindate are required together
+
+    :rtype: bool
+    """
+    if self.mindate or self.maxdate: # Intend to use max/min dates
+      if self.mindate and self.maxdate: # Require both
+        return True
+      logger.error(json.dumps({__name__: {'Error' : 'Require mindate and maxdate'}}))
+    return False
 
   def set_uilist(self, rettype):
     """Set rettype parameter to mimic rettype options for XML
@@ -117,6 +147,9 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
                                                     {'expected requests' : self.expected_requests},
                                                     'action' : 'abort'}})))
 
+    if not self.goodDateparam():
+      sys.exit(logger.error(json.dumps({__name__ : {'Error' : 'Bad date parameters',
+                                                    'action' : 'abort'}})))
 
     if not self.term and not self.webenv:
       sys.exit(logger.error(json.dumps({__name__:{'Error': {'Missing  parameters' : 'term, WebEnv'},

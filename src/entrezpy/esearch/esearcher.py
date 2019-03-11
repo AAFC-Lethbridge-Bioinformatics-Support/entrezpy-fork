@@ -1,22 +1,23 @@
-# Copyright 2018, 2019 The University of Sydney
-# This file is part of entrezpy.
-#
-#  Entrezpy is free software: you can redistribute it and/or modify it under the
-#  terms of the GNU Lesser General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option) any
-#  later version.
-#
-#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 """
-.. module:: esearcher
-   :synopsis: This module is part of entrezpy. It exports the Esearcher class
-              implementing Esearch queries. It inherits
-              :class:`entrezpy.base.query.EutilsQuerys`
+..
+  Copyright 2018, 2019 The University of Sydney
+  This file is part of entrezpy.
+
+  Entrezpy is free software: you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+
+.. module:: entrezpy.esearch.esearcher
+   :synopsis: Exports class Esearcher implementing Esearch queries
+
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
 
@@ -150,7 +151,6 @@ def configure_follow_up(parameter, analyzer):
     parameter.query_size = parameter.limit
   parameter.webenv = analyzer.reference().webenv
   parameter.querykey = analyzer.reference().querykeys[0]
-  #parameter.retstart = analyzer.size()
   parameter.calculate_expected_requests()
   parameter.check()
   return parameter
@@ -158,6 +158,8 @@ def configure_follow_up(parameter, analyzer):
 def reachedLimit(parameter, analyzer):
   """Checks if the set limit has been reached"""
   if not parameter.limit:
+    if analyzer.query_size() <= analyzer.size():
+      return True
     return False
   if analyzer.query_size() <= parameter.limit:
     return True
