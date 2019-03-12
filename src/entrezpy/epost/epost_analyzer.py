@@ -1,22 +1,23 @@
-# Copyright 2018, 2019 The University of Sydney
-# This file is part of entrezpy.
-#
-#  Entrezpy is free software: you can redistribute it and/or modify it under the
-#  terms of the GNU Lesser General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option) any
-#  later version.
-#
-#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 """
-.. module:: epost_analyzer
-   :synopsis: This module is part of entrezpy. It exports the EpostAnalzyer
-              class implementing the analysis of Epost query results.
-              It inherits :class`entrezpy.base.query.EutilsAnalyzer`.
+..
+  Copyright 2018, 2019 The University of Sydney
+  This file is part of entrezpy.
+
+  Entrezpy is free software: you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+
+.. module:: entrezpy.epost.epost_analyzer
+  :synopsis: Exports class EpostAnalzyer implementing the analysis of Epost
+    query results.
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
@@ -28,6 +29,7 @@ import xml.etree.ElementTree
 
 import entrezpy.base.analyzer
 import entrezpy.epost.epost_result
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -46,14 +48,14 @@ class EpostAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
     super().__init__()
 
   def init_result(self, response, request):
-    """Implements :meth:`entrezpy.base.result.EutilsAnalyzer.init_result` and
+    """Implements :meth:`entrezpy.base.analyzer.EutilsAnalyzer.init_result` and
        inits :class:`entrezpy.epost.epost_result.EpostResult`.
     """
     if not self.result:
-      self.result = entrezpy.epost.epost_result.EpostResult(response,request)
+      self.result = entrezpy.epost.epost_result.EpostResult(response, request)
 
   def analyze_result(self, response, request):
-    """Implements :meth:`entrezpy.base.result.EutilsAnalyzer.analyze_result`.
+    """Implements :meth:`entrezpy.base.analyzer.EutilsAnalyzer.analyze_result`.
       The response is one WebEnv and QueryKey and the result can be initiated
       after parsing them.
 
@@ -70,7 +72,7 @@ class EpostAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
     self.init_result(epost_res, request)
 
   def analyze_error(self, response, request):
-    """Implements :meth:`entrezpy.base.result.EutilsAnalyzer.analyze_error`.
+    """Implements :meth:`entrezpy.base.analyzer.EutilsAnalyzer.analyze_error`.
 
       :param response: EUtils response
       :param request: entrezpy request

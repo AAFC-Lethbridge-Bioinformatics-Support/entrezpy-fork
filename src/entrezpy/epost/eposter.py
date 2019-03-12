@@ -1,22 +1,23 @@
-# Copyright 2018, 2019 The University of Sydney
-# This file is part of entrezpy.
-#
-#  Entrezpy is free software: you can redistribute it and/or modify it under the
-#  terms of the GNU Lesser General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option) any
-#  later version.
-#
-#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 """
+..
+  Copyright 2018, 2019 The University of Sydney
+  This file is part of entrezpy.
+
+  Entrezpy is free software: you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+
 .. module:: eposter
-   :synopsis: This module is part of entrezpy. It exports the Eposter class
-              implementing Epost queries. It inherits
-              :class:`entrezpy.base.query.EutilsQuerys`
+   :synopsis: Exports the Eposter class implementing Epost queries.
+
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
 
@@ -36,10 +37,8 @@ logger.addHandler(logging.StreamHandler())
 
 
 class Eposter(entrezpy.base.query.EutilsQuery):
-  """Eposter implements Epost queries to E-Utilities [0]
-  It implements :meth:`entrezpy.base.query.inquire` and
-  :meth:`entrezpy.base.query.inquire`.  EPost posts UIDs to the history server.
-  Without passed WebEnv, a new WebEnv and correspndong QueryKey are returned.
+  """Eposter implements Epost queries to E-Utilities [0]. EPost posts UIDs to
+  the history server. Without passed WebEnv, a new WebEnv and correspndong QueryKey are returned.
   With a given WebEvn the posted UIDs will be added to this WebEnv and the
   corresponding QueryKey is returned. All parameters described in [0] are
   acccepted.
