@@ -43,28 +43,26 @@ class EsearchResult(entrezpy.base.result.EutilsResult):
     self.retmax = int(response.pop('retmax'))
     self.retstart = int(response.pop('retstart'))
     self.uids = response.pop('idlist', [])
-    print(self.dump())
 
   def dump(self):
     """Dumps instance attributes
 
     :rtype: dict
     """
-    return {'db':self.db, 'count' : self.count, 'uid' : self.uids,
-            'retmax' : self.retmax,
-            'retstart' : self.retstart, 'references' : self.references.dump(),
-            'len_uids' : len(self.uids), 'function':self.function}
+    return {'db':self.db, 'count' : self.count, 'len_uids' : len(self.uids),
+            'uid' : self.uids, 'retmax' : self.retmax, 'function':self.function,
+            'retstart' : self.retstart, 'references' : self.references.dump()}
 
   def get_link_parameter(self, reqnum=0):
     """Assemble follow-up parameters for linking. The first request returns
-    all required information, using its querykey.
+    all required information and using its querykey in such a case.
 
     :rtype: dict
     """
-    return {'db' : self.db, 'size' : self.size(), 'id' : self.uids,
-            'WebEnv' : self.webenv,
+    if self.uids:
+      return {'db' : self.db, 'id' : self.uids}
+    return {'db' : self.db, 'WebEnv' : self.webenv,
             'query_key' : self.references.get_querykey(self.webenv, reqnum)}
-
 
   def isEmpty(self):
     """Empty search result has no webenv/querykey and/or no fetched UIDs"""
@@ -82,7 +80,7 @@ class EsearchResult(entrezpy.base.result.EutilsResult):
     return len(self.uids)
 
   def query_size(self):
-    """Get number of query, i.e. all expected UIDs
+    """Get number of all UIDs for search (count)
 
     :rtype: int
     """

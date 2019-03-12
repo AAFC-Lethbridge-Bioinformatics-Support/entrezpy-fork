@@ -15,9 +15,9 @@
   You should have received a copy of the GNU General Public License
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
-.. module:: entrezpy.elinker.elink_request
-  :synopsis:
-    Exports ElinkRequest implementing requests from ElinkAnalyzer
+.. module:: entrezpy.esearch.esearch_request
+  :synopsis: Exports class SearchRequest implementing individual requests from
+    :class:`entrezpy.esearch.esearch_query.EsearchQuery`
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
@@ -30,18 +30,29 @@ import entrezpy.base.request
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
 
 class EsearchRequest(entrezpy.base.request.EutilsRequest):
+  """The EsearchRequest class implements a single request as part of a Esearch
+  query. It stores and prepares the parameters for a single request.
+  See :class:`entrezpy.elink.elink_parameter.ElinkParameter` for parameter
+  description. Requests sizes are congifured from setting a start, i.e. the
+  index of the first UID to fetch, and its size, i.e. how many to fetch.
+  These are set by :meth:`entrezpy.esearch.esearch_query.Esearcher.inquire`.
 
+  :param parameter: request parameter
+  :param type: :class:`entrezpy.elink.elink_parameter.ElinkParameter`
+  :param int start: number of first UID to fetch
+  :param int size: requets size
+  """
   def __init__(self, parameter, start, size):
     super().__init__('esearch', parameter.db)
     self.id = None
-    self.term = parameter.term
     self.retstart = start
     self.retmax = size
+    self.term = parameter.term
     self.retmode = parameter.retmode
     self.usehistory = parameter.usehistory
     self.webenv = parameter.webenv
@@ -53,16 +64,21 @@ class EsearchRequest(entrezpy.base.request.EutilsRequest):
     self.reldate = parameter.reldate
     self.mindate = parameter.mindate
     self.maxdate = parameter.maxdate
-    logger.debug(json.dumps({'NewRequest':{'id':self.id,
-                                           'query-id':self.query_id,
-                                           'retstart':self.retstart,
-                                           'retmax':self.retmax}}))
+    logger.debug(json.dumps({__name__ : {'Init': {'id':self.id,
+                                                  'query-id':self.query_id,
+                                                  'retstart':self.retstart,
+                                                  'retmax':self.retmax}}}))
 
   def get_post_parameter(self):
-    qry = self.prepare_base_qry(extend={'term' : self.term,
-                                        'retmax' : self.retmax,
-                                        'retstart' : self.retstart,
-                                        'retmode' : self.retmode})
+    qry = self.prepare_base_qry()
+    if self.term:
+      qry.update({'term' : self.term})
+    if self.retmax or self.retmax == 0:
+      qry.update({'retmax' : self.retmax})
+    if self.retstart:
+      qry.update({'retstart' : self.retstart})
+    if self.retmode:
+      qry.update({'retmode' : self.retmode})
     if self.usehistory:
       qry.update({'usehistory' : 'y'})
     if self.webenv:
@@ -83,12 +99,13 @@ class EsearchRequest(entrezpy.base.request.EutilsRequest):
       qry.update({'maxdate' : self.maxdate})
     if self.idtype:
       qry.update({'idtype' : self.idtype})
-    logger.debug(json.dumps({'PreppedRequest':{'id':self.id, 'query-id':self.query_id,
-                                              'retstart':self.retstart,'retmax':self.retmax,
-                                              'dump':self.dump()}}))
+    logger.debug(json.dumps({__name__ : {'POST' : {'id':self.id,
+                                                   'query-id':self.query_id,
+                                                   'dump':self.dump()}}}))
     return qry
 
   def dump(self):
+    """:rtype: dict"""
     return self.dump_internals({'retmax' : self.retmax,
                                 'retstart' : self.retstart,
                                 'retmode' : self.retmode,

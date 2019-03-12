@@ -51,11 +51,10 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
 
   def __init__(self, parameter):
     super().__init__(parameter)
-    self.query_size = None
     self.retmode = 'json'
     self.uilist = self.set_uilist(parameter.get('rettype'))
-    self.limit = parameter.get('limit', None)
-    self.retmax = self.adjust_retmax(int(parameter.get('retmax', MAX_REQUEST_SIZE)))
+    self.retmax = self.adjust_retmax(parameter.get('retmax'))
+    self.reqsize = self.adjust_reqsize(int(parameter.get('reqsize', MAX_REQUEST_SIZE)))
     self.retstart = int(parameter.get('retstart', 0))
     self.usehistory = parameter.get('usehistory', True)
     self.term = parameter.get('term')
@@ -107,7 +106,7 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
     return False
 
   def adjust_retmax(self, retmax):
-    """Adjusts retmax parameter
+    """Adjusts retmax parameter. Order of check is crucial.
 
     :param int retmax: retmax value
     :return: adjusted retmax
@@ -115,11 +114,19 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
     """
     if not self.uilist:
       return 0
-    if retmax > MAX_REQUEST_SIZE:
-      return MAX_REQUEST_SIZE
-    if self.limit and (self.limit <= retmax):
-      return self.limit
-    return retmax
+    if retmax is None:
+      return None
+    if int(retmax) == 0:
+      return 0
+    return int(retmax)
+
+  def adjust_reqsize(self, request_size):
+    """Adjusts request size for low retmax"""
+    if self.retmax is None:
+      return request_size
+    if self.retmax < request_size:
+      return self.retmax
+    return request_size
 
   def calculate_expected_requests(self, qsize=None, reqsize=None):
     """Calculate anf set the expected number of requests. Uses internal
@@ -129,9 +136,9 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
     :param int reqsize: number of data sets  to fetch in one request
     """
     if not qsize:
-      qsize = self.query_size
+      qsize = self.retmax
     if not reqsize:
-      reqsize = self.retmax
+      reqsize = MAX_REQUEST_SIZE
     self.expected_requests = math.ceil(qsize / reqsize)
 
   def check(self):
@@ -161,5 +168,5 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
             'uilist': self.uilist, 'retmax': self.retmax, 'retstart': self.retstart,
             'sort' : self.sort, 'field' : self.field, 'datetype' : self.datetype,
             'reldate' : self.reldate, 'mindate' : self.mindate, 'maxdate' : self.maxdate,
-            'expected_requsts' : self.expected_requests, 'query_size' : self.query_size,
-            'max_request_size' : MAX_REQUEST_SIZE}
+            'expected_requsts' : self.expected_requests,
+            'request_size' : self.reqsize, 'max_request_size' : MAX_REQUEST_SIZE}

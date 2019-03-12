@@ -1,18 +1,20 @@
-# Copyright 2018, 2019 The University of Sydney
-# This file is part of entrezpy.
-#
-#  Entrezpy is free software: you can redistribute it and/or modify it under the
-#  terms of the GNU Lesser General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option) any
-#  later version.
-#
-#  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 """
+..
+  Copyright 2018, 2019 The University of Sydney
+  This file is part of entrezpy.
+
+  Entrezpy is free software: you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+
 .. module:: entrezpy.esearch.esearch_analyzer
    :synopsis: This module is part of entrezpy. It exports the EsearchAnalzyer
               class implementing the analysis of Esearch query results.
@@ -100,3 +102,11 @@ class EsearchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
     :rtype: :class:`entrezpy.base.referencer.EutilReferencer.Reference`
     """
     return self.result.references.get_reference(self.result.webenv)
+
+  def adjust_followup(self, parameter):
+    """Adjust result attributes due to follow-up.
+
+    :param parameter: Esearch parameter
+    :param type: :class:`entrezpy.esearch.esearch_parameter.EsearchParameter`
+    """
+    self.result.retmax = parameter.retmax

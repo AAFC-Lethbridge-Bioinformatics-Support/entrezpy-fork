@@ -66,24 +66,25 @@ class Esearcher(entrezpy.base.query.EutilsQuery):
       if not analyzer.isSuccess():
         return None
       return analyzer
+    self.monitor_update(follow_up)
     logger.debug(json.dumps({__name__:{'Follow-up': follow_up.dump()}}))
-    req_size = follow_up.retmax
+    req_size = follow_up.reqsize
     for i in range(1, follow_up.expected_requests):
-      if (i * req_size + req_size) > follow_up.query_size:
+      if (i * req_size + req_size) > follow_up.retmax:
         logger.debug(json.dumps({__name__:{'adjust-reqsize':
                                            {'request' : i,
-                                            'start' : (i*follow_up.retmax),
+                                            'start' : (i*follow_up.reqsize),
                                             'end' : i*req_size+req_size,
-                                            'query_size' : follow_up.query_size,
-                                            'adjusted-reqsize' : follow_up.query_size%req_size}}}))
-        req_size = follow_up.query_size % req_size
+                                            'query_size' : follow_up.reqsize,
+                                            'adjusted-reqsize' : follow_up.retmax%req_size}}}))
+        req_size = follow_up.retmax % req_size
       logger.debug(json.dumps({__name__:{'request':i,
                                          'expected':follow_up.expected_requests,
-                                         'start':(i*follow_up.retmax),
-                                         'end':(i*follow_up.retmax)+req_size,
+                                         'start':(i*follow_up.reqsize),
+                                         'end':(i*follow_up.reqsize)+req_size,
                                          'reqsize':req_size}}))
       self.add_request(entrezpy.esearch.esearch_request.EsearchRequest(follow_up,
-                                                                       (i*follow_up.retmax),
+                                                                       (i*follow_up.reqsize),
                                                                        req_size), analyzer)
     self.request_pool.drain()
     self.monitor_stop()
@@ -99,13 +100,12 @@ class Esearcher(entrezpy.base.query.EutilsQuery):
     :type  parameter: :class:`entrezpy.esearch.esearch_parameter.EsearchParamater`
     :param analyzer: Esearch analyzer instance
     :type  analyzer: :class:`entrezpy.esearch.esearch_analyzer.EsearchAnalyzer`
-
     :return: follow-up parameter or None
     :rtype: :class:`entrezpy.esearch.esearch_parameter.EsearchParamater` or None
     """
     self.add_request(entrezpy.esearch.esearch_request.EsearchRequest(parameter,
                                                                      parameter.retstart,
-                                                                     parameter.retmax), analyzer)
+                                                                     parameter.reqsize), analyzer)
     self.request_pool.drain()
     if self.check_requests() != 0:
       logger.info(json.dumps({__name__: {'Request-Error': 'inital search'}}))
@@ -114,6 +114,8 @@ class Esearcher(entrezpy.base.query.EutilsQuery):
       logger.info(json.dumps({__name__: {'Response-Error': 'inital search'}}))
       return None
     if not parameter.uilist: # we care only about count
+      return None
+    if parameter.retmax == 0: # synonym for uilist
       return None
     if reachedLimit(parameter, analyzer):# reached limit in first search
       return None
@@ -145,22 +147,25 @@ def configure_follow_up(parameter, analyzer):
   :type  result: :class:`entrezpy.search.esearch_parameter.EsearchParameter`
   """
 
-  #parameter.term = None
-  parameter.query_size = analyzer.query_size()
-  if parameter.limit:
-    parameter.query_size = parameter.limit
+  parameter.term = None
+  if not parameter.retmax:
+    parameter.retmax = analyzer.query_size()
+  analyzer.adjust_followup(parameter)
   parameter.webenv = analyzer.reference().webenv
   parameter.querykey = analyzer.reference().querykeys[0]
-  parameter.calculate_expected_requests()
+  parameter.calculate_expected_requests(reqsize=parameter.reqsize)
   parameter.check()
   return parameter
 
 def reachedLimit(parameter, analyzer):
-  """Checks if the set limit has been reached"""
-  if not parameter.limit:
-    if analyzer.query_size() <= analyzer.size():
-      return True
+  """Checks if the set limit has been reached
+
+  :rtype: bool
+  """
+  if not parameter.retmax:  # We have no limit
     return False
-  if analyzer.query_size() <= parameter.limit:
+  if analyzer.query_size() <= analyzer.size(): # fetched all UIDs
+    return True
+  if analyzer.size() == parameter.retmax: # Fetched limit set by retmax
     return True
   return False

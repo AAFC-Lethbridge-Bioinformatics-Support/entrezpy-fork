@@ -91,16 +91,17 @@ def main():
   args = ap.parse_args()
   examples = [
     {'db':'nucleotide','term':'viruses[orgn]', 'rettype':'count'},
-    #{'db':'nucleotide','term':'viruses[orgn]', 'limit': 1,},
-    #{'db':'nucleotide','term':'viruses[orgn]', 'limit': 110000,},
-    #{'db':'nucleotide','term':'viruses[orgn]', 'limit': 100, 'retmax' : 99, 'idtype' : 'acc'},
-    #{'db':'pubmed','term':'cancer','reldate':60,'datetype':'edat','retmax':89, 'limit': 120, 'usehistory':True},
-    #{'db':'pubmed','term':'PNAS[ta] AND 97[vi]', 'retstart':6, 'retmax': 6},
-    #{'db':'nlmcatalog','term':'obstetrics AND ncbijournals[filter]', 'retmax':20},
-    #{'db':'pmc','term':'stem cells AND free fulltext[filter]'},
-    #{'db':'nucleotide','term':'biomol trna', 'field':'prop', 'mindate': 1982, 'maxdate':2017}, # Empty result
-    #{'db':'nucleotide','term':'biomol trna', 'field':'prop', 'sort' : 'Date Released', 'mindate': 2018, 'maxdate':2019, 'datetype' : 'pdat'},
-    #{'db':'protein','term':'70000:90000[molecular weight]', 'retmax':20}
+    {'db':'nucleotide','term':'viruses[orgn]'},
+    {'db':'nucleotide','term':'viruses[orgn]', 'retmax': 110000},
+    {'db':'nucleotide','term':'viruses[orgn]', 'retmax': 0},
+    {'db':'nucleotide','term':'viruses[orgn]', 'reqsize': 100, 'retmax' : 99, 'idtype' : 'acc'},
+    {'db':'pubmed','term':'cancer','reldate':60,'datetype':'edat','retmax':89, 'usehistory':True},
+    {'db':'pubmed','term':'PNAS[ta] AND 97[vi]', 'retstart':6, 'retmax': 6},
+    {'db':'nlmcatalog','term':'obstetrics AND ncbijournals[filter]', 'retmax':20},
+    {'db':'pmc','term':'stem cells AND free fulltext[filter]'},
+    {'db':'nucleotide','term':'biomol trna', 'field':'prop', 'mindate': 1982, 'maxdate':2017}, # Parameter Fail
+    {'db':'nucleotide','term':'biomol trna', 'field':'prop', 'sort' : 'Date Released', 'mindate': 2018, 'maxdate':2019, 'datetype' : 'pdat'},
+    {'db':'protein','term':'70000:90000[molecular weight]', 'retmax':20}
     ]
 
   def check_uid_uniqeness(result):
@@ -131,14 +132,15 @@ def main():
     print("\tResponse OK")
     if a.isEmpty():
       print("+++\tWARNING: No results for example {}".format(i))
-    else:
-      print("+++\tStart dumping results\n+++%%%\t{}".format(json.dumps(a.get_result().dump())))
-      if check_uid_uniqeness(a.get_result()):
-        print("+++\tFetched all request UIDs ({}):\n\t{}".format(len(a.get_result().uids),
-                                                            ','.join(str(x) for x in a.get_result().uids)))
-        print("+++\tFollow-up parameters:\n+++\t\t{}".format(a.follow_up()))
-      print("+++\tEnd  Results")
-    print("+++\tQuery time: {} sec".format(time.time()-qrystart))
+    print("+++\tStart dumping results\n+++%%%\t{}".format(json.dumps(a.get_result().dump())))
+    if check_uid_uniqeness(a.get_result()):
+      if a.get_result().retmax == a.result.size():
+        print("+++\tRequest OK")
+      else:
+        print("+++\tRequest failed")
+      print("+++\tFetched UIDs ({}):\n\t{}".format(a.result.size(), ','.join(str(x) for x in a.get_result().uids)))
+      print("+++\tFollow-up parameters:\n+++\t\t{}".format(a.follow_up()))
+    print("+++\tEnd  Results\n+++\tQuery time: {} sec".format(time.time()-qrystart))
   print("+Total time: {} sec".format(time.time()-start))
   return 0
 
