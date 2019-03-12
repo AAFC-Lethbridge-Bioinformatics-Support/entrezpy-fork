@@ -1,6 +1,7 @@
 """
- Copyright 2018, 2019 The University of Sydney
- This file is part of entrezpy.
+..
+  Copyright 2018, 2019 The University of Sydney
+  This file is part of entrezpy.
 
   Entrezpy is free software: you can redistribute it and/or modify it under the
   terms of the GNU Lesser General Public License as published by the Free
@@ -11,11 +12,11 @@
   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: bare
-   :synopsis: Exports the base LinkSet class for Elinker() results.
+  :synopsis: Exports the base LinkSet class for Elinker() results.
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
@@ -56,17 +57,14 @@ class LinkSet:
     are concatenated by commas, i.e. id=19880848,19822630. This can be forced
     by setting the Elinker parameter 'linked' to False.
 
-  :param category: LinKSet category
-  :type category: str
-  :param dbfrom: name of database to link from
-  :type dbfrom: str
-  :param canLink: linkunits can be used for automated follow-up parameter
-  :type canLink: boolean
+  :param str category: LinKSet category
+  :param str dbfrom: name of database to link from
+  :param bool canLink: linkunits can be used for automated follow-up parameter
   """
 
-  link_linksets = {'neighbor' : neighbor.NeighborLinksetUnit,
-                   'neighbor_score' : neighbor_score.NeighborScoreLinkset,
-                   'neighbor_history' : neighbor_history.NeighborHistoryLinkset}
+  link_linksets = {'neighbor' : neighbor.Neighbor,
+                   'neighbor_score' : neighbor_score.NeighborScore,
+                   'neighbor_history' : neighbor_history.NeighborHistory}
 
   list_linksets = {'acheck' : linklist.LinkList,
                    'ncheck' : linkin.LinkIn,
@@ -88,8 +86,11 @@ class LinkSet:
     return None
 
   def __init__(self, category, dbfrom, canLink):
-    """Initiating a LinkSet with category, source database, and inidcate ability
-      to generate automated follow-up parameters."""
+    """The class LinkSet represent a Elink result. One Elink results corresponds
+    to one Elink unit.
+
+    :ivar list linkunits: storage for individual Elink results
+    """
     self.category = category
     self.db = dbfrom
     self.linkunits = []

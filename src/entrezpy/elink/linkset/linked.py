@@ -52,7 +52,5 @@ class LinkedLinkset(entrezpy.elink.linkset.bare.LinkSet):
     return link
 
   def dump(self):
-    """
-      :rtype: dict
-    """
+    """:rtype: dict"""
     return dict({'uid': self.uid}, **self.base_dump())

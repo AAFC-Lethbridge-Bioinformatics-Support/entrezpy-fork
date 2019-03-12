@@ -16,7 +16,7 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: linksetunit
-   :synopsis: Exports class LinksetUnit implementing result units for LinkSet().
+  :synopsis: Exports class LinksetUnit implementing result units for LinkSet().
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
@@ -33,22 +33,26 @@ class LinksetUnit:
   :param str dbto: name of linked database
   :param str linkname: linkname
   """
+
   def __init__(self, dbto, linkname):
     """Inits LinksetUnit instance with the linked database name and linkname
+
     :attribute str dbto: name of target database
+    :attribute str linkname: ELink linkname
     """
     self.db = dbto
     self.linkname = linkname
 
   def dump(self):
-    """ Virtual function to dump attributes in derived instances.
+    """Virtual function to dump attributes in derived instances.
 
-      :return: dict -- all attributes of LinksetUnit instance
+      :return: all LinksetUnit instance attributes
+      :rtype: dict
     """
     raise NotImplementedError()
 
   def basic_dump(self):
-    """
-      :return: dict -- all basis attributes of LinksetUnit instance
+    """:return: basis attributes of LinksetUnit instance
+       :rtype: dict
     """
     return {'dbto' : self.db, 'linkname' : self.linkname}

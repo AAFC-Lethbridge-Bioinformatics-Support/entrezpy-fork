@@ -16,26 +16,37 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: linkout_provider
-   :synopsis: Exports class LinkIn impelementing Elink results for prlinks
-    Elink command.
+  :synopsis: Exports class LinkIn implementing Elink results from the Elink
+    `prlinks` command.
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
+
+
 import entrezpy.elink.linkset.unit.linksetunit
 
-class LinkOutProvider(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
 
+class LinkOutProvider(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
+  """The `LinkOutProvider` class represents a result from the Elink command
+  `prlinks`
+
+  :param dict unit: collected information for one linkout provider
+  """
   @classmethod
   def new(cls, unit):
+    """Returns new instance.
+
+    :rtype: `entrezpy.elink.linkset.unit.linksetunit.linkin.LinkIn`
+    """
     return cls(unit)
 
   @staticmethod
-  """COnverts an UrlObj url and  language info in two dicts into single dict
-
-  :param dict urlobj: Elink url JSON result
-  :rtype: dict
-  """
   def set_url(urlobj):
+    """Converts an UrlObj url and  language info in two dicts into single dict
+
+    :param dict urlobj: Elink url JSON result
+    :rtype: dict
+    """
     if not urlobj:
       return None
     url = urlobj.pop('value', None)
@@ -45,7 +56,10 @@ class LinkOutProvider(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
 
 
   class Provider:
+    """Provider implements the provider information providded in the results
 
+    :param dict provider_obj: provider information
+    """
     def __init__(self, provider_obj):
       self.id = int(provider_obj.pop('id'))
       self.name = provider_obj.pop('name', None)
@@ -53,6 +67,7 @@ class LinkOutProvider(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
       self.url = LinkOutProvider.set_url(provider_obj.pop('url', None))
 
     def dump(self):
+      """:rtype: dict"""
       return {'id' : self.id, 'name' : self.name, 'nameabbr' : self.nameabbr, 'url' : self.url}
 
   def __init__(self, unit):
@@ -62,9 +77,10 @@ class LinkOutProvider(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
     self.subjecttypes = unit.pop('subjecttypes', None)
     self.categories = unit.pop('categories', None)
     self.attributes = unit.pop('attributes', None)
-    self.provider  = self.Provider(unit.pop('provider', None))
+    self.provider = self.Provider(unit.pop('provider', None))
 
   def dump(self):
-    return dict({ 'iconurl' : self.iconurl, 'subjecttypes':self.subjecttypes,
-                  'categories' : self.categories, 'attributes' : self.attributes,
-                  'provider' : self.provider.dump()}, **self.basic_dump())
+    """:return: dict"""
+    return dict({'iconurl' : self.iconurl, 'provider' : self.provider.dump(),
+                 'categories' : self.categories, 'attributes' : self.attributes,
+                 'subjecttypes' : self.subjecttypes, }, **self.basic_dump())

@@ -50,11 +50,14 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
   :class:`relaxed.Linkset` instances, depending on the request Elink result.
   :func:`entrezpy.elink.linkset.bare.Linkset.new_unit` is called to set the
   type of LinkSet unit based ont he used Elink command.
+
+  .. warning:: Expect for 'llinkslib', all responses are expected in JSON.
+                 ElinkAnalyzer will abort if a response from another command is
+                 not in JSON.
   """
+
   def __init__(self):
-    """
-    :ivar result: :class:`entrezpy.elink.elink_result.ElinkResult` instance
-    """
+    """:ivar result: :class:`entrezpy.elink.elink_result.ElinkResult` instance"""
     super().__init__()
 
   def init_result(self, response, request):
@@ -79,10 +82,6 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
     Checks which elink command has been used and runs according parser to
     populate result. 'llinkslib' is the only command returning only XML and
     has therefore its own (ugly) parser.
-
-    .. warning:: Expect for 'llinkslib', all responses are expected in JSON.
-                 ElinkAnalyzer will abort if a response from another command is
-                 not in JSON.
     """
     self.init_result(response, request)
     if request.cmd != 'llinkslib' and request.retmode != 'json':

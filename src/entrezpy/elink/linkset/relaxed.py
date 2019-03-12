@@ -39,6 +39,7 @@ class RelaxedLinkset(entrezpy.elink.linkset.bare.LinkSet):
   :param canLink: linkunits can be used for automated follow-up parameter
   :type canLink: boolean
   """
+
   def __init__(self, uidsfrom, dbfrom, canLink=True):
     """ :attr dict uids: UIDs from source database"""
     super().__init__('relaxed', dbfrom, canLink)

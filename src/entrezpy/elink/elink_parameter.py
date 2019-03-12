@@ -105,9 +105,9 @@ class ElinkParameter(entrezpy.base.parameter.EutilsParameter):
 
     if not self.uids and not self.haveWebenv and not self.haveQuerykey:
       logger.error(json.dumps({__name__ : {'error' : {'Missing required parameters' : {
-                                                      'ids' : self.uids,
-                                                      'QueryKey' : self.querykey,
-                                                      'WebEnv' : self.webenv}},
+      'ids' : self.uids,
+      'QueryKey' : self.querykey,
+      'WebEnv' : self.webenv}},
                                            'action' : 'abort'}}))
       sys.exit()
 

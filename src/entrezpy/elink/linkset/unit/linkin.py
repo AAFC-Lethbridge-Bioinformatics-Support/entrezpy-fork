@@ -16,35 +16,35 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: entrezpy.elink.linkset.unit.linkin
-   :synopsis:
-    Exports class LinkIn impelementing Elink results for acheck command.
+  :synopsis: Exports class LinkIn implementing Elink results from the Elink
+    `ncheck` command reporting if links are available within the same Entrez
+    database.
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
 
+
 import entrezpy.elink.linkset.unit.linksetunit
 
+
 class LinkIn(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
-  """
-  Inits new link result unit for the acheck command.
+  """ The `LinkIn` class represents a result from the `ncheck` Elink command.
+  Results show if links are available within the same Entrez databases.
 
   :param str dbto: name of target database
-  :param str hasneighbor: Y or N indicating if the linked UID has outgoing
-  links.
+  :param str hasneighbor: Y or N indicating if links are avaible
   """
 
   @classmethod
   def new(cls, dbto, hasneighbor):
-    """
-    Returns new instance.
-
-    :rtype: `entrezpy.elink.linkset.unit.linksetunit.linkin.LinkIn`
-    """
+    """:rtype: :class:`linkin.LinkIn`"""
     return cls(dbto, hasneighbor)
 
   def __init__(self, dbto, hasneighbor):
+    """:ivar bool hasneighbor:"""
     super().__init__(dbto, None)
     self.hasneighbor = bool(hasneighbor == 'Y')
 
   def dump(self):
+    """:rtype: dict"""
     return dict({'hasneighbor' : self.hasneighbor}, **self.basic_dump())

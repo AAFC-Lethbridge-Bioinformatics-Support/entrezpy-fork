@@ -16,33 +16,30 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: entrezpy.elink.linkset.unit.linklist
-   :synopsis:
-    Exports class LinkList impelementing Elink results for acheck command.
+  :synopsis: Exports class LinkList implementing Elink results for `acheck`
+    command reporting all avaible links for UIDs.
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
 
+
 import entrezpy.elink.linkset.unit.linksetunit
 
+
 class LinkList(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
-  """
-  Inits new link result unit for the ncheck command.
+  """ The `LinkList` class represents a result from the `acheck` Elink command.
+  Results show all available links for UIDs in the target database.
 
   :param str dbto: target database
   :param str linkname: Elink linkname
   :param str menutag: Elink menutag
   :param str htmltag: Elink htmltag
   :param int priority: Elink priority
-  :rtype: New class instance
   """
 
   @classmethod
   def new(cls, dbto, linkname, menutag, htmltag, priority):
-    """
-    Returns new instance.
-
-    :rtype: :class:`entrezpy.elink.linkset.unit.linklist.LinksetUnit`
-    """
+    """:rtype: :class:`linksetunit.linkin.LinkList`"""
     return cls(dbto, linkname, menutag, htmltag, priority)
 
   def __init__(self, dbto, linkname, menutag, htmltag, priority):
@@ -52,4 +49,5 @@ class LinkList(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
     self.priority = priority
 
   def dump(self):
+    """:rtype: dict"""
     return dict({'htmltag' : self.htmltag, 'priority' : self.priority}, **self.basic_dump())
