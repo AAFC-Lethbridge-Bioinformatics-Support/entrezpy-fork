@@ -20,6 +20,8 @@
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
+
+
 import sys
 import random
 import json
@@ -33,6 +35,7 @@ import urllib.error
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
+
 
 class Requester:
   """Requester implements the sendong of HTTP POST requests and the receiving
@@ -84,7 +87,7 @@ class Requester:
                                       timeout=req_timeout)
       except urllib.error.HTTPError as http_err:
         log_msg = {'HTTP-error': {'code' : http_err.code, 'reason' : http_err.reason}}
-        if url_err.code == 400: # Bad request form, stop right now
+        if http_err.code == 400: # Bad request form, stop right now
           log_msg['HTTP-error'].update({'action' : 'abort'})
           logger.debug(json.dumps({__name__ : {'Request-error' : log_msg}}))
           sys.exit()
