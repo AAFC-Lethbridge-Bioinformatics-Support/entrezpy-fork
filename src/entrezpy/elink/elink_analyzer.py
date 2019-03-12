@@ -40,7 +40,7 @@ logger.addHandler(logging.StreamHandler())
 
 
 class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
-  """ ElinkAnalyzer implements the parsing and superficial analysis of responses
+  """ElinkAnalyzer implements parsing and superficial analysis of responses
   from ELink queries. ElinkAnalyzer implements the virtual methods
   :meth:`.analyze_result` and :meth:`.analyze_error`. The variety in possible
   Elink response formats results in several specialized parser. Default is to
@@ -57,7 +57,7 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
   """
 
   def __init__(self):
-    """:ivar result: :class:`entrezpy.elink.elink_result.ElinkResult` instance"""
+    """:ivar result: :class:`entrezpy.elink.elink_result.ElinkResult`"""
     super().__init__()
 
   def init_result(self, response, request):
@@ -67,21 +67,16 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
                                                             request.cmd)
 
   def analyze_error(self, response, request):
-    """
-    Implements virtual function :func:`entrezpy.base.analyzer.analyze_error`.
-    Log info to STDOUT
+    """Implements virtual function :func:`entrezpy.base.analyzer.analyze_error`.
     """
     logger.info(json.dumps({__name__:{'Response-Error':
                                       {'request-dump' : request.dump_internals(),
                                        'error' : response}}}))
 
   def analyze_result(self, response, request):
-    """
-    Implements virtual method :meth:`entrezpy.base.analyzer.analyze_result`.
+    """Implements virtual method :meth:`entrezpy.base.analyzer.analyze_result`.
 
-    Checks which elink command has been used and runs according parser to
-    populate result. 'llinkslib' is the only command returning only XML and
-    has therefore its own (ugly) parser.
+    Checks used elink command and runs according parser to populate result.
     """
     self.init_result(response, request)
     if request.cmd != 'llinkslib' and request.retmode != 'json':
@@ -105,8 +100,7 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
       sys.exit()
 
   def analyze_linklist(self, linksets, cmd):
-    """
-    Parse ELink responses listing information about links for the linked UIDs.
+    """Parses ELink responses listing link information for UIDs.
 
     :param dict linksets: 'linkset' part in an ELink JSON response from NCBI.
     :param str cmd: ELink command.
@@ -136,8 +130,7 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
           self.result.add_linkset(lset)
 
   def analyze_links(self, linksets, cmd):
-    """
-    Parse ELink responses with links to UIDs or History server references.
+    """Parses ELink responses with links  as UIDs or History server references.
 
     :param dict linksets: 'linkset' part in an ELink JSON response from NCBI.
     :param str cmd: ELink command.
@@ -157,11 +150,11 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
       self.result.add_linkset(lset)
 
   def parse_llinkslib(self, response, cmd, lset=None):
-    """Exclusive XML parser for 'llinkslib' responses.
-    Its approach is ugly but parses the XML. The cmd parametes is always
-    'llinkslib' but keeps consistemcy with calling the LinkSet unit.
+    """Exclusive XML parser for 'llinkslib' responses. Its approach is ugly but
+    parses the XML. The cmd parametes is always 'llinkslib' but retains the
+    calling signature.
 
-    :param  io.StringIO response: XML response from Entrez
+    :param io.StringIO response: XML response from Entrez
     :param str cmd: used ELink command command
     """
     provider_tagmap = {'iconurl', 'id', 'url', 'name', 'nameabbr'}
