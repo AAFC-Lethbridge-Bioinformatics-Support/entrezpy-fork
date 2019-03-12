@@ -27,6 +27,7 @@ import sys
 import json
 import logging
 
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
@@ -52,14 +53,12 @@ class EutilsParameter:
 
   .. warning:: :meth:`.check` is expected to run after all parameters have been
     set.
+
+  :param dict parameter: Eutils query parameters
   """
 
   def __init__(self, parameter=None):
-    """
-    Inits an EutilsParameter from given EUtils parameters.
-
-    :param dict parameter: Eutils query parameters
-    :ivar str db: Entrez database name
+    """:ivar str db: Entrez database name
     :ivar str webenv: WebEnv
     :ivar int querykey: querykey
     :ivar int expected_request: number of expected request for the query
