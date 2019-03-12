@@ -38,7 +38,7 @@ logger.addHandler(logging.StreamHandler())
 
 class Esearcher(entrezpy.base.query.EutilsQuery):
   """Esearcher implements ESearch queries to E-Utilities [0]. Esearch queries
-  return UIDs or WebEnv/QueryKey references to ENtrez' History server.
+  return UIDs or WebEnv/QueryKey references to Entrez' History server.
   Esearcher implmenets :meth:`entrezpy.base.query.EutilsQuery.inquire` which
   analyzes the first result and automatically configures subseqeunt requests to
   get all queried UIDs.

@@ -16,7 +16,7 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: entrezpy.esearch.esearch_parameter
-  :synopsis: Export EsearchParameter for NCBI E-Utils Epost queries
+  :synopsis: Export EsearchParameter for NCBI E-Utils Esearch queries
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
