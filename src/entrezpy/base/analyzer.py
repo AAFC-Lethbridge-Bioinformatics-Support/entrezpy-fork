@@ -41,8 +41,8 @@ class EutilsAnalyzer:
   Two virtual classes are the core and need their own implementation to support
   specific queries:
 
-  - :func:`EutilsAnalyzer.analyze_error`
-  - :func:`EutilsAnalyzer.analyze_result()`
+  - :meth:`.analyze_error`
+  - :meth:`.analyze_result`
 
   .. note::
     Responses from NCBI are not very well documented and functions will
