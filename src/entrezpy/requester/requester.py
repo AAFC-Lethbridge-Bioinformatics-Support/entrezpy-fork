@@ -75,6 +75,8 @@ class Requester:
         data = urllib.parse.urlencode(req.get_post_parameter(), doseq=req.doseq).encode('utf-8')
         req.qry_url = data.decode()
         logger.debug(json.dumps({__name__ : {'Request' : {'try' : retries,
+                                                          'req-id' : req.id,
+                                                          'req-query' : req.query_id,
                                                           'req-url' : req.url,
                                                           'qry-url' : req.qry_url}}}))
         req.set_status_success()
