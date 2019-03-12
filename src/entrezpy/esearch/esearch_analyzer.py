@@ -16,9 +16,8 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: entrezpy.esearch.esearch_analyzer
-   :synopsis: This module is part of entrezpy. It exports the EsearchAnalzyer
-              class implementing the analysis of Esearch query results.
-              It inherits :class`entrezpy.base.query.EutilsAnalyzer`.
+  :synopsis: Exports class EsearchAnalzyer implementing the analysis of Esearch
+    query results.
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
