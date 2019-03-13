@@ -1,6 +1,6 @@
 """
 ..
-  Copyright 2018, 2019 The University of Sydney
+  Copyright 2018 The University of Sydney
   This file is part of entrezpy.
 
   Entrezpy is free software: you can redistribute it and/or modify it under the
@@ -16,7 +16,8 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: entrezpy.esearch.esearch_parameter
-  :synopsis: Export EsearchParameter for NCBI E-Utils Esearch queries
+  :synopsis: Export EsearchParameter for entrezpy queries to NCBI E-Utils
+    Esearch
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
@@ -40,9 +41,8 @@ MAX_REQUEST_SIZE = 100000
 
 class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
   """EsearchParameter checks query specific parameters and configures an Esearch
-  query. If more than one request is required to fetch all search results,
-  the instance is reconfigured by
-  :func:`entrezpy.esearch.esearcher.configure_follow_up`.
+  query. If more than one request is required the instance is reconfigured by
+  :meth:`entrezpy.esearch.esearcher.Esearcher.configure_follow_up`.
 
   .. note :: EsearchParameter works best when using the NCBI Entrez history
     server. If usehistory is not used, linking requests cannot be guaranteed.
@@ -67,10 +67,7 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
     self.check()
 
   def goodDateparam(self):
-    """Check for good paraeters wehn using date
-
-    :rtype: bool
-    """
+    """:rtype: bool"""
     useDate = False
     if self.useMinMaxDate():
       if self.reldate:
@@ -85,10 +82,7 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
     return True
 
   def useMinMaxDate(self):
-    """Maxdate and mindate are required together
-
-    :rtype: bool
-    """
+    """:rtype: bool"""
     if self.mindate or self.maxdate: # Intend to use max/min dates
       if self.mindate and self.maxdate: # Require both
         return True
@@ -96,10 +90,7 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
     return False
 
   def set_uilist(self, rettype):
-    """Set rettype parameter to mimic rettype options for XML
-
-    :rtype: bool
-    """
+    """:rtype: bool"""
     if not rettype or (rettype == 'uilist'):
       return True
     return False
@@ -120,7 +111,11 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
     return int(retmax)
 
   def adjust_reqsize(self, request_size):
-    """Adjusts request size for low retmax"""
+    """Adjusts request size for low retmax
+
+    :return: adjusted request size
+    :rtype: int
+    """
     if self.retmax is None:
       return request_size
     if self.retmax < request_size:

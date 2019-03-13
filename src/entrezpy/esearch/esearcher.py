@@ -1,6 +1,6 @@
 """
 ..
-  Copyright 2018, 2019 The University of Sydney
+  Copyright 2018 The University of Sydney
   This file is part of entrezpy.
 
   Entrezpy is free software: you can redistribute it and/or modify it under the
@@ -16,7 +16,8 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: entrezpy.esearch.esearcher
-   :synopsis: Exports class Esearcher implementing Esearch queries
+   :synopsis: Exports class Esearcher implementing entrezpy Esearch queries to
+      NCBI EUtils Esearch
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
