@@ -32,6 +32,7 @@
   updating `sys.payth`. The example assumes you cloned the git repository from
   https://gitlab.com/ncbipy/entrezpy.git.
 
+::
   $reporoot
   |-- examples
   |   `-- entrezpy-examples.efetch.py  <-You are here
