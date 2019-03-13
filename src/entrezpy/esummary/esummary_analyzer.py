@@ -1,8 +1,26 @@
-#-------------------------------------------------------------------------------
-#  \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
-#  \copyright 2018 The University of Sydney
-#  \description
-#-------------------------------------------------------------------------------
+"""
+..
+  Copyright 2018 The University of Sydney
+  This file is part of entrezpy.
+
+  Entrezpy is free software: you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+
+.. module:: entrezpy.esummary.esummary_analyzer
+   :synopsis: Exports class EsummaryAnalyzer implementing entrezpy Esummary
+    queries to NCBI E-Utility Esummary
+
+.. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
+"""
 
 import io
 import os
@@ -13,10 +31,10 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-from ..entrezpy_base import analyzer
-from . import esummary_result
+import entrezpy.base.analyzer
+import entrezpy.esummary.esummary_result
 
-class EsummaryAnalzyer(analyzer.EutilsAnalyzer):
+class EsummaryAnalzyer(entrezpy.base.analyzer.EutilsAnalyzer):
 
   def __init__(self):
     super().__init__()
@@ -24,7 +42,7 @@ class EsummaryAnalzyer(analyzer.EutilsAnalyzer):
 
   def analyze_result(self, response, request):
     if not self.result:
-      self.result = esummary_result.EsummaryResult(db=request.db,
+      self.result = entrezpy.esummary.esummary_result.EsummaryResult(db=request.db,
                                                    querykey=request.querykey,
                                                    webenv=request.webenv)
     self.result.uids += response['result']['uids']

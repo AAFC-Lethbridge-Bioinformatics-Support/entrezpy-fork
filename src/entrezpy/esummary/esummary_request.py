@@ -1,35 +1,74 @@
-#-------------------------------------------------------------------------------
-#  \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
-#  \copyright 2018 The University of Sydney
-#  \description
-#-------------------------------------------------------------------------------
+"""
+..
+  Copyright 2018 The University of Sydney
+  This file is part of entrezpy.
 
-import os
-import sys
-import json
+  Entrezpy is free software: you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
 
-from ..entrezpy_base import request
+  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-class EsummaryRequest(request.EutilsRequest):
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
-  def __init__(self, parameter, start, size):
-    super().__init__('esummary', parameter.db)
+.. module:: entrezpy.esummary.esummary_request
+  :synopsis: Exports class EsummaryRequest implementing individual requests for
+    entrezpy queries to Esummary NCBI E-Utility
+
+.. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
+"""
+
+
+import entrezpy.base.request
+
+
+class EsummaryRequest(entrezpy.base.request.EutilsRequest):
+  """The SummaryRequest class implements a single request as part of an Esummary
+  query. It stores and prepares the parameters for a single request.
+  :meth:`entrezpy.esummary.esummary_query.Esummaryizer.inquire` calculates start
+  and size for a single request.
+
+  :param parameter: request parameter
+  :param type: :class:`entrezpy.esummary.esummary_parameter.EsummaryParameter`
+  :param int start: number of first UID to fetch
+  :param int size: requets size
+  """
+
+  def __init__(self, eutil, parameter, start, size):
+    super().__init__(eutil, parameter.db)
     self.retstart = start
     self.retmax = size
     self.retmode = parameter.retmode
-    self.esummary_version = parameter.esummary_version
-    self.uids =  parameter.uids[start:start+size]
+    self.rettype = parameter.rettype
+    #self.esummary_version = parameter.esummary_version
+    self.uids = parameter.uids[start:start+size]
     self.webenv = parameter.webenv
     self.querykey = parameter.querykey
 
-  def prepare_qry(self):
+  def get_post_parameter(self):
     qry = self.prepare_base_qry(extend={'retmode':self.retmode})
-    if self.retmode == 'xml':
-      qry.update({'version' : self.esummary_version})
+    #if self.retmode == 'xml':
+      #qry.update({'version' : self.esummary_version})
 
     if self.webenv and self.querykey:
       qry.update({'WebEnv' : self.webenv, 'query_key':self.querykey,
-                  'retstart' : self.retstart,'retmax' : self.retmax})
+                  'retstart' : self.retstart, 'retmax' : self.retmax})
     else:
       qry.update({'id' : ','.join(str(x) for x in self.uids)})
     return qry
+
+  def dump(self):
+    """Dumps instance attributes"""
+    return {'db' : self.db,
+            'uids' : self.uids,
+            'num_uids' : len(self.uids),
+            'webenv' : self.webenv,
+            'querykey' : self.querykey,
+            'rettype' : self.rettype,
+            'retmode' :self.retmode,
+            'retmax' : self.retmax,
+            'retstart' : self.retstart}

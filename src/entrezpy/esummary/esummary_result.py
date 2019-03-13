@@ -1,19 +1,35 @@
-#-------------------------------------------------------------------------------
-#  \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
-#  \copyright 2018 The University of Sydney
-#  \description:
-#-------------------------------------------------------------------------------
+"""
+..
+  Copyright 2018 The University of Sydney
+  This file is part of entrezpy.
 
-import os
-import sys
-import json
+  Entrezpy is free software: you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
 
-from ..entrezpy_base import result
+  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-class EsummaryResult(result.EutilsResult):
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
-  def __init__(self, qid, db=None, webenv=None, uids=[], querykey=None):
-    super().__init__('esummary', qid, db=db, webenv=webenv, uids=uids, querykey=querykey)
+.. module:: entrezpy.esummary.esummary_result
+  :synopsis: Exports class EsummaryResult implementing entrezpy results from
+    NCBI Esummary E-Utility requests
+
+.. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
+"""
+
+
+import entrezpy.base.result
+
+
+class EsummaryResult(entrezpy.base.result.EutilsResult):
+
+  def __init__(self, response, request):
+    super().__init__('esummary', request.query_id, request.db, response.get('webenv'))
     self.summaries = {}
 
   def add_summary(self, uid, summaries):
@@ -21,13 +37,18 @@ class EsummaryResult(result.EutilsResult):
       self.summaries[int(uid)] = summaries.pop(uid)
 
   def dump(self):
-    return json.dumps({"typ":self.typ, "db":self.db, "webenv":self.webenv,
-                       "uids" : self.uids, "querykey" : self.querykey,
-                       "summaries": [self.summaries[x] for x in self.summaries]})
+    """:rtype: dict"""
+    return {'db':self.db, 'size' : self.size(), 'function' : self.function,
+            'summaries': [self.summaries[x] for x in self.summaries]}
 
-  def get_link_parameters(self):
-    return {'db' : self.db, 'size' : self.count, 'id' : self.uids,
-            'WebEnv' : self.webenv, 'QueryKey' : self.querykey}
+  def get_link_parameter(self, reqnum=0):
+    """Esummary has no link automated link ability"""
+    pass
 
   def size(self):
     return len(self.summaries)
+
+  def isEmpty(self):
+    if self.size() == 0:
+      return True
+    return False
