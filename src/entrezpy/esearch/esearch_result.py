@@ -1,6 +1,6 @@
 """
 ..
-  Copyright 2018, 2019 The University of Sydney
+  Copyright 2018 The University of Sydney
   This file is part of entrezpy.
 
   Entrezpy is free software: you can redistribute it and/or modify it under the
@@ -16,7 +16,9 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: entrezpy.esearch.esearch_result
-   :synopsis: Exports class EsearchResult impelementing Esearch results
+  :synopsis: Exports class EsearchResult implementing entrezpy results from
+    NCBI Esearch Eutils requests
+
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
@@ -45,10 +47,7 @@ class EsearchResult(entrezpy.base.result.EutilsResult):
     self.uids = response.pop('idlist', [])
 
   def dump(self):
-    """Dumps instance attributes
-
-    :rtype: dict
-    """
+    """:rtype: dict"""
     return {'db':self.db, 'count' : self.count, 'len_uids' : len(self.uids),
             'uid' : self.uids, 'retmax' : self.retmax, 'function':self.function,
             'retstart' : self.retstart, 'references' : self.references.dump()}
@@ -60,8 +59,12 @@ class EsearchResult(entrezpy.base.result.EutilsResult):
     :rtype: dict
     """
     if self.uids:
-      return {'db' : self.db, 'id' : self.uids}
-    return {'db' : self.db, 'WebEnv' : self.webenv,
+      return {'db' : self.db, 'id' : self.uids, 'WebEnv' : self.webenv,
+              'query_key' : self.references.get_querykey(self.webenv, reqnum)}
+    retmax = self.retmax
+    if retmax == 0:
+      retmax = self.count
+    return {'db' : self.db, 'WebEnv' : self.webenv, 'retmax' : retmax,
             'query_key' : self.references.get_querykey(self.webenv, reqnum)}
 
   def isEmpty(self):
