@@ -7,7 +7,7 @@
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 
 ..
-  Copyright 2018, 2019 The University of Sydney
+  Copyright 2018 The University of Sydney
 
   entrezpy-examples.esearch.py is free software: you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public License as
@@ -35,11 +35,11 @@
       These are required by NCBI [1]. The instance name corresponds to the
       Eutils `tool` parameter [1].
 
-  3. Loop over the examples, post the UIDs and return the corresponding WebEnv
-     and QueryKey for them to later use.
+  3. Loop over the examples and return the UIDs or corresponding WebEnv and
+     QueryKey.
 
   N.B.
-  NCBI api key[1]: If an apikey is passed to Efetcher(), it will be used to
+  NCBI api key[1]: If an apikey is passed as parameter it will be used to
   allow more requests [1]. Without apikey, Entrezpy checks if the environmental
   variable $NCBI_API_KEY is set. If not, less queries per second are performed.
 
