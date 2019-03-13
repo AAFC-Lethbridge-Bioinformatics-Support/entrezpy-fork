@@ -104,7 +104,8 @@ class Esearcher(entrezpy.base.query.EutilsQuery):
     :return: follow-up parameter or None
     :rtype: :class:`entrezpy.esearch.esearch_parameter.EsearchParamater` or None
     """
-    self.add_request(entrezpy.esearch.esearch_request.EsearchRequest(parameter,
+    self.add_request(entrezpy.esearch.esearch_request.EsearchRequest(self.eutil,
+                                                                     parameter,
                                                                      parameter.retstart,
                                                                      parameter.reqsize), analyzer)
     self.request_pool.drain()
