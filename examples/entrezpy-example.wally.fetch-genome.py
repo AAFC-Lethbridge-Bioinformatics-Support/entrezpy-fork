@@ -2,7 +2,6 @@
 #-------------------------------------------------------------------------------
 #  \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
 #  \copyright 2018 The University of Sydney
-#  \description https://github.com/NCBI-Hackathons/EDirectCookbook#get-all-sra-runs-for-a-given-bioproject
 #-------------------------------------------------------------------------------
 
 import os
@@ -24,14 +23,14 @@ def main():
                   type=str,
                   default=None,
                   help='NCBI apikey (optional)')
-  ap.add_argument('--api_envar',
+  ap.add_argument('--apikey_envar',
                   type=str,
                   default=None,
-                  help='Environment varriable stroign NCBI apikey (optional)')
+                  help='Environment varriable storing NCBI apikey (optional)')
   ap.add_argument('--threads',
                   type=int,
                   default=0,
-                  help='number of threads to use (default=1)')
+                  help='number of threads to use (default=no threads)')
   ap.add_argument('--use_history',
                   default=False,
                   action='store_true',
