@@ -1,6 +1,6 @@
 """
 ..
-  Copyright 2018, 2019 The University of Sydney
+  Copyright 2018 The University of Sydney
   This file is part of entrezpy.
 
   Entrezpy is free software: you can redistribute it and/or modify it under the
@@ -15,10 +15,9 @@
   You should have received a copy of the GNU General Public License
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
-.. module:: referencer
-  :synopsis:
-    This module is part of entrezpy. It export the EutilReferencer class
-    to handle WebEnv and query keys.
+.. module:: entrezpy.base.referencer
+  :synopsis: Exports the EutilReferencer class managing WebEnv and query keys
+    for entrezpy queries
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
@@ -40,9 +39,8 @@ class EutilReferencer:
       self.querykeys = querykeys
 
   def __init__(self, webenv, querykey):
-    """
-    :param str webenv: WebEnv
-    :param int webenv: querykey
+    """:param str webenv: WebEnv
+       :param int webenv: querykey
     """
     self.references = {}
     if webenv:
@@ -59,19 +57,17 @@ class EutilReferencer:
     self.references[webenv].append(int(querykey))
 
   def get_reference(self, webenv):
-    """
-    :param str webenv: WebEnv
-    :return: History server reference for webenv
-    :rtype: :class:'EutilReference.Reference' instance or None
+    """:param str webenv: WebEnv
+       :return: History server reference for webenv
+       :rtype: :class:'EutilReference.Reference' instance or None
     """
     if webenv not in self.references:
       return None
     return self.Reference(webenv, self.references[webenv])
 
   def get_querykey(self, webenv, querynum):
-    """
-    :return: query key for N-th query as list index, i.e. first = 0
-    :rtype: int or None
+    """:return: query key for N-th query as list index, i.e. first = 0
+       :rtype: int or None
     """
     if webenv not in self.references:
       return None
@@ -80,8 +76,8 @@ class EutilReferencer:
     return self.references[webenv][querynum]
 
   def dump(self):
-    """
-    Return all references
+    """Return all references
+
     :rtype: dict"""
     return self.references
 

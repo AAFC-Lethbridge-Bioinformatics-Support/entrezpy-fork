@@ -16,8 +16,8 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: entrezpy.base.parameter
-  :synopsis:
-    Export the base class for NCBI E-Utils parameters in entrezpy.
+  :synopsis: Export the base class for entrezpy parameters in NCBI E-Utils
+    queries
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """

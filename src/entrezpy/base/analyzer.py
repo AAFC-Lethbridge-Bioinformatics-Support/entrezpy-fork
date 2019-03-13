@@ -1,6 +1,6 @@
 """
 ..
-  Copyright 2018, 2019 The University of Sydney
+  Copyright 2018 The University of Sydney
   This file is part of entrezpy.
 
   Entrezpy is free software: you can redistribute it and/or modify it under the
@@ -16,9 +16,8 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: entrezpy.base.analyzer
-  :synopsis:
-    This module is part of entrezpy. It implements the base class for all
-    entrezpy analzyer for NCBI E-Utils responses.
+  :synopsis: Exports the base class for entrezpy analzyer for NCBI E-Utils
+    responses
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
