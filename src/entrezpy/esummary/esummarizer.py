@@ -31,6 +31,7 @@ import entrezpy.esummary.esummary_request
 import entrezpy.esummary.esummary_analyzer
 import entrezpy.esummary.esummary_parameter
 
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
@@ -58,7 +59,7 @@ class Esummarizer(entrezpy.base.query.EutilsQuery):
     """
     param = entrezpy.esummary.esummary_parameter.EsummaryParameter(parameter)
     logger.debug(json.dumps({__name__ : {'Parameter' : param.dump()}}))
-    req_size = param.request_size
+    req_size = param.reqsize
     self.monitor_start(param)
     for i in range(param.expected_requests):
       if i * req_size + req_size > param.reqsize:

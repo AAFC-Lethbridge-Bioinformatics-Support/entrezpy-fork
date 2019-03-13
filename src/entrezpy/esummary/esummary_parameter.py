@@ -22,8 +22,6 @@
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
 
-import io
-import os
 import sys
 import math
 import json
@@ -46,8 +44,8 @@ class EsummaryParameter(entrezpy.base.parameter.EutilsParameter):
   max_request_size = {'xml' : 100000, 'json' : 500}
   """maximum number of data sets per request"""
 
-  def __init__(self, parameter):
-    super().__init__(parameter)
+  def __init__(self, param):
+    super().__init__(param)
     self.uids = param.get('id', [])
     self.rettype = param.get('rettype')
     self.retmode = 'json'
@@ -55,7 +53,6 @@ class EsummaryParameter(entrezpy.base.parameter.EutilsParameter):
     self.reqsize = self.adjust_reqsize(param.get('reqsize'))
     self.retstart = int(param.get('retstart', 0))
     #self.esummary_version = parameter.get('version', '2.0')
-    self.query_size = self.set_query_size()
     self.calculate_expected_requests(reqsize=self.reqsize)
     self.check()
 
@@ -100,23 +97,35 @@ class EsummaryParameter(entrezpy.base.parameter.EutilsParameter):
     if not qsize:
       qsize = self.retmax
     if not reqsize:
-      reqsize = EfetchParameter.req_limits.get(self.retmode)
+      reqsize = EsummaryParameter.max_request_size.get(self.retmode)
     if self.retmax == 0 or (qsize is None):
       qsize = 1
     self.expected_requests = math.ceil(qsize / reqsize)
 
   def check(self):
     if not self.haveDb():
-      logger.error(json.dumps({__name__:{"Missing parameter": "db", "action":"abort"}}))
+      logger.error(json.dumps({__name__:{'Missing parameter': 'db', 'action':'abort'}}))
       sys.exit()
 
     if not self.haveExpectedRequets():
-      logger.error(json.dumps({__name__:{"Failed calculating expected requests" :self.expected_requests,
-                                         "action":"abort"}}))
+      logger.error(json.dumps({__name__:{'Bad expected requests' :self.expected_requests,
+                                         'action':'abort'}}))
       sys.exit()
     if not self.uids and not self.haveQuerykey() and not self.haveWebenv():
-      logger.error(json.dumps({__name__:{"Missing required parameters" : {"ids":self.uids,
-                                                                          "QueryKey":self.querykey,
-                                                                          "WebEnv":self.webenv},
-                                          "action":"abort"}}))
+      logger.error(json.dumps({__name__:{'Missing required parameters' : {'ids':self.uids,
+                                                                          'QueryKey':self.querykey,
+                                                                          'WebEnv':self.webenv},
+                                         'action':'abort'}}))
       sys.exit()
+
+  def dump(self):
+    return {'db' : self.db,
+            'WebEnv':self.webenv,
+            'query_key' : self.querykey,
+            'uids' : self.uids,
+            'retmode' : self.retmode,
+            'rettype' : self.rettype,
+            'retstart' : self.retstart,
+            'retmax' : self.retmax,
+            'request_size' : self.reqsize,
+            'expected_requets' : self.expected_requests}

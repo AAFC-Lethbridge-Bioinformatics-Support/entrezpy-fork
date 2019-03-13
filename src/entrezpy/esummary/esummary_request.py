@@ -60,15 +60,3 @@ class EsummaryRequest(entrezpy.base.request.EutilsRequest):
     else:
       qry.update({'id' : ','.join(str(x) for x in self.uids)})
     return qry
-
-  def dump(self):
-    """Dumps instance attributes"""
-    return {'db' : self.db,
-            'uids' : self.uids,
-            'num_uids' : len(self.uids),
-            'webenv' : self.webenv,
-            'querykey' : self.querykey,
-            'rettype' : self.rettype,
-            'retmode' :self.retmode,
-            'retmax' : self.retmax,
-            'retstart' : self.retstart}

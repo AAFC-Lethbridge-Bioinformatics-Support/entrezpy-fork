@@ -27,14 +27,12 @@ import entrezpy.base.result
 
 
 class EsummaryResult(entrezpy.base.result.EutilsResult):
-
+  """EsummaryResult stores summaries in :attr:`.summaries`, avoiding
+  duplicates and quick access. EsummaryResult has no WebEnv references."""
   def __init__(self, response, request):
-    super().__init__('esummary', request.query_id, request.db, response.get('webenv'))
+    super().__init__('esummary', request.query_id, request.db)
     self.summaries = {}
-
-  def add_summary(self, uid, summaries):
-    if int(uid) not in self.summaries:
-      self.summaries[int(uid)] = summaries.pop(uid)
+    self.add_summaries(response['result'])
 
   def dump(self):
     """:rtype: dict"""
@@ -42,8 +40,10 @@ class EsummaryResult(entrezpy.base.result.EutilsResult):
             'summaries': [self.summaries[x] for x in self.summaries]}
 
   def get_link_parameter(self, reqnum=0):
-    """Esummary has no link automated link ability"""
-    pass
+    """Esummary has no link automated link ability
+    :return: None
+    """
+    return None
 
   def size(self):
     return len(self.summaries)
@@ -52,3 +52,11 @@ class EsummaryResult(entrezpy.base.result.EutilsResult):
     if self.size() == 0:
       return True
     return False
+
+  def add_summaries(self, results):
+    """Adds summaries form a Esummary E-Utiliy response
+    :param dict results: Esummaries
+    """
+    for i in results['uids']:
+      if int(i) not in self.summaries:
+        self.summaries[int(i)] = results.pop(i)
