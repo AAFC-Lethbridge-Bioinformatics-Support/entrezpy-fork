@@ -153,7 +153,7 @@ class EutilsAnalyzer:
   def check_error_json(self, response):
     """Checks for errors in JSON responses. Not unified among Eutil functions.
 
-    s:param dict response: reponse
+    :param dict response: reponse
     :return: status if JSON response has error message
     :rtype: bool"""
     if response['header']['type'] == 'esearch' and 'ERROR' in response['esearchresult']:
