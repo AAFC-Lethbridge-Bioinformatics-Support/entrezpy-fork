@@ -37,8 +37,9 @@ class EfetchRequest(entrezpy.base.request.EutilsRequest):
   :param int start: number of first UID to fetch
   :param int size: requets size
   """
-  def __init__(self, parameter, start, size):
-    super().__init__('efetch', parameter.db)
+
+  def __init__(self, eutil, parameter, start, size):
+    super().__init__(eutil, parameter.db)
     self.start = start
     self.retmax = size
     self.uids = parameter.uids[start:start+self.retmax]

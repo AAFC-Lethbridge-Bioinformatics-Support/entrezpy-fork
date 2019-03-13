@@ -71,7 +71,9 @@ class Efetcher(entrezpy.base.query.EutilsQuery):
     for i in range(param.expected_requests):
       if i * req_size + req_size > param.retmax:
         req_size = param.retmax % param.reqsize
-      self.add_request(entrezpy.efetch.efetch_request.EfetchRequest(param, (i*param.reqsize),
+      self.add_request(entrezpy.efetch.efetch_request.EfetchRequest(self.eutil,
+                                                                    param,
+                                                                    (i*param.reqsize),
                                                                     req_size), analyzer)
     self.request_pool.drain()
     self.monitor_stop()
