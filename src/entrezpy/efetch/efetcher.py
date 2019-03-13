@@ -1,6 +1,6 @@
 """
 ..
-  Copyright 2018, 2019 The University of Sydney
+  Copyright 2018 The University of Sydney
   This file is part of entrezpy.
 
   Entrezpy is free software: you can redistribute it and/or modify it under the
@@ -16,10 +16,12 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: entrezpy.efetch.efetcher
-  :synopsis: Exports class Efetcher implementing Efetch queries to NCBI EUtils.
+  :synopsis: Exports class Efetcher implementing entrezpy Efetch queries to
+    NCBI EUtils Efetch
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
+
 
 import json
 import logging
@@ -29,9 +31,11 @@ import entrezpy.efetch.efetch_parameter
 import entrezpy.efetch.efetch_request
 import entrezpy.efetch.efetch_analyzer
 
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
+
 
 class Efetcher(entrezpy.base.query.EutilsQuery):
   """Efetcher implements Efetch E-Utilities queries [0]. It implements
@@ -48,7 +52,11 @@ class Efetcher(entrezpy.base.query.EutilsQuery):
 
   def inquire(self, parameter, analyzer=entrezpy.efetch.efetch_analyzer.EfetchAnalyzer()):
     """Implements :meth:`entrezpy.base.query.EutilsQuery.inquire` and configures
-    follow-up requests if required.
+    fetch.
+
+    .. note :: Efetch prefers to know the number of UIDs to fetch, i.e. number
+      of UIDs or retmax. If this information is missing, the max number
+      of UIDs for the specific retmode and rettype are fetched.
 
     :param dict parameter: EFetch parameter
     :param analyzer: analyzer for Efetch results
@@ -56,22 +64,21 @@ class Efetcher(entrezpy.base.query.EutilsQuery):
     :return: analyzer instance or None if request errors have been encountered
     :rtype: :class:`entrezpy.base.analyzer.EutilsAnalyzer` or None
     """
-    logger.debug(json.dumps({__name__ : {'Parameter' : p.dump()}}))
-    p = entrezpy.efetch.efetch_parameter.EfetchParameter(parameter)
-    req_size = p.request_size
-    self.monitor_start(p)
-    for i in range(p.expected_requests):
-      if i * req_size + req_size > p.retmax:
-        req_size = p.retmax % p.request_size
-      self.add_request(entrezpy.efetch.efetch_request.EfetchRequest(p,
-                                                                    (i*p.request_size),
-                                                                    req_size),
-                       analyzer)
+    param = entrezpy.efetch.efetch_parameter.EfetchParameter(parameter)
+    logger.debug(json.dumps({__name__ : {'Parameter' : param.dump()}}))
+    self.monitor_start(param)
+    req_size = param.reqsize
+    for i in range(param.expected_requests):
+      if i * req_size + req_size > param.retmax:
+        req_size = param.retmax % param.reqsize
+      self.add_request(entrezpy.efetch.efetch_request.EfetchRequest(param, (i*param.reqsize),
+                                                                    req_size), analyzer)
     self.request_pool.drain()
     self.monitor_stop()
     if self.check_requests() == 0:
       return analyzer
     return None
+
 
   def check_requests(self):
     """Test for request errors
