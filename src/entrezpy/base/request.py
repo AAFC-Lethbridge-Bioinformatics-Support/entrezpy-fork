@@ -152,14 +152,14 @@ class EutilsRequest:
 
     :param dict extend: extend dump with additional information
     """
-    reqdump = {"eutil" : self.eutil,
-               "db" : self.db,
-               "id" : self.id,
-               "query_id" : self.query_id,
-               "tool" : self.tool,
-               "url" : self.url,
-               "email" : self.contact,
-               "request_error" : self.request_error,
-               "size" : self.size,
-               "apikey" : self.apikey}
+    reqdump = {'eutil' : self.eutil,
+               'db' : self.db,
+               'id' : self.id,
+               'query_id' : self.query_id,
+               'tool' : self.tool,
+               'url' : self.url,
+               'email' : self.contact,
+               'request_error' : self.request_error,
+               'size' : self.size,
+               'apikey' : self.apikey}
     return dict(extend, **reqdump)
