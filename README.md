@@ -7,6 +7,10 @@ external dependencies, and simplifies the construction of complex queries. Its
 design allows to adjust for specific data types and formats without the need to
 change the underlying functions.
 
+## NCBI Website and Data Usage Policies and Disclaimers
+
+https://www.ncbi.nlm.nih.gov/home/about/policies/
+
 ## Installation
 
 ### Cloning repository
