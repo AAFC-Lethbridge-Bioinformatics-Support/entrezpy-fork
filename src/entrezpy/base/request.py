@@ -152,6 +152,8 @@ class EutilsRequest:
 
     :param dict extend: extend dump with additional information
     """
+    if not extend:
+      extend = {}
     reqdump = {'eutil' : self.eutil,
                'db' : self.db,
                'id' : self.id,
