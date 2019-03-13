@@ -1,6 +1,6 @@
 """
 ..
-  Copyright 2018, 2019 The University of Sydney
+  Copyright 2018 The University of Sydney
   This file is part of entrezpy.
 
   Entrezpy is free software: you can redistribute it and/or modify it under the
@@ -16,11 +16,12 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: entrezpy.efetch.efetch_analyzer
-  :synopsis: Exports the class EfetchAnalyzer implementing the analysis of
-    Efetch Eutils results.
+  :synopsis: Exports the class EfetchAnalyzer implementing the entrezpy analysis
+    of Efetch Eutils results from NCBI Eutils queries
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
+
 
 import json
 import logging
@@ -50,16 +51,29 @@ class EfetchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
     super().__init__()
     self.result = None
 
+  def init_result(self, response, request):
+    """Should be implemented if used properly"""
+    pass
+
   def analyze_result(self, response, request):
-    if request.rettype == 'json':
-      self.result += response
-    else:
-      self.result += response.getvalue()
+    print(self.norm_response(response, request.rettype))
 
   def analyze_error(self, response, request):
-    logger.info(json.dumps({__name__:{'Response': {'dump' : request.dump(),
-                                                   'error' : response}}}))
+    logger.info(json.dumps({__name__:{'Response':
+                                      {'dump' : request.dump(),
+                                       'error' : self.norm_response(response, request.rettype)}}}))
 
-    logger.debug(json.dumps({__name__:{'Response-Error': {
-                                       'request-dump' : request.dump_internals(),
-                                       'error' : response}}}))
+    logger.debug(json.dumps({__name__:{'Response-Error':
+                                       {'dump' : request.dump_internals(),
+                                        'error' : self.norm_response(response, request.rettype)}}}))
+
+  def norm_response(self, response, rettype=None):
+    """Normalizes response for printing
+
+    :param response: efetch response
+    :type  response: dict or `io.StringIO`
+    :return: str or dict
+    """
+    if rettype == 'json':
+      return response
+    return response.getvalue()
