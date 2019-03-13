@@ -1,19 +1,47 @@
-#-------------------------------------------------------------------------------
-#  \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
-#  \description: The EfetchRequest class which inherits entrezpy_base.request. It
-#                assembles Efetch requests and stores the results.
-#  \copyright 2017,2018 The University of Sydney
-#-------------------------------------------------------------------------------
+"""
+..
+  Copyright 2018 The University of Sydney
+  This file is part of entrezpy.
 
-from ..entrezpy_base import request
+  Entrezpy is free software: you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
 
-class EfetchRequest(request.EutilsRequest):
+  Entrezpy is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
+  You should have received a copy of the GNU General Public License
+  along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
+
+.. module:: entrezpy.efetch.efetch_request
+  :synopsis: Exports class EfetchRequest implementing individual requests for
+    entrezpy queries to NCBI Efetch Eutils
+
+.. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
+"""
+
+
+import entrezpy.base.request
+
+
+class EfetchRequest(entrezpy.base.request.EutilsRequest):
+  """The EfetchRequest class implements a single request as part of an Efetch
+  query. It stores and prepares the parameters for a single request.
+  :meth:`entrezpy.efetch.efetch_query.Efetch.inquire` calculates start and size
+  for a single request.
+
+  :param parameter: request parameter
+  :param type: :class:`entrezpy.efetch.efetch_parameter.EfetchParameter`
+  :param int start: number of first UID to fetch
+  :param int size: requets size
+  """
   def __init__(self, parameter, start, size):
     super().__init__('efetch', parameter.db)
     self.start = start
-    self.size = size
-    self.uids = parameter.uids[start:start+size]
+    self.retmax = size
+    self.uids = parameter.uids[start:start+self.retmax]
     self.webenv = parameter.webenv
     self.querykey = parameter.querykey
     self.rettype = parameter.rettype
@@ -37,15 +65,15 @@ class EfetchRequest(request.EutilsRequest):
       qry.update({'seq_stop' : self.seqstop})
     if self.complexity != None:
       qry.update({'complexity' : self.complexity})
-
     if self.webenv and self.querykey:
       qry.update({'WebEnv' : self.webenv, 'query_key' : self.querykey,
-                  'retstart' : self.start, 'retmax' : self.size})
+                  'retstart' : self.start, 'retmax' : self.retmax})
     else:
       qry.update({'id' : ','.join(str(x) for x in self.uids)})
     return qry
 
-  def get_request_info(self):
+  def dump(self):
+    """Dumps instance attributes"""
     return {'db' : self.db,
             'uids' : self.uids,
             'num_uids' : len(self.uids),
@@ -53,7 +81,7 @@ class EfetchRequest(request.EutilsRequest):
             'querykey' : self.querykey,
             'rettype' : self.rettype,
             'retmode' :self.retmode,
-            'retmax' : self.size,
+            'retmax' : self.retmax,
             'retstart' : self.start,
             'strand' : self.strand,
             'seqstart' : self.seqstart,
@@ -61,7 +89,9 @@ class EfetchRequest(request.EutilsRequest):
             'complexity' : self.complexity}
 
   def get_observation(self):
-    cols = [self.query_id, self.id, self.start, self.size, self.status, self.duration]
+    """Overwrite :meth:`entrezpy.base.request.EutilsRequest.get_observation`
+    for Efetch requests"""
+    cols = [self.query_id, self.id, self.start, self.retmax, self.status, self.duration]
     if self.request_error != None:
       cols.append(self.request_error)
     return '\t'.join(str(x) for x in cols)
