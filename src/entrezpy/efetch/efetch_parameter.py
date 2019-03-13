@@ -1,6 +1,6 @@
 """
 ..
-  Copyright 2018, 2019 The University of Sydney
+  Copyright 2018 The University of Sydney
   This file is part of entrezpy.
 
   Entrezpy is free software: you can redistribute it and/or modify it under the
@@ -16,7 +16,8 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: entrezpy.efetch.efetch_parameter
-  :synopsis: Export EfetchParameter for NCBI E-Utils Efetch queries
+  :synopsis: Export EfetchParameter implementing Efetch parameters for NCBI
+    EUtils Efetch queries
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
@@ -27,6 +28,7 @@ import json
 import logging
 
 import entrezpy.base.parameter
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -45,7 +47,7 @@ class EfetchParameter(entrezpy.base.parameter.EutilsParameter):
   JSON, unfortunately.
   """
 
-  req_limits = {'xml' : 10000, 'json' : 500, 'text' : 10000}
+  req_limits = {'xml' : 100000, 'json' : 500, 'text' : 100000}
   """Max number of UIDs to fetch per request mode"""
 
   valid_retmodes = {'pmc' :       {'xml'},
@@ -62,26 +64,14 @@ class EfetchParameter(entrezpy.base.parameter.EutilsParameter):
     self.uids = param.get('id', [])
     self.rettype = param.get('rettype')
     self.retmode = self.check_retmode(param.get('retmode', DEF_RETMODE))
-    self.retmax =  self.adjust_retmax(param.get('retmax'))
+    self.retmax = self.adjust_retmax(param.get('retmax'))
     self.reqsize = self.adjust_reqsize(param.get('reqsize'))
     self.retstart = int(param.get('retstart', 0))
     self.strand = param.get('strand')
     self.seqstart = param.get('seq_start')
     self.seqstop = param.get('seq_stop')
     self.complexity = param.get('complexity')
-    self.query_size = self.set_query_size()
-    self.expected_requests = self.calculate_expected_requests(self.query_size,
-                                                              self.request_size)
-
-  ## Function to set the query size
-  # When linking results with uids, the size has to be adjusted
-  # @return query size
-  def set_query_size(self, qsize=None):
-    if qsize:
-      return qsize
-    if self.uids:
-      return len(self.uids)
-    return self.retmax
+    self.calculate_expected_requests(reqsize=self.reqsize)
 
   def adjust_retmax(self, retmax):
     """Adjusts retmax parameter. Order of check is crucial.
@@ -90,30 +80,45 @@ class EfetchParameter(entrezpy.base.parameter.EutilsParameter):
     :return: adjusted retmax or None if all UIDs are fetched
     :rtype: int or None
     """
-    ## Fix retmx and query size
-    if retmax is None:
+    if self.uids:           # we got UIDs to fetch
+      return len(self.uids)
+    if retmax is None:      # we have no clue what to expect, e.g. WebEnv
+      logger.info(json.dumps({__name__ : {'No retmax': 'fetching 1 request \
+                                          limited by retmode and retmax'}}))
       return None
-    return int(retmax)
+    return int(retmax)      # we set a limitation
 
   def check_retmode(self, retmode):
+    """Checks for valid retmode and retmode combination
+
+    :param str retmode: retmode parameter
+    :return: retmode
+    :rtype: str
+    """
     if retmode not in EfetchParameter.req_limits:
       sys.exit(logger.error(json.dumps({__name__ : {'Unknown retmode': retmode,
                                                     'action' : 'abort'}})))
 
     if self.db in EfetchParameter.valid_retmodes and \
        retmode not in EfetchParameter.valid_retmodes[self.db]:
-      sys.exit(logger.error(json.dumps({__name__ : {'Bad retmode for database': {
-                                                     'db' : self.db,
-                                                     'retmnode' : self.retmode},
-                                           'action' : 'abort'}})))
+      sys.exit(logger.error(json.dumps({__name__ : {'Bad retmode for database':
+                                                    {'db' : self.db, 'retmode' : retmode},
+                                                    'action' : 'abort'}})))
     return retmode
 
   def adjust_reqsize(self, reqsize):
+    """Adjusts request size for query
+
+    :param reqsize: Request size parameter
+    :type  reqsize: str or None
+    :return: adjusted request size
+    :rtype: int
+    """
     if reqsize is None:
       return EfetchParameter.req_limits.get(self.retmode)
     if int(reqsize) > EfetchParameter.req_limits.get(self.retmode):
       return EfetchParameter.req_limits.get(self.retmode)
-    if self.retmax and (int(reqsize) < self.retmax):
+    if self.retmax and (self.retmax < int(reqsize)):
       return self.retmax
     return int(reqsize)
 
@@ -126,30 +131,30 @@ class EfetchParameter(entrezpy.base.parameter.EutilsParameter):
     """
     if not qsize:
       qsize = self.retmax
-    if self.retmax == 0:
-      return 1
     if not reqsize:
       reqsize = EfetchParameter.req_limits.get(self.retmode)
+    if self.retmax == 0 or (qsize is None):
+      qsize = 1
     self.expected_requests = math.ceil(qsize / reqsize)
 
-  ## Implemented check() function
-  # Testing for required parameters and aborting if they are missing/wrong
-  # When using the history server, efetch queries require WebEnv and query_key
   def check(self):
+    """Implements :class:`entrezpy.base.parameter.EutilsParameter.check` to
+    check for the minumum required parameters. Aborts if any check fails.
+    """
     if not self.haveDb():
-      logger.error(json.dumps({__name__ : {'Missing parameter': {'db' : self.db},
-                                           'action' : 'abort'}}))
-      sys.exit()
+      sys.exit(logger.error(json.dumps({__name__ : {'Missing parameter': {'db' : self.db},
+                                                    'action' : 'abort'}})))
+
     if not self.haveExpectedRequets():
-      logger.error(json.dumps({__name__ : {'Bad expected requests' : self.expected_requests,
-                                           'action' : 'abort'}}))
-      sys.exit()
+      sys.exit(logger.error(json.dumps({__name__ : {'Bad expected requests' : self.expected_requests,
+                                                    'action' : 'abort'}})))
+
     if not self.uids and not self.haveQuerykey() and not self.haveWebenv():
-      logger.error(json.dumps({__name__ : {'Missing parameters': {'id': self.uids,
-                                                                  'QueryKey': self.querykey,
-                                                                  'WebEnv' : self.webenv},
-                                           'action' : 'abort'}}))
-      sys.exit()
+      sys.exit(logger.error(json.dumps({__name__ : {'Missing parameters' :
+                                                    {'id': self.uids,
+                                                     'QueryKey': self.querykey,
+                                                     'WebEnv' : self.webenv},
+                                                    'action' : 'abort'}})))
 
   def dump(self):
     return {'db' : self.db,
@@ -163,7 +168,6 @@ class EfetchParameter(entrezpy.base.parameter.EutilsParameter):
             'strand' : self.strand,
             'seqstart' : self.seqstart,
             'seqstop' : self.seqstop,
-            'complexist' : self.complexity,
-            'query_size' : self.query_size,
-            'request_size' : self.request_size,
+            'complexity' : self.complexity,
+            'request_size' : self.reqsize,
             'expected_requets' : self.expected_requests}
