@@ -34,7 +34,7 @@ class LinksetUnit:
   :param str linkname: linkname
   """
 
-  def __init__(self, dbto, linkname):
+  def __init__(self, dbto, linkname, cat='basic'):
     """Inits LinksetUnit instance with the linked database name and linkname
 
     :attribute str dbto: name of target database
@@ -42,6 +42,7 @@ class LinksetUnit:
     """
     self.db = dbto
     self.linkname = linkname
+    self.cat = cat
 
   def dump(self):
     """Virtual function to dump attributes in derived instances.
