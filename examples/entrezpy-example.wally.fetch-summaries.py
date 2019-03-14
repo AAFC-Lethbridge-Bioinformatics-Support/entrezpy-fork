@@ -41,7 +41,9 @@ def main():
   start = time.time()
   w = entrezpy.wally.Wally(args.email, args.apikey, args.apikey_envar, threads=args.threads)
   px = w.new_pipeline()
-  pid = px.add_search({'db' : 'gene', 'term' : 'tp53[preferred symbol] AND human[organism]', 'retmode':'count'})
+  pid = px.add_search({'db' : 'gene',
+                       'term' : 'tp53[preferred symbol] AND human[organism]',
+                       'rettype' : 'count'})
   if args.use_history:
     pid = px.add_link({'db' : 'protein', 'cmd':'neighbor_history'}, dependency=pid)
     pid = px.add_search(dependency=pid)
@@ -49,6 +51,7 @@ def main():
     pid = px.add_link({'db' : 'protein'}, dependency=pid)
   pid = px.add_summary(dependency=pid)
   analyzer = w.run(px)
+  print(analyzer.get_result().dump())
   for i in analyzer.result.summaries:
     print("{}\t{}".format(analyzer.result.summaries[i].get('caption'),
                           analyzer.result.summaries[i].get('sourcedb')))
