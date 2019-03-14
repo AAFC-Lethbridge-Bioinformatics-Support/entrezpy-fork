@@ -80,10 +80,9 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
     """
     self.init_result(response, request)
     if request.cmd != 'llinkslib' and request.retmode != 'json':
-      logger.info(json.dumps({__name__:{'Not implemented Error':
-                                        {'Command' : request.cmd,
-                                         'Format' : request.retmode}}}))
-      sys.exit()
+      sys.exit(logger.info(json.dumps({__name__:{'Not implemented Error':
+                                                 {'Command' : request.cmd,
+                                                  'Format' : request.retmode}}})))
     if request.retmode == 'json':
       logger.debug(json.dumps({__name__: {"Response" : response}}))
     else:
@@ -95,9 +94,8 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
     elif request.cmd in entrezpy.elink.linkset.bare.LinkSet.list_linksets:
       self.analyze_linklist(response['linksets'], request.cmd)
     else:
-      logger.debug(json.dumps({__name__: {'Error' : {'Unknown elink cmd' : request.cmd,
-                                                     'action' : 'abort'}}}))
-      sys.exit()
+      sys.exit(logger.debug(json.dumps({__name__: {'Error' : {'Unknown elink cmd' : request.cmd,
+                                                              'action' : 'abort'}}})))
 
   def analyze_linklist(self, linksets, cmd):
     """Parses ELink responses listing link information for UIDs.
@@ -109,24 +107,33 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
       if 'idurllist' in i:
         for j in i.get('idurllist'):
           lset = linked.LinkedLinkset(j['id'], i['dbfrom'], canLink=False)
+          logger.debug(json.dumps({__name__ : "Created {}".format(lset.dump())}))
           for k in j['objurls']:
             lset.add_linkunit(bare.LinkSet.new_unit(cmd).new(k))
+            logger.debug(json.dumps({__name__ : "Added {}".format(lset.linkunits[-1].dump())}))
           self.result.add_linkset(lset)
       elif 'idlinksets' in i['idchecklist']:
         for j in i['idchecklist'].get('idlinksets'):
           lset = linked.LinkedLinkset(j['id'], i['dbfrom'], canLink=False)
+          logger.debug(json.dumps({__name__ : "Created {}".format(lset.dump())}))
           for k in j['linkinfos']:
-            lset.add_linkunit(bare.LinkSet.new_unit(cmd).new(k['dbto'], k['linkname'],
-                                                             k.get('menutag'), k.get('htmltag'),
+            lset.add_linkunit(bare.LinkSet.new_unit(cmd).new(k['dbto'],
+                                                             k['linkname'],
+                                                             k.get('menutag'),
+                                                             k.get('htmltag'),
                                                              k.get('priority')))
+            logger.debug(json.dumps({__name__ : "Added {}".format(lset.linkunits[-1].dump())}))
           self.result.add_linkset(lset)
       elif 'ids' in i['idchecklist']:
         for j in i['idchecklist'].get('ids'):
           lset = linked.LinkedLinkset(j['value'], i['dbfrom'], canLink=False)
+          logger.debug(json.dumps({__name__ : "Created {}".format(lset.dump())}))
           if 'hasneighbor' in j:
             lset.add_linkunit(bare.LinkSet.new_unit(cmd).new(i['dbfrom'], j['hasneighbor']))
+            logger.debug(json.dumps({__name__ : "Added {}".format(lset.linkunits[-1].dump())}))
           if 'haslinkout' in j:
             lset.add_linkunit(bare.LinkSet.new_unit(cmd).new(i['dbfrom'], j['haslinkout']))
+            logger.debug(json.dumps({__name__ : "Added {}".format(lset.linkunits[-1].dump())}))
           self.result.add_linkset(lset)
 
   def analyze_links(self, linksets, cmd):
@@ -139,14 +146,17 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
       lset = linked.LinkedLinkset(i['ids'][0], i['dbfrom'])  #assume 1-to-many link as default
       if len(i['ids']) > 1: # OK, it's many-to-many
         lset = relaxed.RelaxedLinkset(i['ids'], i['dbfrom'])
+        logger.debug(json.dumps({__name__ : "Created {}".format(lset.dump())}))
       if 'linksetdbs' in i:
         for j in i['linksetdbs']:
           for k in j['links']:
             lset.add_linkunit(bare.LinkSet.new_unit(cmd).new(k, j['dbto'], j['linkname']))
+            logger.debug(json.dumps({__name__ : "Added {}".format(lset.linkunits[-1].dump())}))
       else:
         for j in i['linksetdbhistories']:
           lset.add_linkunit(bare.LinkSet.new_unit(cmd).new(j['dbto'], j['linkname'],
-                                                           j['querykey'], i['webenv']))
+                                                           i['webenv'], j['querykey']))
+          logger.debug(json.dumps({__name__ : "Added {}".format(lset.linkunits[-1].dump())}))
       self.result.add_linkset(lset)
 
   def parse_llinkslib(self, response, cmd, lset=None):
@@ -179,6 +189,7 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
         if elem.tag == 'ObjUrl':
           isObjurl = False
           lset.add_linkunit(bare.LinkSet.new_unit(cmd).new(unit))
+          logger.debug(json.dumps({__name__ : "Added {}".format(lset.linkunits[-1].dump())}))
         if elem.tag == 'IdUrlSet':
           self.result.add_linkset(lset)
 
@@ -187,6 +198,7 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
           dbfrom = elem.text
         if elem.tag == 'Id' and not isObjurl:
           lset = linked.LinkedLinkset(int(elem.text), dbfrom, canLink=False)
+          logger.debug(json.dumps({__name__ : "Created {}".format(lset.dump())}))
 
       if isLinkset and isObjurl:
         if elem.tag == 'Provider':
