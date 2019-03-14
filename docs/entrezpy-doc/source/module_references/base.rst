@@ -1,3 +1,5 @@
+.. _base_mods:
+
 Base modules
 =============
 
@@ -34,3 +36,9 @@ Result
   .. automodule:: entrezpy.base.result
     :members:
     :undoc-members:
+
+Monitor
+-------
+  ..  automodule:: entrezpy.base.monitor
+      :members:
+      :undoc-members:

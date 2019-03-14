@@ -25,6 +25,7 @@ Supported E-Utility functions:
 >>> import entrezpy
 >>> e = entrezpy.efetch.efetcher.Efetcher('efetcher', 'you@email')
 >>> a = e.inquire({'db': 'nucleotide', 'id': [5], 'rettype':'fasta'})
+
 Manual
 ======
 
@@ -52,6 +53,7 @@ Module reference
   module_references/epost
   module_references/esearch
   module_references/efetch
+  module_references/requester
 
 
 Indices and tables

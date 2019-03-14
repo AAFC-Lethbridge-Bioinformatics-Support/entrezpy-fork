@@ -1,3 +1,5 @@
+.. _efetch_mods:
+
 Efetch modules
 ==============
 
@@ -31,16 +33,6 @@ EfetchRequest
 --------------
   .. inheritance-diagram:: entrezpy.efetch.efetch_request
   .. automodule:: entrezpy.efetch.efetch_request
-    :members:
-    :inherited-members:
-    :undoc-members:
-    :show-inheritance:
-
-
-EfetchResult
--------------
-  .. inheritance-diagram:: entrezpy.efetch.efetch_result
-  .. automodule:: entrezpy.efetch.efetch_result
     :members:
     :inherited-members:
     :undoc-members:

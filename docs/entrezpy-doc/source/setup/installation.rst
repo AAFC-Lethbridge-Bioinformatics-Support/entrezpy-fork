@@ -30,16 +30,18 @@ Test your Python version
 ------------------------
 Test if we have at least **Python 3.6** :
 
-.. code::
+.. code:: python
 
   $ python
-  >>> import sys
-  >>> sys.version_info
-  >>> sys.version_info(major=3, minor=6, micro=6, releaselevel='final', serial=0)
-                             ^        ^
+
+>>> import sys
+>>> sys.version_info
+>>> sys.version_info(major=3, minor=6, micro=6, releaselevel='final', serial=0)
+                           ^        ^
+
 PyPi
 ----
-Install ``entrezpy`` via PyPi and check installation.
+Install ``entrezpy`` via PyPi and check:
 
 .. code::
 
@@ -50,15 +52,20 @@ Test if we can import ``entrezpy``:
 .. code::
 
   $ python
-  >>>import entrezpy
+
+>>> import entrezpy
 
 Append to ``sys.path``
 ----------------------
 Add ``entrezpy`` to your pipeline via `sys.path`. This requires to clone
 the source code adjusting `sys.path`.
 
-Assuming following directory structure:
+Assuming following directory structure where entrezpy was cloned into
+``include``:
+
   ::
+
+    $ git clone https://gitlab.com/ncbipy/entrezpy.git project_root/include
 
     project_root
     |
@@ -70,13 +77,8 @@ Assuming following directory structure:
                 `-- entrezpy
                     `-- efetch
 
-Importing the module ``efetcher`` in ``pipeline.py``:
-
-.. code::
-
- $ git clone https://gitlab.com/ncbipy/entrezpy.git project_root/include
-
-Adjust ``sys.path`` in ``project_root/src/pipeline.py``
+Importing the module ``efetcher`` in ``pipeline.py`` by adjust ``sys.path`` in
+``project_root/src/pipeline.py``
 
 .. code::
 
@@ -87,4 +89,8 @@ Adjust ``sys.path`` in ``project_root/src/pipeline.py``
 
 Test ``entrezpy``
 -----------------
-Run the examples in the git repository in ``entrezpy/examples``.
+Run the examples in the git repository in ``entrezpy/examples``, e.g:
+
+  ::
+
+    $ ./path/to/entrezpy/examples/entrezpy-example.elink.py --email you@email
