@@ -51,7 +51,6 @@ def main():
     pid = px.add_link({'db' : 'protein'}, dependency=pid)
   pid = px.add_summary(dependency=pid)
   analyzer = w.run(px)
-  print(analyzer.get_result().dump())
   for i in analyzer.result.summaries:
     print("{}\t{}".format(analyzer.result.summaries[i].get('caption'),
                           analyzer.result.summaries[i].get('sourcedb')))
