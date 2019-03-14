@@ -62,8 +62,8 @@ class Esummarizer(entrezpy.base.query.EutilsQuery):
     req_size = param.reqsize
     self.monitor_start(param)
     for i in range(param.expected_requests):
-      if i * req_size + req_size > param.reqsize:
-        req_size = param.retmax - (i * req_size)
+      if i * req_size + req_size > param.retmax:
+        req_size = param.retmax % param.reqsize
       self.add_request(entrezpy.esummary.esummary_request.EsummaryRequest(self.eutil,
                                                                           param,
                                                                           (i*param.reqsize),
