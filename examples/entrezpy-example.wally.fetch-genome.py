@@ -84,19 +84,6 @@ class GenomeAssembler(entrezpy.efetch.efetch_analyzer.EfetchAnalyzer):
     fh.write(response.getvalue())
     fh.close()
 
-def assembly_status_screener(summary_result):
-  filtr = {'assemblystatus':'Complete Genome'}
-  complete_genome_uids = []
-  for i in summary_result.summaries:
-    keep = True
-    for j in filtr:
-      if summary_result.summaries[i][j] != filtr[j]:
-        keep = False
-    if keep:
-      print(summary_result.summaries[i]['uid'])
-      complete_genome_uids.append(i)
-  return complete_genome_uids
-
 def main():
   ap = argparse.ArgumentParser(description='Callimachus extended example for EDirect \
         example https://github.com/NCBI-Hackathons/EDirectCookbook#genomic-sequence-fastas-from-refseq-assembly-for-specified-taxonomic-designation')
