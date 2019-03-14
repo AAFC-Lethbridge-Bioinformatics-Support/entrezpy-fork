@@ -44,19 +44,25 @@ class EsummaryRequest(entrezpy.base.request.EutilsRequest):
     self.retmax = size
     self.retmode = parameter.retmode
     self.rettype = parameter.rettype
-    #self.esummary_version = parameter.esummary_version
     self.uids = parameter.uids[start:start+size]
     self.webenv = parameter.webenv
     self.querykey = parameter.querykey
 
   def get_post_parameter(self):
     qry = self.prepare_base_qry(extend={'retmode':self.retmode})
-    #if self.retmode == 'xml':
-      #qry.update({'version' : self.esummary_version})
-
     if self.webenv and self.querykey:
       qry.update({'WebEnv' : self.webenv, 'query_key':self.querykey,
                   'retstart' : self.retstart, 'retmax' : self.retmax})
     else:
       qry.update({'id' : ','.join(str(x) for x in self.uids)})
     return qry
+
+  def dump(self):
+    """:rtype: dict"""
+    return self.dump_internals({'retstart' : self.retstart,
+                                'retmax' : self.retmax,
+                                'retmode' : self.retmode,
+                                'rettype' : self.rettype,
+                                'WebEnv' : self.webenv,
+                                'query_key' : self.querykey,
+                                'uids' : len(self.uids)})
