@@ -152,11 +152,14 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
           for k in j['links']:
             lset.add_linkunit(bare.LinkSet.new_unit(cmd).new(k, j['dbto'], j['linkname']))
             logger.debug(json.dumps({__name__ : "Added {}".format(lset.linkunits[-1].dump())}))
-      else:
+      elif 'linksetdbhistories' in i:
         for j in i['linksetdbhistories']:
           lset.add_linkunit(bare.LinkSet.new_unit(cmd).new(j['dbto'], j['linkname'],
                                                            i['webenv'], j['querykey']))
           logger.debug(json.dumps({__name__ : "Added {}".format(lset.linkunits[-1].dump())}))
+      else:
+        logger.debug(json.dumps({__name__ : 'Empty'}))
+        continue
       self.result.add_linkset(lset)
 
   def parse_llinkslib(self, response, cmd, lset=None):
