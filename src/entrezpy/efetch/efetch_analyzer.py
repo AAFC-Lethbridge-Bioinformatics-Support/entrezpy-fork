@@ -40,10 +40,11 @@ class EfetchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
   instance.
 
   .. note:: This is a very superficial analyzer for documentation and
-  educational purposes. In almost all cases a more specific analyzer has to be
-  implement in deriving :class:`entrezpy.efetch.efetch_analyzer.EfetchAnalzyer`
-  and implementing :meth:`entrezpy.base.analyzer.EutilsAnalzyer.analyze_result`
-  and :meth:`entrezpy.base.analyzer.EutilsAnalzyer.analyze_error`.
+    educational purposes. In almost all cases a more specific analyzer has to be
+    implemented in inheriting :class:`entrezpy.base.analyzer.EutilsAnalyzer`
+    and implementing the virtual functions
+    :meth:`entrezpy.base.analyzer.EutilsAnalzyer.analyze_result` and
+    :meth:`entrezpy.base.analyzer.EutilsAnalzyer.analyze_error`.
   """
 
   def __init__(self):

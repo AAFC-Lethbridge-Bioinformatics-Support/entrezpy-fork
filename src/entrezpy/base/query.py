@@ -65,10 +65,10 @@ class EutilsQuery:
   """Base url for all Eutil request"""
 
   query_requester = None
-  """Reference :class:`entrezpy.requester.requester.Requester` as class variable"""
+  """References :class:`entrezpy.requester.requester.Requester` """
 
   query_monitor = entrezpy.base.monitor.QueryMonitor()
-  """Reference :class:`entrezpy.base.monitor.QueryMonitor` as class variable"""
+  """References :class:`entrezpy.base.monitor.QueryMonitor` """
 
   @staticmethod
   def run_one_request(request):
@@ -102,7 +102,8 @@ class EutilsQuery:
       :param int num_threads: number of threads
       :param reference failed_requests:
         :attr:`entrezpy.base.query.EutilsQuery.failed_requests`
-      :ivar requests: request queue (:class:`queue.Queue`)
+      :ivar requests: request queue
+      :type requests: :class:`queue.Queue`
       :ivar bool useThreads: flag to use single ot multithreading
       """
       self.requests = queue.Queue(num_threads)
@@ -114,7 +115,8 @@ class EutilsQuery:
           EutilsQuery.ThreadedRequester(self.requests, self.failed_requests)
 
     def add_request(self, request, analyzer):
-      """Adds one request into the threading pool as **tuple**\ (`request`, `analzyer`).
+      """Adds one request into the threading pool as
+      **tuple**\ (`request`, `analzyer`).
 
       :param  request: entrezpy request instance
       :type   request: :class:`entrezpy.base.request.EutilsRequest`
@@ -170,7 +172,7 @@ class EutilsQuery:
       self.start()
 
     def run(self):
-      """Overwrite ':meth:'`threading.Thread.run` for multithreaded requests."""
+      """Overwrite :meth:`threading.Thread.run` for multithreaded requests."""
       while True:
         request, analyzer = self.requests.get()
         response = EutilsQuery.run_one_request(request)

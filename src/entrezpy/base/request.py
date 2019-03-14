@@ -29,29 +29,29 @@ class EutilsRequest:
   """EutilsRequest is the base class for requests from
   :class:`entrezpy.base.query.EutilsQuery`.
 
-  EutilsRequest instances are finalized by :class:`entrezpy.base.query.EutilsQuery`
-  before added to the request pool by :meth:`entrezpy.base.query.EutilsQuery.add_request`.
-  Each EutilsRequest triggers an answer at the NCBI Entrez servers if no
-  connection errors occured.
-  An EutilsRequest() instance has the required  information to prepare a POST
-  request. Its status can be queried from outside by
-  :func:`entrezpy.base.request.EutilsRequest.get_observation`. EutilsRequest
-  instances store information not given in a server response and is required by
-  :class:`entrezpy.base.analyzer.EutilsAnalyzer` to parse responses and errors
-  correctly. Several instance attributes are not required for a POST request but
-  help debugging, e.g. identify to which tool and query this requests belongs.
+  EutilsRequests instantiate in :meth:`entrezpy.base.query.EutilsQuery.inquire`
+  before being added to the request pool by
+  :meth:`entrezpy.base.query.EutilsQuery.add_request`. Each EutilsRequest
+  triggers an answer at the NCBI Entrez servers if no connection errors occure.
 
-  Each request is automatically given an id by
-  :meth:`entrezpy.base.query.EutilsQuery.add_request` to identify and  trace
-  requests using the query id and request id.
+  :class:`EutilsRequest` stores the required  information for POST requests.
+  Its status can be queried from outside by
+  :func:`entrezpy.base.request.EutilsRequest.get_observation`. EutilsRequest
+  instances store information not present in the server response and is
+  required by :class:`entrezpy.base.analyzer.EutilsAnalyzer` to parse responses
+  and errors correctly. Several instance attributes are not required for a POST
+  request but help debugging.
+
+  Each request is automatoically assigned an id to identify and  trace requests
+  using the query id and request id.
+
+  :param str eutil: eutil function for this request, e.g. efetch.fcgi
+  :param str db: database for request
   """
 
   def __init__(self, eutil, db):
     """ Initializes a new request with initial attributes as part of a query in
     :class:`entrezpy.base.query.EutilsQuery`.
-
-    :param str eutil: eutil function for this request, e.g. efetch.fcgi
-    :param str db: database for request
 
     :ivar str tool: tool name to which this request belongs
     :ivar str url: full Eutil url
