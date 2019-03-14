@@ -70,16 +70,20 @@ def main():
   find_genomes = w.new_pipeline()
   search_pid = find_genomes.add_search({'db' : 'assembly', 'term' : 'Leptospira alstonii[ORGN] AND latest[SB]'})
   summary_pid = find_genomes.add_summary(dependency=search_pid)
-  link_id = find_genomes.add_link({'db':'nuccore','linkname': 'assembly_nuccore_refseq'}, dependency=search_pid)
+  link_id = find_genomes.add_link({'db':'nuccore','linkname': 'assembly_nuccore_refseq', 'WebEnv':None}, dependency=search_pid)
   link_analyzer = w.run(find_genomes)
+  fetch_params = {'retmode':'text', 'rettype':'fasta'}
   for i in link_analyzer.get_result().linksets:
     print("Fetching sequences")
-    for j in i.linkunits:
-      print("\t", j.uid)
-      #pxn = w.new_pipeline()
-      #a = GenomeAssembler(metadata=w.get_result(summary_pid).summaries[j])
-      #pxn.add_fetch({'db':i.dbto, 'retmode':'text', 'rettype':'fasta', 'id':i.links[j]}, analyzer=a)
-      #w.run(pxn)
+    print(i.get_link_uids())
+    for db, uids in i.get_link_uids().items():
+      print("asasasassas", db, uids)
+      fetch_params.update({'db' : db, 'id' :uids})
+    print(fetch_params)
+    cat_genomes = w.new_pipeline()
+    a = GenomeAssembler(metadata=w.get_result(summary_pid).summaries[i.uid])
+    cat_genomes.add_fetch(fetch_params, analyzer=a)
+    w.run(cat_genomes)
   return 0
 
 if __name__ == '__main__':
