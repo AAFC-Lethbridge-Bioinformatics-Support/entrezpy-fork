@@ -29,7 +29,7 @@ import logging
 import entrezpy.base.result
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
 
@@ -130,9 +130,11 @@ class ElinkResult(entrezpy.base.result.EutilsResult):
       return None
     self.check_unexpected_dbnum(dbs)
     if len(query_keys) > 1:
+      logger.debug(json.dumps({__name__: "History follow-up using term"}))
       return {'WebEnv' : self.linksets[0].linkunits[0].webenv,
               'db' : self.linksets[0].linkunits[0].db,
               'term' : ' OR '.join(str("#{0}".format(x)) for x in query_keys)}
+    logger.debug(json.dumps({__name__: "History follow-up using querykey"}))
     return {'WebEnv' : self.linksets[0].linkunits[0].webenv,
             'db' : self.linksets[0].linkunits[0].db,
             'query_key' : query_keys[0]}
