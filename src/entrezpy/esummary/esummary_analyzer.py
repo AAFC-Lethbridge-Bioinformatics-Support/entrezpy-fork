@@ -61,7 +61,7 @@ class EsummaryAnalzyer(entrezpy.base.analyzer.EutilsAnalyzer):
 
   def analyze_result(self, response, request):
     if not self.init_result(response, request):
-      self.result.add_summaries(response.pop('result'))
+      self.result.add_summaries(response.pop('result', None))
 
   def analyze_error(self, response, request):
     log_msg = {'tool' : request.tool, 'request' : request.id, 'query' : request.query_id}
