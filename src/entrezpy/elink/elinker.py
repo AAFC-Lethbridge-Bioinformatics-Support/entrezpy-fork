@@ -41,18 +41,16 @@ class Elinker(entrezpy.base.query.EutilsQuery):
   of one request linking UIDs or an earlier requests on the history server
   within the same or different Entrez database. [0]:
   https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.ELink
+
+  :param str tool: tool name
+  :param str email: user email
+  :param str apikey: NCBI apikey
+  :param str apikey_var: enviroment variable storing NCBI apikey
+  :param int threads: set threads for multithreading
+  :param str qid: unique query id
   """
 
   def __init__(self, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
-    """Inits Elinker instance with given attributes
-
-      :param str tool: tool name
-      :param str email: user email
-      :param str apikey: NCBI apikey
-      :param str apikey_var: enviroment variable storing NCBI apikey
-      :param int threads: set threads for multithreading
-      :param str qid: unique query id
-    """
     super().__init__('elink.fcgi', tool, email, apikey, apikey_var, threads, qid)
 
   def inquire(self, parameter, analyzer=entrezpy.elink.elink_analyzer.ElinkAnalyzer()):
