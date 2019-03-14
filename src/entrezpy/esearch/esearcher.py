@@ -164,10 +164,10 @@ def reachedLimit(parameter, analyzer):
 
   :rtype: bool
   """
+  if analyzer.query_size() == analyzer.size(): # fetched all UIDs
+    return True
   if not parameter.retmax:  # We have no limit
     return False
-  if analyzer.query_size() <= analyzer.size(): # fetched all UIDs
-    return True
   if analyzer.size() == parameter.retmax: # Fetched limit set by retmax
     return True
   return False
