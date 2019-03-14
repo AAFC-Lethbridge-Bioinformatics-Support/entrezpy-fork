@@ -42,10 +42,11 @@ class NeighborHistory(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
     return cls(dbto, linkname, webenv, querykey)
 
   def __init__(self, dbto, linkname, webenv, querykey):
-    super().__init__(dbto, linkname)
+    super().__init__(dbto, linkname, cat='neighbor_history')
     self.webenv = webenv
     self.querykey = querykey
 
   def dump(self):
     """:rtype: dict"""
-    return dict({'webenv' : self.webenv, 'querykey' : self.querykey}, **self.basic_dump())
+    return dict({'cat' : self.cat, 'webenv' : self.webenv, 'querykey' : self.querykey},
+                **self.basic_dump())
