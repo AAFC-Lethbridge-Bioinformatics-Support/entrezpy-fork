@@ -43,15 +43,20 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
-##
-#
-#
+
 class Wally:
   """Wally simplifies to create pipelines and queries for entrezpy. Wally stores
   results from previous requests, allowing to concatenate queries and
   retrieve obtained results later if required to reduce the need to redownload
   data. Wally can use multiple threads to speed up data download, but some
   external libraries can break, e.g. SQLite3.
+
+  Pipelines
+  ---------
+  Queries instances in pipelines of :class:`Wally.Pipeline` are stored in the
+  dictionary :attr:`Wally.queries` with the query id as key and are accessible
+  by all Wally instances. A single :class:`Wally.Pipeline` stores only the
+  query id for this instance
 
   :param str email: user email
   :param str apikey: NCBI apikey
@@ -103,17 +108,16 @@ class Wally:
 
   class Pipeline:
     """The Pipeline class implements a query pipeline with several consecutive
-    queries. New pipelines are obtained through :class:`.Wally`. They store
-    queries which will get resolved in the order added and can reuase parameters
-    from earlier queries.
+    queries. New pipelines are obtained through :class:`.Wally`. Query instances
+    are stored in :attr:`Wally.queries` and the corresponding query id's in
+    :attr:`.queries`. Every added query returns its id which can be used to
+    retrieve it.
     """
 
-    def __init__(self, query_map):
-      """:ivar dict query_map: :attr:`Wally.queries`
-      :ivar  queries: queries for this instance
-      :type  queries: :class:`queue.Queue()`
+    def __init__(self):
+      """:ivar  queries: queries for this Pipeline instance
+         :type  queries: :class:`queue.Queue()`
       """
-      self.query_map = query_map
       self.queries = queue.Queue()
 
     def add_search(self, parameter=None, dependency=None, analyzer=None):
@@ -142,12 +146,11 @@ class Wally:
 
     def add_fetch(self, parameter=None, dependency=None, analyzer=None):
       """Adds Efetch query. Same signature as :meth:`Wally.Pipeline.add_search`
-      but analyzer is required.
+      but analyzer is required as this step obtains highly variable results.
       """
       if not analyzer:
-        logger.error(json.dumps({__name__ : {'Error' :
-                                             {'Missing required parameter' : 'analyzer',
-                                              'action' : 'abort'}}}))
+        logger.error(json.dumps({__name__ : {'Error' : {'Missing required parameter' : 'analyzer',
+                                                        'action' : 'abort'}}}))
       return self.add_query(Wally.Query('efetch', parameter, dependency, analyzer))
 
     def add_query(self, query):
@@ -159,7 +162,7 @@ class Wally:
       :rtype: str
       """
       self.queries.put(query.id)
-      self.query_map[query.id] = query
+      Wally.queries[query.id] = query
       return query.id
 
   def __init__(self, email, apikey=None, apikey_envar=None, threads=None):
@@ -169,15 +172,15 @@ class Wally:
     self.api_envar = apikey_envar
     self.threads = threads
 
-  def run(self, qry):
+  def run(self, pipeline):
     """Runs one query in pipeline and checks for errors. If errors are
-    encounterd the pipeline is aborted.
+    encounterd the pipeline aborts.
 
-    :param qry: Wally query
-    :type  qry: :class:`Wally.Query`
+    :param pipeline: Wally pipeline
+    :type  pipeline: :class:`Wally.Pipeline`
     """
-    while not qry.queries.empty():
-      q = Wally.queries[qry.queries.get()]
+    while not pipeline.queries.empty():
+      q = Wally.queries[pipeline.queries.get()]
       q.resolve_dependency()
       logger.info(json.dumps({__name__ : {'Inquiring' : {'query_id' : q.id,
                                                          'function' : q.function}}}))
@@ -195,28 +198,29 @@ class Wally:
     return Wally.analyzers[q.id]
 
   def check_query(self, query):
-    """Check for succesful query in a pipeline.
+    """Check for successful query.
 
     :param query: Wally query
     :type  query: :class:`Wally.Query`
     """
     if not Wally.analyzers[query.id]:
-      sys.exit("Request errors in query {}".format(query.id))
+      sys.exit(logger.error(json.dumps({__name__ : {'Request error': {'query_id' : query.id,
+                                                                      'action' : 'abort'}}})))
     if not Wally.analyzers[query.id].isSuccess():
       sys.exit(logger.info(json.dumps({__name__ : {'response error': {'query_id' : query.id,
                                                                       'action' : 'abort'}}})))
 
   def get_result(self, query_id):
-    """"Returns stored result from previus run.
+    """"Returns stored result from previous run.
 
     :param str query_id: query id
     :return: Result from this query
     :rtype: :class:`entrezpy.base.result.EutilsResult`
     """
-    r = self.analyzers.get(query_id)
-    if not r:
+    analyzer = self.analyzers.get(query_id)
+    if not analyzer:
       return None
-    return r.result
+    return analyzer.get_result()
 
   def new_pipeline(self):
     """Retrurns new Wally pipeline.
@@ -224,7 +228,7 @@ class Wally:
     :return: Wally pipeline
     :rtype: :class:`Wally.Pipeline`
     """
-    return self.Pipeline(Wally.queries)
+    return self.Pipeline()
 
   def search(self, query, analyzer=entrezpy.esearch.esearch_analyzer.EsearchAnalyzer):
     """Configures and runs an Esearch query. Analyzer are class references and
@@ -258,7 +262,7 @@ class Wally:
                                                      self.email,
                                                      self.apikey,
                                                      threads=self.threads,
-                                                     id=query.id).inquire(query.parameter, analyzer)
+                                                     qid=query.id).inquire(query.parameter, analyzer)
 
   def link(self, query, analyzer=entrezpy.elink.elink_analyzer.ElinkAnalyzer):
     """Configures and runs an Elink query. Analyzer are class references and
