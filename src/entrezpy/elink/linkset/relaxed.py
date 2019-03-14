@@ -47,11 +47,19 @@ class RelaxedLinkset(entrezpy.elink.linkset.bare.LinkSet):
 
 
   def get_link_uids(self):
-    """:return: UIDs form target database
-       :rtype: list
+    """:return: target database and its linl UIDs
+       :rtype: dict
     """
-    return [x.uids for x in self.linkunits]
+    link = {}
+    for i in self.linkunits:
+      if i.db not in link:
+        link[i.db] = []
+      link[i.db].append(i.uid)
+    return link
+    #return [x.uids for x in self.linkunits]
 
   def dump(self):
-    """:return: dict -- all basis attributes of the instance"""
-    return dict({'uids': [x for x in self.uids]}, **self.base_dump())
+    """:return: all basis attributes of the instance
+    :rtype: dict
+    """
+    return dict({'src_uids': [x for x in self.uids]},**self.base_dump())
