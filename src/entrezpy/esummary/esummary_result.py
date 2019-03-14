@@ -32,7 +32,8 @@ class EsummaryResult(entrezpy.base.result.EutilsResult):
   def __init__(self, response, request):
     super().__init__('esummary', request.query_id, request.db)
     self.summaries = {}
-    self.add_summaries(response['result'])
+    if response:
+      self.add_summaries(response['result'])
 
   def dump(self):
     """:rtype: dict"""
@@ -41,6 +42,7 @@ class EsummaryResult(entrezpy.base.result.EutilsResult):
 
   def get_link_parameter(self, reqnum=0):
     """Esummary has no link automated link ability
+
     :return: None
     """
     return None
@@ -55,8 +57,10 @@ class EsummaryResult(entrezpy.base.result.EutilsResult):
 
   def add_summaries(self, results):
     """Adds summaries form a Esummary E-Utiliy response
+
     :param dict results: Esummaries
     """
-    for i in results['uids']:
-      if int(i) not in self.summaries:
-        self.summaries[int(i)] = results.pop(i)
+    if results:
+      for i in results['uids']:
+        if int(i) not in self.summaries:
+          self.summaries[int(i)] = results.pop(i)
