@@ -3,28 +3,77 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Entrezpy: NCBI's Entrez databases at your fingertips
+Entrezpy: NCBI Entrez databases at your fingertips
 ====================================================
 
 Synopsis
-========
-Entrezpy is a dedicated Python library to interact with NCBI's Entrez databases
-via the E-Utilities. Entrezpy faciliatets to create either single queries, e.g.
-search for specific sequences or publiations, fetch your favorite sequence.
-In addition, a helper class helps to craeta more complex queries which can be
-run in an analogous fashion to piping on the commanbd line.
+--------
+.. code::
+
+  $ pip install entrezpy --user
+
+>>> import entrezpy.wally
+>>> w = entrezpy.wally.Wally('myemail')
+>>> fetch_influenza = w.new_pipeline()
+>>> sid = fetch_influenza.add_search({'db' : 'nucleotide', 'term' : 'H3N2 [organism] AND HA', 'rettype':'count', 'sort' : 'Date Released', 'mindate': 2000, 'maxdate':2019, 'datetype' : 'pdat'})
+>>> fid = fetch_influenza.add_fetch({'retmax' : 10, 'retmode' : 'text', 'rettype': 'fasta'}, dependency=sid)
+>>> w.run(fetch_influenza)
+
+Entrezpy is a dedicated Python library to interact with NCBI_ :term:`Entrez`
+databases [Entrez2016]_ via the E-Utilities [Sayers2018]_. Entrezpy facilitates
+the implementation of queries to query or download data from the Entrez
+databases, e.g. search for specific sequences or publiations or fetch your
+favorite genome. For more complex queries ``entrezpy`` offers the class
+:class:`entrezpy.wally.Wally` to run query pipelines or reuse previous queries.
 
 Supported E-Utility functions:
 
- - Esearch
+ - Esearch: :ref:`esearch`
  - Efetch
  - Epost
  - Elink
  - Esummary
 
->>> import entrezpy
->>> e = entrezpy.efetch.efetcher.Efetcher('efetcher', 'you@email')
->>> a = e.inquire({'db': 'nucleotide', 'id': [5], 'rettype':'fasta'})
+Licence and Copyright
+---------------------
+
+``entrezpy`` is licensed under the `GNU Lesser General Public License v3
+(LGPLv3)`_ or later. Please see :ref:`ncbi-disclaimer` concening the copyright
+of the material available through E-Utilities.
+
+.. _ncbi-disclaimer:
+
+Disclaimer and Copyright Issues
+-------------------------------
+
+https://www.ncbi.nlm.nih.gov/home/about/policies/
+
+.. _ncbi-apikey:
+
+NCBI API key
+------------
+
+NCBI offers API keys to allow more requests per second. For more details and
+rational see [Sayers2018]_. ``entrezpy`` checks for NCBI API keys as follows:
+
+  - The NCBI API key can be passed as parameter to ``entrezpy`` classes
+  - Entrezpy checks for the environment variable ``$NCBI_API_KEY``
+  - The enviroment variable, e.g. ``NCBI_API_KEY``, can be passed as parameter
+    to ``entrezpy`` classes
+
+References
+----------
+
+.. [Entrez2016] https://doi.org/10.1093/nar/gkw1071
+
+.. [Sayers2018] https://www.ncbi.nlm.nih.gov/books/NBK25497
+
+.. _NCBI: http://www.ncbi.nlm.nih.gov/
+
+.. _GNU Lesser General Public License v3 (LGPLv3): https://www.gnu.org/licenses/lgpl-3.0.en.html
+
+Notes and Hacks
+---------------
 
 Manual
 ======
@@ -34,10 +83,11 @@ Manual
   :caption: Contents:
 
   setup/installation
-  usage/eutils_functions
+  functions/esearch_func
   usage/examples
   usage/entrezpy_basis
   background/entrezdb
+  glossary/glossary
 
 Adjusting
 =========
@@ -54,6 +104,7 @@ Module reference
   module_references/esearch
   module_references/efetch
   module_references/requester
+  module_references/wally
 
 
 Indices and tables

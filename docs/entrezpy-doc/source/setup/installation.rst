@@ -32,7 +32,7 @@ Test if we have at least **Python 3.6** :
 
 .. code:: python
 
-  $ python
+$ python
 
 >>> import sys
 >>> sys.version_info
@@ -63,19 +63,19 @@ the source code adjusting `sys.path`.
 Assuming following directory structure where entrezpy was cloned into
 ``include``:
 
-  ::
+::
 
-    $ git clone https://gitlab.com/ncbipy/entrezpy.git project_root/include
+  $ git clone https://gitlab.com/ncbipy/entrezpy.git project_root/include
 
-    project_root
-    |
-    |-- src
-    |   `-- pipeline.py
-    `-- include
-        `-- entrezpy
-            `-- src
-                `-- entrezpy
-                    `-- efetch
+  project_root
+  |
+  |-- src
+  |   `-- pipeline.py
+  `-- include
+      `-- entrezpy
+          `-- src
+              `-- entrezpy
+                  `-- efetch
 
 Importing the module ``efetcher`` in ``pipeline.py`` by adjust ``sys.path`` in
 ``project_root/src/pipeline.py``
@@ -91,6 +91,6 @@ Test ``entrezpy``
 -----------------
 Run the examples in the git repository in ``entrezpy/examples``, e.g:
 
-  ::
+::
 
-    $ ./path/to/entrezpy/examples/entrezpy-example.elink.py --email you@email
+  $ ./path/to/entrezpy/examples/entrezpy-example.elink.py --email you@email
