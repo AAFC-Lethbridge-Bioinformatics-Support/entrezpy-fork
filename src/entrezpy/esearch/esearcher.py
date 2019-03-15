@@ -38,12 +38,11 @@ logger.addHandler(logging.StreamHandler())
 
 
 class Esearcher(entrezpy.base.query.EutilsQuery):
-  """Esearcher implements ESearch queries to E-Utilities [0]. Esearch queries
+  """Esearcher implements ESearch queries to NCBI's E-Utilities. Esearch queries
   return UIDs or WebEnv/QueryKey references to Entrez' History server.
-  Esearcher implmenets :meth:`entrezpy.base.query.EutilsQuery.inquire` which
+  Esearcher implments :meth:`entrezpy.base.query.EutilsQuery.inquire` which
   analyzes the first result and automatically configures subseqeunt requests to
-  get all queried UIDs.
-  [0]: https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.ESearch
+  get all queried UIDs if required.
   """
   def __init__(self, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
     super().__init__('esearch.fcgi', tool, email, apikey, apikey_var, threads, qid)
