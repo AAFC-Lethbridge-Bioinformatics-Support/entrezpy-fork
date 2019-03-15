@@ -298,16 +298,19 @@ class Wally:
                                           threads=self.threads,
                                           qid=query.id).inquire(query.parameter, analyzer)
 
-  def fetch(self, query):
+  def fetch(self, query, analyzer=entrezpy.efetch.efetch_analyzer.EfetchAnalyzer):
     """uns an Efetch query. The Analyzer needs to be added to the quuery
 
     :param query: Wally Query
     :type  query: :class:`Wally.Query`
+    :param analyzer: reference to analyzer class
+    :return: analyzer
     :return: analyzer
     :rtype: :class:`entrezpy.efetch.efetch_analyzer.EfetchAnalyzer`
     """
+    analyzer = query.analyzer if query.analyzer else analyzer()
     return entrezpy.efetch.efetcher.Efetcher(self.tool,
                                              self.email,
                                              self.apikey,
                                              threads=self.threads,
-                                             qid=query.id).inquire(query.parameter, query.analyzer)
+                                             qid=query.id).inquire(query.parameter, analyzer)
