@@ -1,5 +1,5 @@
-E-Utils function implemented by entrezpy
-========================================
+E-Utilities by ``entrezpy``
+===========================
 Entrezpy implements the following E-Utils functions to interact with NCBI's
 Entrez databases. The functions share the same underlying structure as described
 in entrezpy_base. All functions accept a dictionary mapping the same parameters

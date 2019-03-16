@@ -1,25 +1,24 @@
-.. _esearch:
+.. _efetch_func:
 
-Esearch
-================
+Efetch
+===============
 
-:class:`entrezpy.esearch.esearcher.Esearcher` implements the E-Utility
-`ESearch` [0]_. `Esearcher` queries return UIDs for data in the requested
-Entrez database or WebEnv/QueryKey references from the Entrez History server.
+:class:`entrezpy.efetch.efetcher.Efetcher` implements the E-Utility
+`EFetch` [0]_. ``Efetcher`` queries return data from the Entrez History server.
 
 
 Usage
 -----
 .. code::
 
-  import entrezpy.esearch.esearcher.Esearcher
+  import entrezpy.efetch.eftecher.Efetcher
 
-  e = entrezpy.esearch.esearcher.Esearcher(tool,
-                                           email,
-                                           apikey=None,
-                                           apikey_var=None,
-                                           threads=None,
-                                           qid=None)
+  e = entrezpy.efetch.efetcher.Efetcher(tool,
+                                        email,
+                                        apikey=None,
+                                        apikey_var=None,
+                                        threads=None,
+                                        qid=None)
   analyzer = e.inquire({'db' : 'pubmed',
                         'id' : [17284678, 9997],
                         'retmode' : 'text',
@@ -47,9 +46,9 @@ Parameters are passed as dictionary to
 :meth:`entrezpy.esearch.esearcher.Esearcher.inquire` and are expected to be the
 same as those for the E-Utility [0]. For example:
 
-``{'db' : 'nucleotide', 'term' : 'viruses[orgn]', 'reqsize' : 100, 'retmax' : 99, 'idtype' : 'acc'}``
+``{'db' : 'nuccore', 'term' : 'Pythons [Organism]'}``
 
-``Esearcher`` introduces one additional parameter ``reqsize``. It sets the size
+``Esearcher`` introduces the additional parameter ``reqsize``. It sets the size
 of a request. Numbers grater than the maximum allowed by NCBI will be set to
 the maximum.
 
@@ -71,7 +70,7 @@ Parameter                         Type
 ..              ``datetype``      ``str`` (YYYY/MM/DD, YYYY/MM, YYYY)
 ..              ``mindate``       ``str`` (YYYY/MM/DD, YYYY/MM, YYYY)
 ..              ``maxdate``       ``str`` (YYYY/MM/DD, YYYY/MM, YYYY)
-..              ``idtype``        ``bool``
+..              ``idtype``        ``str``
 ..              ``retmode``       ```json``,  enforced by ``Esearcher``
 **Esearcher**   ``reqsize``       ``int``
 =============   ==============    =====================================
@@ -104,4 +103,4 @@ Approach
 References
 ----------
 
-.. [0] https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.ESearch
+.. [0] https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.EFetch

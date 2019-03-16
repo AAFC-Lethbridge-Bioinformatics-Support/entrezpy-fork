@@ -84,8 +84,11 @@ Manual
 
   setup/installation
   functions/esearch_func
+  functions/efetch_func
   usage/examples
   usage/entrezpy_basis
+  background/eutils_entrezpy
+  background/eutils_historyserver
   background/entrezdb
   glossary/glossary
 
