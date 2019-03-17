@@ -148,9 +148,9 @@ class Wally:
       """Adds Efetch query. Same signature as :meth:`Wally.Pipeline.add_search`
       but analyzer is required as this step obtains highly variable results.
       """
-      if not analyzer:
-        logger.error(json.dumps({__name__ : {'Error' : {'Missing required parameter' : 'analyzer',
-                                                        'action' : 'abort'}}}))
+      #if not analyzer:
+        #logger.error(json.dumps({__name__ : {'Error' : {'Missing required parameter' : 'analyzer',
+                                                        #'action' : 'abort'}}}))
       return self.add_query(Wally.Query('efetch', parameter, dependency, analyzer))
 
     def add_query(self, query):
