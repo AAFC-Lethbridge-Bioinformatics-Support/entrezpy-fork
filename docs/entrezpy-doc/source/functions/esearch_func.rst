@@ -1,7 +1,7 @@
 .. _esearch:
 
 Esearch
-================
+=======
 
 :class:`entrezpy.esearch.esearcher.Esearcher` implements the E-Utility
 `ESearch` [0]_. `Esearcher` queries return UIDs for data in the requested

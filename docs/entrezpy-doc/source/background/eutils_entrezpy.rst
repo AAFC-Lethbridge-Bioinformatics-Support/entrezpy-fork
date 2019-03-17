@@ -1,33 +1,26 @@
 E-Utilities by ``entrezpy``
 ===========================
-Entrezpy implements the following E-Utils functions to interact with NCBI's
-Entrez databases. The functions share the same underlying structure as described
-in entrezpy_base. All functions accept a dictionary mapping the same parameters
-as the corresponding E-Utility, e.g. the parameters for ESearch () are the
-same as thos for entrezpy's Esearcher().
 
-All entrezpy functions understand the correspondong E-Utils parameters. To allow
-increased versatilty, some entrezpy function have parametsr allowing
-fine-tuning, e.g. Elink.
+Entrezpy implements E-Utility functions as queries consisting of at least one
+request:
+
+.. code::
+
+        Query
+  ................
+  |               |
+  0 1 2 3 4 5 6 7 8
+  |     | |     | |
+  +-----+ +-----+ +
+     R0     R1    R2
 
 
-ESearch
--------
+The example depicts the relation  between a query and requests in Entrepy.
+The example query consists of 9 data sets using a request size of 4.
+``Entrezpy`` resolves this query using two requests (R0 - R1) with the given
+size and adjusts the size of the last query (R2).
 
-Esearcher parameters
-~~~~~~~~~~~~~~~~~~~~
 
-ESearch result
-~~~~~~~~~~~~~~
-
-EFetch
-------
-
-EFetch parameters
-~~~~~~~~~~~~~~~~~
-
-EFetch result
-~~~~~~~~~~~~~
 
 ELink
 -----

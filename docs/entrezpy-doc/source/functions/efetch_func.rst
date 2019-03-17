@@ -1,4 +1,4 @@
-.. _efetch_func:
+.. _efetch:
 
 Efetch
 ===============

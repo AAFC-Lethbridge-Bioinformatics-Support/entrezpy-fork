@@ -28,17 +28,17 @@ favorite genome. For more complex queries ``entrezpy`` offers the class
 
 Supported E-Utility functions:
 
- - Esearch: :ref:`esearch`
- - Efetch
+ - :ref:`esearch`
+ - :ref:`efetch`
+ - :ref:`elink`
  - Epost
- - Elink
  - Esummary
 
 Licence and Copyright
 ---------------------
 
 ``entrezpy`` is licensed under the `GNU Lesser General Public License v3
-(LGPLv3)`_ or later. Please see :ref:`ncbi-disclaimer` concening the copyright
+(LGPLv3)`_ or later. Please see :ref:`ncbi-disclaimer` concerning the copyright
 of the material available through E-Utilities.
 
 .. _ncbi-disclaimer:
@@ -64,6 +64,8 @@ rational see [Sayers2018]_. ``entrezpy`` checks for NCBI API keys as follows:
 References
 ----------
 
+.. .. target-notes::
+
 .. [Entrez2016] https://doi.org/10.1093/nar/gkw1071
 
 .. [Sayers2018] https://www.ncbi.nlm.nih.gov/books/NBK25497
@@ -83,23 +85,37 @@ Manual
   :caption: Contents:
 
   setup/installation
+  usage/examples
+  usage/tutorials
+
+``Entrezpy`` E-Utility functions
+================================
+
+.. toctree::
+  :maxdepth: 1
+  :caption: Entrezpy functions
+
   functions/esearch_func
   functions/efetch_func
-  usage/examples
+  functions/elink_func
+
+``Entrezpy`` In-depth
+=====================
+.. toctree::
+  :maxdepth: 1
+  :caption: Entrezpy In-depth
+
   usage/entrezpy_basis
   background/eutils_entrezpy
   background/eutils_historyserver
   background/entrezdb
-  glossary/glossary
 
-Adjusting
+
+Reference
 =========
-
-
-Module reference
-================
 .. toctree::
-  :maxdepth: 1
+  :maxdepth: 2
+  :caption: Entrezpy module references:
 
   module_references/base
   module_references/elink
@@ -109,6 +125,14 @@ Module reference
   module_references/requester
   module_references/wally
 
+
+Glossary
+========
+.. toctree::
+  :maxdepth: 0
+  :caption: Glossary:
+
+  glossary/glossary
 
 Indices and tables
 ==================
