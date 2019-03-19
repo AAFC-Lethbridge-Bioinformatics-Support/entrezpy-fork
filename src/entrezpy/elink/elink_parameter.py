@@ -61,15 +61,6 @@ class ElinkParameter(entrezpy.base.parameter.EutilsParameter):
 
 
   def __init__(self, parameter):
-      #:ivar str dbfrom: source database
-  #:ivar str cmd: elink command
-  #:ivar int querykey: Entrez querykey
-  #:ivar str webevn: Entrez webenv
-  #:ivar list uids: UIDs to link
-  #:ivar str retmode: data format of response
-  #:ivar str linkname: Elink linkname
-  #:ivar str term: query term to use in Elink
-  #:ivar str term: query term to use in Elink
     super().__init__(parameter)
     self.cmd = parameter.get('cmd', 'neighbor')
     self.dbfrom = parameter.get('dbfrom')
