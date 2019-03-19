@@ -149,9 +149,13 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
         logger.debug(json.dumps({__name__ : "Created {}".format(lset.dump())}))
       if 'linksetdbs' in i:
         for j in i['linksetdbs']:
-          for k in j['links']:
-            lset.add_linkunit(bare.LinkSet.new_unit(cmd).new(k, j['dbto'], j['linkname']))
-            logger.debug(json.dumps({__name__ : "Added {}".format(lset.linkunits[-1].dump())}))
+          if 'ERROR' in j:
+            logger.info(json.dumps({__name__:{'Response-Error':{'error' : j['ERROR']}}}))
+            self.hasErrorResponse = True
+          if 'links' in j:
+            for k in j['links']:
+              lset.add_linkunit(bare.LinkSet.new_unit(cmd).new(k, j['dbto'], j['linkname']))
+              logger.debug(json.dumps({__name__ : "Added {}".format(lset.linkunits[-1].dump())}))
       elif 'linksetdbhistories' in i:
         for j in i['linksetdbhistories']:
           lset.add_linkunit(bare.LinkSet.new_unit(cmd).new(j['dbto'], j['linkname'],
