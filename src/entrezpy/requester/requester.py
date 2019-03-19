@@ -108,6 +108,7 @@ class Requester:
                                                         'wait' : wait,
                                                         'timeout' : req_timeout,
                                                         'increase' :self.timeout_step}}}))
+        retries += 1
         if req_timeout > self.timeout_max:
           logger.info(json.dumps({__name__: {'MaxTimeout' : {'action' : 'giving up on request',
                                                              'timeout': req_timeout}}}))
