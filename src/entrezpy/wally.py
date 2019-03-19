@@ -195,6 +195,10 @@ class Wally:
       if q.function == 'esummary':
         Wally.analyzers[q.id] = self.summarize(q)
       self.check_query(q)
+      if Wally.analyzers[q.id].isEmpty():
+        logger.info(json.dumps({__name__ : {'empty response': {'query_id' : q.id,
+                                                               'action' : 'skip'}}}))
+        return Wally.analyzers[q.id]
     return Wally.analyzers[q.id]
 
   def check_query(self, query):
