@@ -83,7 +83,8 @@ class Esearcher(entrezpy.base.query.EutilsQuery):
                                          'start':(i*follow_up.reqsize),
                                          'end':(i*follow_up.reqsize)+req_size,
                                          'reqsize':req_size}}))
-      self.add_request(entrezpy.esearch.esearch_request.EsearchRequest(follow_up,
+      self.add_request(entrezpy.esearch.esearch_request.EsearchRequest(self.eutil,
+                                                                       follow_up,
                                                                        (i*follow_up.reqsize),
                                                                        req_size), analyzer)
     self.request_pool.drain()
