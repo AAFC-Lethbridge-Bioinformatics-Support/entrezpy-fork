@@ -112,22 +112,25 @@ def main():
 
   w = entrezpy.wally.Wally(args.email, args.apikey, args.apikey_envar, threads=args.threads)
   find_genomes = w.new_pipeline()
-  search_pid = find_genomes.add_search({'db' : 'assembly', 'term' : 'Leptospira alstonii[ORGN] AND latest[SB]'})
-  summary_pid = find_genomes.add_summary(dependency=search_pid)
-  link_id = find_genomes.add_link({'db':'nuccore','linkname': 'assembly_nuccore_refseq', 'WebEnv':None}, dependency=search_pid)
-  link_analyzer = w.run(find_genomes)
-  fetch_params = {'retmode':'text', 'rettype':'fasta'}
-  for i in link_analyzer.get_result().linksets:
-    print("Fetching sequences")
-    print(i.get_link_uids())
-    for db, uids in i.get_link_uids().items():
-      print("asasasassas", db, uids)
-      fetch_params.update({'db' : db, 'id' :uids})
-    print(fetch_params)
-    cat_genomes = w.new_pipeline()
-    a = GenomeAssembler(metadata=w.get_result(summary_pid).summaries[i.uid])
-    cat_genomes.add_fetch(fetch_params, analyzer=a)
-    w.run(cat_genomes)
+  sid = find_genomes.add_search({'db':'pubmed', 'term' : 'capsid AND infection', 'retmax':0})
+  lid1 = find_genomes.add_link({'cmd':'neighbor_history', 'db':'pubmed'}, dependency=sid)
+  lid2 = find_genomes.add_link({'db':'nuccore'}, dependency=lid1)
+  #lid2 = find_genomes.add_link({'db':'nuccore', 'term':'Caudovirales[ORGN]'}, dependency=lid1)
+  find_genomes.add_fetch({'retmode':'xml', 'rettype':'fasta', 'retmax':400}, dependency=lid2)
+  a = w.run(find_genomes)
+  #search_pid = find_genomes.add_search({'db' : 'assembly', 'term' : 'Leptospira alstonii[ORGN] AND latest[SB]'})
+  #summary_pid = find_genomes.add_summary(dependency=search_pid)
+  #link_id = find_genomes.add_link({'db':'nuccore','linkname': 'assembly_nuccore_refseq', 'WebEnv':None}, dependency=search_pid)
+  #link_analyzer = w.run(find_genomes)
+  #fetch_params = {'retmode':'text', 'rettype':'fasta'}
+  #for i in link_analyzer.get_result().linksets:
+    #print("Fetching sequences")
+    #for db, uids in i.get_link_uids().items():
+      #fetch_params.update({'db' : db, 'id' :uids})
+    #cat_genomes = w.new_pipeline()
+    #a = GenomeAssembler(metadata=w.get_result(summary_pid).summaries[i.uid])
+    #cat_genomes.add_fetch(fetch_params, analyzer=a)
+    #w.run(cat_genomes)
   return 0
 
 if __name__ == '__main__':
