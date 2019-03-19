@@ -72,7 +72,7 @@ class ElinkRequest(entrezpy.base.request.EutilsRequest):
         qry.update({'id' : self.uids})
       else:
         qry.update({'id' : ','.join(str(x) for x in self.uids)})
-    if self.cmd == 'neighbor' or self.cmd == 'neighbor_history':
+    if self.cmd == 'neighbor' or self.cmd == 'neighbor_history' or self.cmd == 'neighbor_score':
       if not self.linkname:
         self.linkname = '_'.join([self.dbfrom, self.db])
       qry.update({'linkname' : self.linkname})
