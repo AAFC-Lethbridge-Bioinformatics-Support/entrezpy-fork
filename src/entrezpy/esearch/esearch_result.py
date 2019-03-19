@@ -80,7 +80,10 @@ class EsearchResult(entrezpy.base.result.EutilsResult):
 
     :rtype: int
     """
-    return len(self.uids)
+    if self.uids:
+      return len(self.uids)
+    return self.count
+
 
   def query_size(self):
     """Get number of all UIDs for search (count)
