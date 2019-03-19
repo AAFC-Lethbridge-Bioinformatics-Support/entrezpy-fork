@@ -54,10 +54,15 @@ class EfetchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
 
   def init_result(self, response, request):
     """Should be implemented if used properly"""
-    pass
+    if not self.result:
+      self.result = True
+      print(self.norm_response(response, request.rettype))
+      return True
+    return False
 
   def analyze_result(self, response, request):
-    print(self.norm_response(response, request.rettype))
+    if not self.init_result(response, request):
+      print(self.norm_response(response, request.rettype))
 
   def analyze_error(self, response, request):
     logger.info(json.dumps({__name__:{'Response':
@@ -78,3 +83,8 @@ class EfetchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
     if rettype == 'json':
       return response
     return response.getvalue()
+
+  def isEmpty(self):
+    if not self.result:
+      return True
+    return False
