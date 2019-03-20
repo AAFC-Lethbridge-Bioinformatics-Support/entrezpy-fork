@@ -85,7 +85,7 @@ class EfetchParameter(entrezpy.base.parameter.EutilsParameter):
     if retmax is None:      # we have no clue what to expect, e.g. WebEnv
       logger.info(json.dumps({__name__ : {'No retmax': 'fetching 1 request \
                                           limited by retmode and retmax'}}))
-      return None
+      return EfetchParameter.req_limits(self.retmode)
     return int(retmax)      # we set a limitation
 
   def check_retmode(self, retmode):
