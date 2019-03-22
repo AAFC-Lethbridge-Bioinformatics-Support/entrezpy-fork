@@ -23,12 +23,12 @@ Licence and Copyright
 ---------------------
 
 ``entrezpy`` is licensed under the `GNU Lesser General Public License v3
-(LGPLv3)`_ or later. Please see `ncbi-disclaimer`_  concerning the copyright
-of the material available through E-Utilities.
+(LGPLv3)`_ or later. Please see `Disclaimer and Copyright Issues`_ concerning
+the copyright of the material available through E-Utilities.
 
 .. _ncbi-disclaimer:
 
-Disclaimer and Copyright Issues
+.. _Disclaimer and Copyright Issues:
 -------------------------------
 
 https://www.ncbi.nlm.nih.gov/home/about/policies/
