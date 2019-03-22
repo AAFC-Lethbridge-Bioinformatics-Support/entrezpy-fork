@@ -1,0 +1,56 @@
+Enrezpy README
+==============
+
+.. code::
+
+  $ pip install entrezpy --user
+
+>>> import entrezpy.wally
+>>> w = entrezpy.wally.Wally('myemail')
+>>> fetch_influenza = w.new_pipeline()
+>>> sid = fetch_influenza.add_search({'db' : 'nucleotide', 'term' : 'H3N2 [organism] AND HA', 'rettype':'count', 'sort' : 'Date Released', 'mindate': 2000, 'maxdate':2019, 'datetype' : 'pdat'})
+>>> fid = fetch_influenza.add_fetch({'retmax' : 10, 'retmode' : 'text', 'rettype': 'fasta'}, dependency=sid)
+>>> w.run(fetch_influenza)
+
+Entrezpy is a dedicated Python library to interact with NCBI_ :term:`Entrez`
+databases [Entrez2016]_ via the E-Utilities [Sayers2018]_. Entrezpy facilitates
+the implementation of queries to query or download data from the Entrez
+databases, e.g. search for specific sequences or publiations or fetch your
+favorite genome. For more complex queries ``entrezpy`` offers the class
+:class:`entrezpy.wally.Wally` to run query pipelines or reuse previous queries.
+
+Licence and Copyright
+---------------------
+
+``entrezpy`` is licensed under the `GNU Lesser General Public License v3
+(LGPLv3)`_ or later. Please see :ref:`ncbi-disclaimer` concerning the copyright
+of the material available through E-Utilities.
+
+.. _ncbi-disclaimer:
+
+Disclaimer and Copyright Issues
+-------------------------------
+
+https://www.ncbi.nlm.nih.gov/home/about/policies/
+
+Installation
+------------
+
+** Entrezpy requires at least Python 3.6 and the Standars Python Library. **
+
+PyPi
+~~~~
+Install ``entrezpy`` via PyPi and check:
+
+.. code::
+
+  $ pip install entrezpy --user
+
+If you want to incude entrezpy as part of your pipeline, check the documentation
+(https://entrezpy.readthedocs.io/en/master/setup/installation.html#append-to-sys-path)
+
+Documentation
+-------------
+
+Entrezpy is fully documented using Spinx (http://www.sphinx-doc.org/en/stable/).
+The manual, usage examples and module referecen can be found here: http://entrezpy.readthedocs.io/
