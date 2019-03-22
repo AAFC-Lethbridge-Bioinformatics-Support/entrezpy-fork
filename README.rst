@@ -29,6 +29,8 @@ the copyright of the material available through E-Utilities.
 .. _ncbi-disclaimer:
 
 .. _Disclaimer and Copyright Issues:
+
+Disclaimer and Copyright Issues
 -------------------------------
 
 https://www.ncbi.nlm.nih.gov/home/about/policies/
