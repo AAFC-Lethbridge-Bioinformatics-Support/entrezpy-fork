@@ -1,3 +1,7 @@
+.. image:: https://readthedocs.org/projects/entrezpy/badge/?version=master
+  :target: https://entrezpy.readthedocs.io/en/master/?badge=master
+  :alt: Documentation Status
+
 Entrezpy README
 ===============
 
@@ -15,12 +19,12 @@ Synopsis
 >>> fid = fetch_influenza.add_fetch({'retmax' : 10, 'retmode' : 'text', 'rettype': 'fasta'}, dependency=sid)
 >>> w.run(fetch_influenza)
 
-Entrezpy is a dedicated Python library to interact with NCBI_ `Entrez`
-databases [Entrez2016]_ via the E-Utilities [Sayers2018]_. Entrezpy facilitates
-the implementation of queries to query or download data from the Entrez
-databases, e.g. search for specific sequences or publiations or fetch your
-favorite genome. For more complex queries ``entrezpy`` offers the class
-`entrezpy.wally.Wally` to run query pipelines or cache results.
+Entrezpy is a dedicated Python library to interact with NCBI_ Entrez
+databases [Entrez2016]_ via the E-Utilities ([Sayers2018]_, E-Utilities_).
+Entrezpy facilitates the implementation of queries to query or download data
+from the Entrez databases, e.g. search for specific sequences or publications
+or fetch your favorite genome. For more complex queries ``entrezpy`` offers the
+class ``entrezpy.wally.Wally`` to run query pipelines or cache results.
 
 Licence and Copyright
 ---------------------
@@ -65,3 +69,5 @@ References
 .. _NCBI: http://www.ncbi.nlm.nih.gov/
 
 .. _GNU Lesser General Public License v3 (LGPLv3): https://www.gnu.org/licenses/lgpl-3.0.en.html
+
+.. _E-Utilities: https://dataguide.nlm.nih.gov/eutilities/utilities.html
