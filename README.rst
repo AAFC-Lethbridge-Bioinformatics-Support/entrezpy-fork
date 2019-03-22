@@ -1,5 +1,8 @@
 Entrezpy README
-==============
+===============
+
+Synopsis
+--------
 
 .. code::
 
@@ -23,22 +26,14 @@ Licence and Copyright
 ---------------------
 
 ``entrezpy`` is licensed under the `GNU Lesser General Public License v3
-(LGPLv3)`_ or later. Please see `Disclaimer and Copyright Issues`_ concerning
-the copyright of the material available through E-Utilities.
+(LGPLv3)`_ or later. Please see https://www.ncbi.nlm.nih.gov/home/about/policies/
+concerning the copyright of the material available through E-Utilities.
 
-.. _ncbi-disclaimer:
-
-.. _Disclaimer and Copyright Issues:
-
-Disclaimer and Copyright Issues
--------------------------------
-
-https://www.ncbi.nlm.nih.gov/home/about/policies/
 
 Installation
 ------------
 
-** Entrezpy requires at least Python 3.6 and the Standars Python Library. **
+**Entrezpy requires at least Python 3.6 and the Standars Python Library.**
 
 PyPi
 ~~~~
@@ -54,8 +49,9 @@ If you want to incude entrezpy as part of your pipeline, check the documentation
 Documentation
 -------------
 
-Entrezpy is fully documented using Spinx (http://www.sphinx-doc.org/en/stable/).
-The manual, usage examples and module referecen can be found here: http://entrezpy.readthedocs.io/
+Entrezpy is fully documented using Spinx
+(http://www.sphinx-doc.org/en/stable/). The manual, usage examples and module
+reference can be found here: http://entrezpy.readthedocs.io/
 
 References
 ----------
