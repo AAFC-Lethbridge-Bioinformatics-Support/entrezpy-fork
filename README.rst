@@ -23,7 +23,7 @@ Licence and Copyright
 ---------------------
 
 ``entrezpy`` is licensed under the `GNU Lesser General Public License v3
-(LGPLv3)`_ or later. Please see `ncbi-disclaimer`  concerning the copyright
+(LGPLv3)`_ or later. Please see `ncbi-disclaimer`_  concerning the copyright
 of the material available through E-Utilities.
 
 .. _ncbi-disclaimer:
