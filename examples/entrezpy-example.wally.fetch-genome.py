@@ -110,6 +110,8 @@ def main():
 
   args = ap.parse_args()
 
+  w = entrezpy.wally.Wally(args.email, args.apikey, args.apikey_envar, threads=args.threads)
+  find_genomes = w.new_pipeline()
   search_pid = find_genomes.add_search({'db' : 'assembly', 'term' : 'Leptospira alstonii[ORGN] AND latest[SB]'})
   summary_pid = find_genomes.add_summary(dependency=search_pid)
   link_id = find_genomes.add_link({'db':'nuccore','linkname': 'assembly_nuccore_refseq', 'WebEnv':None}, dependency=search_pid)
