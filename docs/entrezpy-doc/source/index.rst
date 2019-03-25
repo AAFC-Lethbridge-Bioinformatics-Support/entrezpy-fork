@@ -31,8 +31,8 @@ Supported E-Utility functions:
  - :ref:`esearch`
  - :ref:`efetch`
  - :ref:`elink`
- - Epost
- - Esummary
+ - :ref:`epost`
+ - :ref:`esummary`
 
 Licence and Copyright
 ---------------------
@@ -50,6 +50,11 @@ https://www.ncbi.nlm.nih.gov/home/about/policies/
 
 .. _ncbi-apikey:
 
+Contact
+-------
+
+
+
 NCBI API key
 ------------
 
@@ -58,8 +63,19 @@ rational see [Sayers2018]_. ``entrezpy`` checks for NCBI API keys as follows:
 
   - The NCBI API key can be passed as parameter to ``entrezpy`` classes
   - Entrezpy checks for the environment variable ``$NCBI_API_KEY``
-  - The enviroment variable, e.g. ``NCBI_API_KEY``, can be passed as parameter
-    to ``entrezpy`` classes
+  - The enviroment variable, e.g. ``NCBI_API_KEY``, can be passed via the
+    ``apikey_var`` parameter to any derived
+    :class:`entrezpy.base.query.EutilsQuery` class.
+
+Work in progress
+----------------
+
+ - easier logging configuration via file
+
+ - simplify Elink results
+
+ - Deploy cleaner testing
+
 
 References
 ----------
@@ -74,8 +90,6 @@ References
 
 .. _GNU Lesser General Public License v3 (LGPLv3): https://www.gnu.org/licenses/lgpl-3.0.en.html
 
-Notes and Hacks
----------------
 
 Manual
 ======
@@ -98,6 +112,8 @@ Manual
   functions/esearch_func
   functions/efetch_func
   functions/elink_func
+  functions/esummary_func
+  functions/epost_func
 
 ``Entrezpy`` In-depth
 =====================
