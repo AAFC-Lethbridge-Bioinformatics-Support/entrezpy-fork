@@ -76,6 +76,7 @@ Work in progress
 
  - Deploy cleaner testing
 
+ - Collect more result examples
 
 References
 ----------
@@ -100,7 +101,6 @@ Manual
 
   setup/installation
   usage/examples
-  usage/tutorials
 
 ``Entrezpy`` E-Utility functions
 ================================
