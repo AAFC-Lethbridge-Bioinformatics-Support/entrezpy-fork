@@ -106,13 +106,17 @@ def main():
               #{'db': 'pmc', 'id': [212403], 'retmode':'json'}   # Should fail
              ]
 
-  ## Loop over examples
+  # Loop over examples
   start = time.time()
   for i in range(len(examples)):
+    # Loop over retmodes
     for j in ['xml', 'text']:
       qrystart = time.time()
+      # Init Efetcher
       ef = entrezpy.efetch.efetcher.Efetcher('efetcher', args.email, args.apikey)
+      # Set retmode
       examples[i].update({'retmode':j})
+      # Fetch example and return default efetch analyzer
       a = ef.inquire(examples[i], entrezpy.efetch.efetch_analyzer.EfetchAnalyzer())
       print("+Query {}\n+++\tParameters: {}\n+++\tStatus:".format(i, examples[i]), end='')
       if not a:
