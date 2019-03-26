@@ -68,25 +68,37 @@ import json
 import argparse
 
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
+# Import efetch_analyzer module to inherit default EfetchAnalyzer
 import entrezpy.efetch.efetch_analyzer
+# Import wally module
 import entrezpy.wally
 
 class GenomeAssembler(entrezpy.efetch.efetch_analyzer.EfetchAnalyzer):
+  """Derive a specialized analyzer from the  default EfetchAnalyzer. This allows
+  us reuse the error handling but implement specific handling of the incoming
+  data. To implement specific error handling, the analyzer should be derived
+  from entrezpy.base.analyzer.EutilsAnalyzer."""
 
   def __init__(self, metadata=None):
+    """Init a GenomeAssenbler with NCBI summary data. In case we need to fetch
+    multiple requests, e.g. WGS shotgun sequences, set a file handler as
+    attribute."""
     super().__init__()
     self.species = metadata['speciesname'].replace(' ', '_')
     self.assembly = metadata['assemblyaccession']
     self.taxid = metadata['taxid']
+    self.fh = None
 
   def analyze_result(self, response, request):
-    fh = open("{}-{}-{}.{}".format(self.species, self.taxid, self.assembly, request.rettype), 'w')
-    fh.write(response.getvalue())
-    fh.close()
+    """Set file handler and filename if it's the first query request."""
+    if not self.fh
+      self.fh = open("{}-{}-{}.{}".format(self.species, self.taxid, self.assembly, request.rettype), 'w')
+    self.fh.write(response.getvalue())
+    self.fh.close()
 
 def main():
-  ap = argparse.ArgumentParser(description='Callimachus extended example for EDirect \
-        example https://github.com/NCBI-Hackathons/EDirectCookbook#genomic-sequence-fastas-from-refseq-assembly-for-specified-taxonomic-designation')
+  ap = argparse.ArgumentParser(description='Wally example to fetch and store genomes \
+        from https://github.com/NCBI-Hackathons/EDirectCookbook#genomic-sequence-fastas-from-refseq-assembly-for-specified-taxonomic-designation')
   ap.add_argument('--email',
                   type=str,
                   required=True,
@@ -111,7 +123,7 @@ def main():
   args = ap.parse_args()
 
   w = entrezpy.wally.Wally(args.email, args.apikey, args.apikey_envar, threads=args.threads)
-  find_genomes = w.new_pipeline()
+  px = w.new_pipeline()
   search_pid = find_genomes.add_search({'db' : 'assembly', 'term' : 'Leptospira alstonii[ORGN] AND latest[SB]'})
   summary_pid = find_genomes.add_summary(dependency=search_pid)
   link_id = find_genomes.add_link({'db':'nuccore','linkname': 'assembly_nuccore_refseq', 'WebEnv':None}, dependency=search_pid)
