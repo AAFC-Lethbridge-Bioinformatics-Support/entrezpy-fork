@@ -2,6 +2,21 @@
   :target: https://entrezpy.readthedocs.io/en/master/?badge=master
   :alt: Documentation Status
 
+.. image:: https://img.shields.io/pypi/pyversions/entrezpy.svg?style=popout-square
+  :alt: PyPI - Python Version
+
+.. image:: https://img.shields.io/pypi/l/entrezpy.svg?style=popout-square
+  :alt: PyPI - License
+
+.. image:: https://img.shields.io/pypi/v/entrezpy.svg?style=popout-square
+  :alt: PyPI
+
+.. image:: https://img.shields.io/pypi/format/entrezpy.svg?style=popout-square
+  :alt: PyPI - Format
+
+.. image:: https://img.shields.io/pypi/status/entrezpy.svg?style=popout-square
+  :alt: PyPI - Status
+
 Entrezpy README
 ===============
 
