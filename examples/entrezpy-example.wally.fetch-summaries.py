@@ -67,6 +67,7 @@ import time
 import argparse
 
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
+# Import wally module
 import entrezpy.wally
 
 def main():
@@ -95,21 +96,29 @@ def main():
   args = ap.parse_args()
 
   start = time.time()
+  # Init a Wally instance
   w = entrezpy.wally.Wally(args.email, args.apikey, args.apikey_envar, threads=args.threads)
-  px = w.new_pipeline()
-  pid = px.add_search({'db' : 'gene',
+  # Create new Wally pipeline summary_pipeline
+  summary_pipeline = w.new_pipeline()
+  # Add search query
+  pid = summary_pipeline.add_search({'db' : 'gene',
                        'term' : 'tp53[preferred symbol] AND human[organism]',
                        'rettype' : 'count'})
+  # Use history server if requested
   if args.use_history:
-    pid = px.add_link({'db' : 'protein', 'cmd':'neighbor_history'}, dependency=pid)
-    pid = px.add_search(dependency=pid)
+    pid = summary_pipeline.add_link({'db' : 'protein', 'cmd':'neighbor_history'}, dependency=pid)
+    pid = summary_pipeline.add_search(dependency=pid)
   else:
-    pid = px.add_link({'db' : 'protein'}, dependency=pid)
-  pid = px.add_summary(dependency=pid)
-  analyzer = w.run(px)
-  for i in analyzer.result.summaries:
-    print("{}\t{}".format(analyzer.result.summaries[i].get('caption'),
-                          analyzer.result.summaries[i].get('sourcedb')))
+    # Get UIDs from link
+    pid = summary_pipeline.add_link({'db' : 'protein'}, dependency=pid)
+  # Add summary query to pipeline
+  pid = summary_pipeline.add_summary(dependency=pid)
+  # Run pipeline and get default analyzer
+  analyzer = w.run(summary_pipeline)
+  # Show summaries. Summaries are stored as dictionary {UID:summary} to be
+  # accessed quickly. To loop over them, use the following approach
+  for uid, summary in analyzer.get_result().summaries.items():
+    print("{}\t{}".format(uid, summary.get('caption'),summary.get('sourcedb')))
   print("Threads: {}\tSummaries: {}\nDurations: {} [s]".format(w.threads,
                                                 len(analyzer.result.summaries),
                                                  time.time()-start))
