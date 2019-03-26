@@ -73,7 +73,6 @@ import argparse
 
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
 import entrezpy.esearch.esearcher
-import entrezpy.esearch.esearch_analyzer
 
 
 def main():
@@ -104,6 +103,9 @@ def main():
     {'db':'protein','term':'70000:90000[molecular weight]', 'retmax':20}
     ]
 
+  # This function is to test if using multiple requests per query continue
+  # properly
+
   def check_uid_uniqeness(result):
     uniq = {}
     dupl_count = {}
@@ -121,10 +123,13 @@ def main():
     return True
 
   start = time.time()
+  # Loop over examples
   for i in range(len(examples)):
     qrystart = time.time()
+    # Init an Esearcher instance
     es = entrezpy.esearch.esearcher.Esearcher('esearcher', args.email, args.apikey)
-    a = es.inquire(examples[i], entrezpy.esearch.esearch_analyzer.EsearchAnalyzer())
+    # Query E-Utilities and return the default analyzer
+    a = es.inquire(examples[i])
     print("+Query {}\n+++\tParameters: {}\n+++\tStatus:".format(i, examples[i]), end='')
     if not a.isSuccess():
       print("\tFailed: Response errors")
