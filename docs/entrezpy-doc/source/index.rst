@@ -6,6 +6,16 @@
 Entrezpy: NCBI Entrez databases at your fingertips
 ====================================================
 
+.. image:: https://img.shields.io/pypi/pyversions/entrezpy.svg?style=popout-square   :alt: PyPI - Python Version
+
+.. image:: https://img.shields.io/pypi/l/entrezpy.svg?style=popout-square   :alt: PyPI - License
+
+.. image:: https://img.shields.io/pypi/v/entrezpy.svg?style=popout-square   :alt: PyPI
+
+.. image:: https://img.shields.io/pypi/format/entrezpy.svg?style=popout-square   :alt: PyPI - Format
+
+.. image:: https://img.shields.io/pypi/status/entrezpy.svg?style=popout-square   :alt: PyPI - Status
+
 Synopsis
 --------
 .. code::
@@ -50,9 +60,23 @@ https://www.ncbi.nlm.nih.gov/home/about/policies/
 
 .. _ncbi-apikey:
 
+Source code
+-----------
+
+ - https://gitlab.com/ncbipy/entrezpy
+
+::
+
+  git clone https://gitlab.com/ncbipy/entrezpy.git
+
 Contact
 -------
 
+To report bugs and/or errors, please open an issue at
+https://gitlab.com/ncbipy/entrezpy or contact me at:
+jan.buchmann@sydney.edu.au
+
+Of course, feel free to improve the code and open a pull request.
 
 
 NCBI API key
@@ -76,6 +100,7 @@ Work in progress
 
  - Deploy cleaner testing
 
+ - Status indicating of request
 
 References
 ----------
@@ -100,7 +125,6 @@ Manual
 
   setup/installation
   usage/examples
-  usage/tutorials
 
 ``Entrezpy`` E-Utility functions
 ================================
