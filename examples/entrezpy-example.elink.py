@@ -75,8 +75,6 @@ import argparse
 
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
 import entrezpy.elink.elinker
-import entrezpy.elink.elink_analyzer
-
 
 def main():
   ap = argparse.ArgumentParser(description="ncbipy-epost examples from \
@@ -109,13 +107,17 @@ def main():
   start = time.time()
   for i in range(len(examples)):
     qrystart = time.time()
+    # Init Elinker with required parameters
     ef = entrezpy.elink.elinker.Elinker('elinker', args.email, args.apikey)
-    a = ef.inquire(examples[i], entrezpy.elink.elink_analyzer.ElinkAnalyzer())
+    # Rrun query and return default analyzer
+    a = ef.inquire(examples[i])
     print("+Query {}\n+++\tParameters: {}\n+++\tStatus:".format(i, examples[i]), end='')
+    # Test is query has been successful, e.g. no connection or NCBI errors
     if not a.isSuccess():
       print("\tFailed: Response errors")
       return 0
     print("\tResponse OK")
+    # Test is query resulted in no UIDs
     if a.isEmpty():
       print("+No results for example {}".format(i))
     else:

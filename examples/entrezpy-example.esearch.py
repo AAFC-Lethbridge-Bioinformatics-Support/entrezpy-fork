@@ -103,10 +103,9 @@ def main():
     {'db':'protein','term':'70000:90000[molecular weight]', 'retmax':20}
     ]
 
-  # This function is to test if using multiple requests per query continue
-  # properly
-
   def check_uid_uniqeness(result):
+    """This function tests if using multiple requests per query continue
+    properly"""
     uniq = {}
     dupl_count = {}
     for i in result.uids:
@@ -131,10 +130,12 @@ def main():
     # Query E-Utilities and return the default analyzer
     a = es.inquire(examples[i])
     print("+Query {}\n+++\tParameters: {}\n+++\tStatus:".format(i, examples[i]), end='')
+    # Test is query has been successful, e.g. no connection or NCBI errors
     if not a.isSuccess():
       print("\tFailed: Response errors")
       return 0
     print("\tResponse OK")
+    # Test is query resulted in no UIDs
     if a.isEmpty():
       print("+++\tWARNING: No results for example {}".format(i))
     print("+++\tStart dumping results\n+++%%%\t{}".format(json.dumps(a.get_result().dump())))

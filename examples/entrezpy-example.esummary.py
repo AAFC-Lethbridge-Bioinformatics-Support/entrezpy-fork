@@ -68,8 +68,6 @@ import argparse
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
 
 import entrezpy.esummary.esummarizer
-import entrezpy.esummary.esummary_analyzer
-
 
 def main():
   # Python argument parser (see [2] for more details)
@@ -100,8 +98,10 @@ def main():
   start = time.time()
   for i in range(len(examples)):
     qrystart = time.time()
+    # Init Esummarizer with required parameters
     es = entrezpy.esummary.esummarizer.Esummarizer('esummary', args.email, args.apikey)
-    a = es.inquire(examples[i], entrezpy.esummary.esummary_analyzer.EsummaryAnalzyer())
+    # Run query and return default analyzer
+    a = es.inquire(examples[i])
     print("+Query {}\n+++\tParameters: {}\n+++\tStatus:".format(i, examples[i]), end='')
     if not a.isSuccess():
       print("\tFailed: Response errors")

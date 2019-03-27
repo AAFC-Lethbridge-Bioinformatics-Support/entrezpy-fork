@@ -13,6 +13,10 @@
   given UIDs or accessions in the requested format and  style from the given
   NCBI Entrez database [0].
 
+  Since Efetch can have numerous possible responses, the standard Efetch
+  analzyer just prints the response to STDOUT and doesn't use a
+  entrezpy.base.result.EutilsResult instance.
+
   The examples are stored as parameters in the list `examples` (taken from [0]).
   Outline
   -------
@@ -69,9 +73,6 @@ import argparse
 
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
 import entrezpy.efetch.efetcher
-import entrezpy.efetch.efetch_analyzer
-import entrezpy.esearch.esearcher
-
 
 def main():
   # Python argument parser (see [2] for more details)
@@ -117,8 +118,10 @@ def main():
       # Set retmode
       examples[i].update({'retmode':j})
       # Fetch example and return default efetch analyzer
-      a = ef.inquire(examples[i], entrezpy.efetch.efetch_analyzer.EfetchAnalyzer())
+      a = ef.inquire(examples[i])
       print("+Query {}\n+++\tParameters: {}\n+++\tStatus:".format(i, examples[i]), end='')
+      # Test is query has been successful, e.g. no connection or NCBI errors.
+      # In such a case, None would have been returned
       if not a:
         print("\tFailed: Response errors")
         return 0
