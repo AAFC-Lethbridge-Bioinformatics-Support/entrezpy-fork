@@ -97,13 +97,17 @@ def main():
   start = time.time()
   for i in range(len(examples)):
     substart = time.time()
+    # Init an Elinker instance
     ep = entrezpy.epost.eposter.Eposter('eposter', args.email, args.apikey)
+    # Query E-Utility Epost and return the default analyzer
     a = ep.inquire(examples[i])
     print("+Query {}\n\tParameters: {}\n\tStatus:".format(i, examples[i]), end='')
+    # Test is query has been successful, e.g. no connection or NCBI errors
     if not a.isSuccess():
       print("\tFailed:\n\t\tError: {}".format(a.error))
       return 0
     print("\tSuccess")
+    # Test is query resulted in no UIDs
     if a.result.isEmpty():
       print("+No results for example {}".format(i))
     else:

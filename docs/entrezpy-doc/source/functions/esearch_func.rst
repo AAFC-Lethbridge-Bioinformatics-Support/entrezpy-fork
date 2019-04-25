@@ -104,4 +104,4 @@ Approach
 References
 ----------
 
-.. [0] https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.ESearch
+.. [0] https://dataguide.nlm.nih.gov/eutilities/utilities.html#esearch

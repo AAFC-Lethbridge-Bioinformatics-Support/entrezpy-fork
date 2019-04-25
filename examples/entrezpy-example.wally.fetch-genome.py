@@ -68,25 +68,50 @@ import json
 import argparse
 
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
+# Import efetch_analyzer module to inherit default EfetchAnalyzer
 import entrezpy.efetch.efetch_analyzer
+# Import wally module
 import entrezpy.wally
 
 class GenomeAssembler(entrezpy.efetch.efetch_analyzer.EfetchAnalyzer):
+  """Derive a simple but specialized analyzer from the  default EfetchAnalyzer.
+  This allows us reuse the error handling but implement specific handling of
+  the incoming data. To implement specific error handling, the analyzer should
+  be derived from entrezpy.base.analyzer.EutilsAnalyzer. This example shows
+  only a quick and dirty approach."""
 
   def __init__(self, metadata=None):
+    """Init a GenomeAssenbler with NCBI summary data. In case we need to fetch
+    multiple requests, e.g. WGS shotgun sequences, set a file handler as
+    attribute."""
     super().__init__()
     self.species = metadata['speciesname'].replace(' ', '_')
     self.assembly = metadata['assemblyaccession']
     self.taxid = metadata['taxid']
+    self.fh = None
+    self.fname = None
 
   def analyze_result(self, response, request):
-    fh = open("{}-{}-{}.{}".format(self.species, self.taxid, self.assembly, request.rettype), 'w')
-    fh.write(response.getvalue())
-    fh.close()
+    """Set file handler and filename if it's the first query request. Otherwise
+    append. """
+    if not self.fh:
+      self.fname = "{}-{}-{}.{}".format(self.species, self.taxid, self.assembly, request.rettype)
+      self.fh = open(self.fname, 'w')
+    else:
+      self.fh = open(self.fname, 'a')
+    self.fh.write(response.getvalue())
+    self.fh.close()
+
+  def isEmpty(self):
+    """Since the analyzer is not using a entrezpy.base.result.EutilsResult to
+    store results, we have to overwrite the method to report empty results."""
+    if self.fh:
+      return False
+    return True
 
 def main():
-  ap = argparse.ArgumentParser(description='Callimachus extended example for EDirect \
-        example https://github.com/NCBI-Hackathons/EDirectCookbook#genomic-sequence-fastas-from-refseq-assembly-for-specified-taxonomic-designation')
+  ap = argparse.ArgumentParser(description='Wally example to fetch and store genomes \
+        from https://github.com/NCBI-Hackathons/EDirectCookbook#genomic-sequence-fastas-from-refseq-assembly-for-specified-taxonomic-designation')
   ap.add_argument('--email',
                   type=str,
                   required=True,
@@ -110,20 +135,37 @@ def main():
 
   args = ap.parse_args()
 
+  # Init a Wally instance
   w = entrezpy.wally.Wally(args.email, args.apikey, args.apikey_envar, threads=args.threads)
+  # Create new Wally pipeline
   find_genomes = w.new_pipeline()
+  # Add a search query to the pipeline
   search_pid = find_genomes.add_search({'db' : 'assembly', 'term' : 'Leptospira alstonii[ORGN] AND latest[SB]'})
+  # Add a summary query to the pipeline based on the search results
   summary_pid = find_genomes.add_summary(dependency=search_pid)
+  # Add a link query to the pipeline based on the search results. Force UIDs
+  # by unsetting Webenv
   link_id = find_genomes.add_link({'db':'nuccore','linkname': 'assembly_nuccore_refseq', 'WebEnv':None}, dependency=search_pid)
+  # Run find_genomes pipeline
   link_analyzer = w.run(find_genomes)
+  # Set fetch parameter for the sequences to fetch
   fetch_params = {'retmode':'text', 'rettype':'fasta'}
+  # Loop through the source UIDs of the link results
   for i in link_analyzer.get_result().linksets:
     print("Fetching sequences")
+    # Get the database and UIDs for the genome sequences from the linked UIDs.
+    # Summaries are stored as dictionaries {UID : Summary}, so we need to
+    # flatten the structure
     for db, uids in i.get_link_uids().items():
       fetch_params.update({'db' : db, 'id' :uids})
+    # Create new pipeline to fetch genomes
     cat_genomes = w.new_pipeline()
+    # Init adjusted analyzer with the summaries from the previous pipeline as
+    # metadata
     a = GenomeAssembler(metadata=w.get_result(summary_pid).summaries[i.uid])
+    # Add fetch step to new pipeline
     cat_genomes.add_fetch(fetch_params, analyzer=a)
+    # Run new pipeline
     w.run(cat_genomes)
   return 0
 

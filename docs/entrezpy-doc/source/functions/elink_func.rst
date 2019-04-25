@@ -4,7 +4,7 @@ Elink
 =====
 
 :class:`entrezpy.elink.elinker.Elinker` implements the E-Utility
-`ELink` [0]_. Elink queries can link results
+`ELink` [#]_. Elink queries can link results
 
  - between different databases within :term:`Entrez`
  - earlier queries on the Entrez History server
@@ -13,6 +13,8 @@ Elink
 ``Elinker`` queries return UIDs for data in the requested Entrez database or
 WebEnv/QueryKey reference from the Entrez History server.
 
+If an Elink query is part of a Wally pipeline, a search query has to run
+uisng the Elink query as dependency to obtain the proper UIDs. See ::
 
 Usage
 -----
@@ -60,6 +62,11 @@ same as those for the E-Utility [0]. For example:
 ``Elinker`` introduces one additional parameter ``link``. It forces Elinker to
 create 1-to-many UID links.
 
+.. note ::
+
+  ``retmode : ref`` for the Elink command ``prlinks`` is not supported since
+  this returns only the link outside Entrez databases.
+
 
 =============   ==============    =====================================
 Parameter                         Type
@@ -82,6 +89,16 @@ Parameter                         Type
 **Elinker**     ``link``          ``bool``
 =============   ==============    =====================================
 
+Elink linknames
+~~~~~~~~~~~~~~~
+
+Elink linknames allow to specifiy a subset from the linked database. This can
+greatly incrase the spceificity of your link. By default, ``entrepy`` Elinker
+uses linkname for the commands ``neighbor``, ``neighbor_history``, and
+``neighbor_score``. If no linkname is given, the name of ``dbfrom`` and ``db``
+are joined to ``dbfrom_db``.
+
+For all possible linkname, refer to [#]_.
 
 Result
 ------
@@ -104,4 +121,5 @@ Approach
 References
 ----------
 
-.. [0] https://dataguide.nlm.nih.gov/eutilities/utilities.html#elink
+.. [#] https://dataguide.nlm.nih.gov/eutilities/utilities.html#elink
+.. [#] https://eutils.ncbi.nlm.nih.gov/entrez/query/static/entrezlinks.html

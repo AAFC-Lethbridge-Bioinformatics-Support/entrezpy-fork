@@ -73,7 +73,6 @@ import argparse
 
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
 import entrezpy.esearch.esearcher
-import entrezpy.esearch.esearch_analyzer
 
 
 def main():
@@ -105,6 +104,8 @@ def main():
     ]
 
   def check_uid_uniqeness(result):
+    """This function tests if using multiple requests per query continue
+    properly"""
     uniq = {}
     dupl_count = {}
     for i in result.uids:
@@ -121,15 +122,20 @@ def main():
     return True
 
   start = time.time()
+  # Loop over examples
   for i in range(len(examples)):
     qrystart = time.time()
+    # Init an Esearcher instance
     es = entrezpy.esearch.esearcher.Esearcher('esearcher', args.email, args.apikey)
-    a = es.inquire(examples[i], entrezpy.esearch.esearch_analyzer.EsearchAnalyzer())
+    # Query E-Utilities and return the default analyzer
+    a = es.inquire(examples[i])
     print("+Query {}\n+++\tParameters: {}\n+++\tStatus:".format(i, examples[i]), end='')
+    # Test is query has been successful, e.g. no connection or NCBI errors
     if not a.isSuccess():
       print("\tFailed: Response errors")
       return 0
     print("\tResponse OK")
+    # Test is query resulted in no UIDs
     if a.isEmpty():
       print("+++\tWARNING: No results for example {}".format(i))
     print("+++\tStart dumping results\n+++%%%\t{}".format(json.dumps(a.get_result().dump())))

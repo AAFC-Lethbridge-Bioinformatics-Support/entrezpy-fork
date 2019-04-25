@@ -6,6 +6,16 @@
 Entrezpy: NCBI Entrez databases at your fingertips
 ====================================================
 
+.. image:: https://img.shields.io/pypi/pyversions/entrezpy.svg?style=popout-square   :alt: PyPI - Python Version
+
+.. image:: https://img.shields.io/pypi/l/entrezpy.svg?style=popout-square   :alt: PyPI - License
+
+.. image:: https://img.shields.io/pypi/v/entrezpy.svg?style=popout-square   :alt: PyPI
+
+.. image:: https://img.shields.io/pypi/format/entrezpy.svg?style=popout-square   :alt: PyPI - Format
+
+.. image:: https://img.shields.io/pypi/status/entrezpy.svg?style=popout-square   :alt: PyPI - Status
+
 Synopsis
 --------
 .. code::
@@ -31,8 +41,8 @@ Supported E-Utility functions:
  - :ref:`esearch`
  - :ref:`efetch`
  - :ref:`elink`
- - Epost
- - Esummary
+ - :ref:`epost`
+ - :ref:`esummary`
 
 Licence and Copyright
 ---------------------
@@ -50,6 +60,25 @@ https://www.ncbi.nlm.nih.gov/home/about/policies/
 
 .. _ncbi-apikey:
 
+Source code
+-----------
+
+ - https://gitlab.com/ncbipy/entrezpy
+
+::
+
+  git clone https://gitlab.com/ncbipy/entrezpy.git
+
+Contact
+-------
+
+To report bugs and/or errors, please open an issue at
+https://gitlab.com/ncbipy/entrezpy or contact me at:
+jan.buchmann@sydney.edu.au
+
+Of course, feel free to improve the code and open a pull request.
+
+
 NCBI API key
 ------------
 
@@ -58,8 +87,20 @@ rational see [Sayers2018]_. ``entrezpy`` checks for NCBI API keys as follows:
 
   - The NCBI API key can be passed as parameter to ``entrezpy`` classes
   - Entrezpy checks for the environment variable ``$NCBI_API_KEY``
-  - The enviroment variable, e.g. ``NCBI_API_KEY``, can be passed as parameter
-    to ``entrezpy`` classes
+  - The enviroment variable, e.g. ``NCBI_API_KEY``, can be passed via the
+    ``apikey_var`` parameter to any derived
+    :class:`entrezpy.base.query.EutilsQuery` class.
+
+Work in progress
+----------------
+
+ - easier logging configuration via file
+
+ - simplify Elink results
+
+ - Deploy cleaner testing
+
+ - Status indicating of request
 
 References
 ----------
@@ -74,8 +115,6 @@ References
 
 .. _GNU Lesser General Public License v3 (LGPLv3): https://www.gnu.org/licenses/lgpl-3.0.en.html
 
-Notes and Hacks
----------------
 
 Manual
 ======
@@ -86,7 +125,6 @@ Manual
 
   setup/installation
   usage/examples
-  usage/tutorials
 
 ``Entrezpy`` E-Utility functions
 ================================
@@ -98,6 +136,8 @@ Manual
   functions/esearch_func
   functions/efetch_func
   functions/elink_func
+  functions/esummary_func
+  functions/epost_func
 
 ``Entrezpy`` In-depth
 =====================

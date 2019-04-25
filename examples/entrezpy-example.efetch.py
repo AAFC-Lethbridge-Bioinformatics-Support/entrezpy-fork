@@ -13,6 +13,10 @@
   given UIDs or accessions in the requested format and  style from the given
   NCBI Entrez database [0].
 
+  Since Efetch can have numerous possible responses, the standard Efetch
+  analzyer just prints the response to STDOUT and doesn't use a
+  entrezpy.base.result.EutilsResult instance.
+
   The examples are stored as parameters in the list `examples` (taken from [0]).
   Outline
   -------
@@ -69,9 +73,6 @@ import argparse
 
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
 import entrezpy.efetch.efetcher
-import entrezpy.efetch.efetch_analyzer
-import entrezpy.esearch.esearcher
-
 
 def main():
   # Python argument parser (see [2] for more details)
@@ -91,37 +92,36 @@ def main():
   # Prepare list of examples. Each example is a parameter dictionary as expected
   # by Efetcher.
   examples = [
-              #{'db' : 'pubmed','id' : [17284678,9997], 'retmode':'text', 'rettype': 'abstract'},
-              #{'db': 'pubmed', 'id': [11748933,11700088], 'retmode':'xml'},
-              #{'db': 'nuccore', 'id': [21614549], 'strand':1, 'seq_start' : 1, 'seq_stop' : 100, 'rettype':'fasta'},
-              #{'db': 'nuccore', 'id': [21614549], 'strand':2, 'seq_start' : 1, 'seq_stop' : 100, 'rettype':'fasta'},
-              #{'db': 'nuccore', 'id': [21614549], 'complexity' : 3},
-              #{'db': 'nucleotide', 'id': [5]},
-              #{'db': 'nucleotide', 'id': [5], 'rettype':'fasta'},
-              #{'db': 'nucleotide', 'id': [5], 'rettype':'gb'},
-              #{'db': 'popset', 'id': [12829836], 'rettype':'gp'},
-              #{'db': 'protein', 'id': [8], 'rettype':'gp', 'retmode':'xml'},
-              #{'db': 'sequences', 'id': [312836839,34577063], 'rettype':'fasta', 'retmode':'xml'},
-              #{'db': 'gene', 'id': [2], 'retmode':'xml'},
-              {'db': 'pmc', 'id': [212403], 'retmode':'json'}
+              {'db' : 'pubmed','id' : [17284678,9997], 'retmode':'text', 'rettype': 'abstract'},
+              {'db': 'pubmed', 'id': [11748933,11700088], 'retmode':'xml'},
+              {'db': 'nuccore', 'id': [21614549], 'strand':1, 'seq_start' : 1, 'seq_stop' : 100, 'rettype':'fasta'},
+              {'db': 'nuccore', 'id': [21614549], 'strand':2, 'seq_start' : 1, 'seq_stop' : 100, 'rettype':'fasta'},
+              {'db': 'nuccore', 'id': [21614549], 'complexity' : 3},
+              {'db': 'nucleotide', 'id': [5]},
+              {'db': 'nucleotide', 'id': [5], 'rettype':'fasta'},
+              {'db': 'nucleotide', 'id': [5], 'rettype':'gb'},
+              {'db': 'popset', 'id': [12829836], 'rettype':'gp'},
+              {'db': 'protein', 'id': [8], 'rettype':'gp', 'retmode':'xml'},
+              {'db': 'sequences', 'id': [312836839,34577063], 'rettype':'fasta', 'retmode':'xml'},
+              {'db': 'gene', 'id': [2], 'retmode':'xml'},
+              #{'db': 'pmc', 'id': [212403], 'retmode':'json'}   # Should fail
              ]
-  #es = entrezpy.esearch.esearcher.Esearcher('esearcher', args.email, args.apikey)
-  #sa = es.inquire({'db':'nucleotide','term':'viruses[orgn]', 'retmax': 0})
 
-  #ef = entrezpy.efetch.efetcher.Efetcher('efetch', args.email, args.apikey)
-  #p = sa.get_result().get_link_parameter()
-  #p.update({'retstart' : 10, 'retmax':30})
-  #a = ef.inquire(p)
-
-  ## Loop over examples
+  # Loop over examples
   start = time.time()
   for i in range(len(examples)):
+    # Loop over retmodes
     for j in ['xml', 'text']:
       qrystart = time.time()
+      # Init Efetcher
       ef = entrezpy.efetch.efetcher.Efetcher('efetcher', args.email, args.apikey)
+      # Set retmode
       examples[i].update({'retmode':j})
-      a = ef.inquire(examples[i], entrezpy.efetch.efetch_analyzer.EfetchAnalyzer())
+      # Fetch example and return default efetch analyzer
+      a = ef.inquire(examples[i])
       print("+Query {}\n+++\tParameters: {}\n+++\tStatus:".format(i, examples[i]), end='')
+      # Test is query has been successful, e.g. no connection or NCBI errors.
+      # In such a case, None would have been returned
       if not a:
         print("\tFailed: Response errors")
         return 0
