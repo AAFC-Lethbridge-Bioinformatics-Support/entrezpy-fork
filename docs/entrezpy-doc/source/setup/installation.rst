@@ -13,6 +13,7 @@ Requirements
 - `Python Standard Library <https://docs.python.org/3/library/index.html#the-python-standard-library>`_ :
    *The standard library should be installed with  Python. Just in
    case, these modules from the Python Standard Library are required:*
+
   - base64
   - io
   - json
@@ -35,7 +36,7 @@ Test if we have at least **Python 3.6** :
 
 .. code:: python
 
-$ python
+  $ python
 
 >>> import sys
 >>> sys.version_info

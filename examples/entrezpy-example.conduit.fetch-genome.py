@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
 """
-.. module:: entrezpy-example.wally.fetch-genomes
+.. module:: entrezpy-example.conduit.fetch-genomes
   :synopsis:
-    Example of using entrezpy's Wally to fetch genomes
+    Example of using entrezpy's Conduit to fetch genomes
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 
 ..
   Copyright 2018 The University of Sydney
 
-  Demonstrate Entrezpy's Wally class and setup. Wally facilitates the
+  Demonstrate Entrezpy's Conduit class and setup. Conduit facilitates the
   creation of E-Utility query pipelines [0].
 
   The examples are stored as parameters in the list `examples` (taken from [0]).
   Outline
   -------
   0. Import entrezpy
-  1. Create a Wally instance  with the required parameters:
+  1. Create a Conduit instance  with the required parameters:
       - instance name
       - user email.
       These are required by NCBI [1]. The instance name corresponds to the
       Eutils `tool` parameter [1].
-  2. Get a new Wally pipeline to fetch genome information
+  2. Get a new Conduit pipeline to fetch genome information
   3. Add queries to the pipline
   4. Run the pipeline
   5. Adjust the Efetch analyzer to write genome FASTA files with metadata
@@ -37,7 +37,7 @@
 ::
   $reporoot
   |-- examples
-  |   `-- entrezpy-examples.wally.fetch-summaries.py  <-You are here
+  |   `-- entrezpy-examples.conduit.fetch-summaries.py  <-You are here
   `-- src
       `-- entrezpy
           `-- efetch
@@ -70,8 +70,8 @@ import argparse
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
 # Import efetch_analyzer module to inherit default EfetchAnalyzer
 import entrezpy.efetch.efetch_analyzer
-# Import wally module
-import entrezpy.wally
+# Import conduit module
+import entrezpy.conduit
 
 class GenomeAssembler(entrezpy.efetch.efetch_analyzer.EfetchAnalyzer):
   """Derive a simple but specialized analyzer from the  default EfetchAnalyzer.
@@ -110,7 +110,7 @@ class GenomeAssembler(entrezpy.efetch.efetch_analyzer.EfetchAnalyzer):
     return True
 
 def main():
-  ap = argparse.ArgumentParser(description='Wally example to fetch and store genomes \
+  ap = argparse.ArgumentParser(description='Conduit example to fetch and store genomes \
         from https://github.com/NCBI-Hackathons/EDirectCookbook#genomic-sequence-fastas-from-refseq-assembly-for-specified-taxonomic-designation')
   ap.add_argument('--email',
                   type=str,
@@ -135,9 +135,9 @@ def main():
 
   args = ap.parse_args()
 
-  # Init a Wally instance
-  w = entrezpy.wally.Wally(args.email, args.apikey, args.apikey_envar, threads=args.threads)
-  # Create new Wally pipeline
+  # Init a Conduit instance
+  w = entrezpy.conduit.Conduit(args.email, args.apikey, args.apikey_envar, threads=args.threads)
+  # Create new Conduit pipeline
   find_genomes = w.new_pipeline()
   # Add a search query to the pipeline
   search_pid = find_genomes.add_search({'db' : 'assembly', 'term' : 'Leptospira alstonii[ORGN] AND latest[SB]'})

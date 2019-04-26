@@ -13,8 +13,9 @@ Elink
 ``Elinker`` queries return UIDs for data in the requested Entrez database or
 WebEnv/QueryKey reference from the Entrez History server.
 
-If an Elink query is part of a Wally pipeline, a search query has to run
-uisng the Elink query as dependency to obtain the proper UIDs. See ::
+If an Elink query is part of a Conduit pipeline, a search query has to run
+uisng the Elink query as dependency to obtain the proper UIDs. See
+:ref:`.. _tutorialpipeline:`.
 
 Usage
 -----

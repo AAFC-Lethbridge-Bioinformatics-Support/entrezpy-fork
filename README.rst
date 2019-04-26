@@ -27,8 +27,8 @@ Synopsis
 
   $ pip install entrezpy --user
 
->>> import entrezpy.wally
->>> w = entrezpy.wally.Wally('myemail')
+>>> import entrezpy.conduit
+>>> w = entrezpy.conduit.Conduit('myemail')
 >>> fetch_influenza = w.new_pipeline()
 >>> sid = fetch_influenza.add_search({'db' : 'nucleotide', 'term' : 'H3N2 [organism] AND HA', 'rettype':'count', 'sort' : 'Date Released', 'mindate': 2000, 'maxdate':2019, 'datetype' : 'pdat'})
 >>> fid = fetch_influenza.add_fetch({'retmax' : 10, 'retmode' : 'text', 'rettype': 'fasta'}, dependency=sid)
@@ -39,7 +39,7 @@ databases [Entrez2016]_ via the E-Utilities ([Sayers2018]_, E-Utilities_).
 Entrezpy facilitates the implementation of queries to query or download data
 from the Entrez databases, e.g. search for specific sequences or publications
 or fetch your favorite genome. For more complex queries ``entrezpy`` offers the
-class ``entrezpy.wally.Wally`` to run query pipelines or cache results.
+class ``entrezpy.conduit.Conduit`` to run query pipelines or cache results.
 
 Licence and Copyright
 ---------------------

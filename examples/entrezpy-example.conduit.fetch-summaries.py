@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
 """
-.. module:: entrezpy-example.wally.fetch-summaries
+.. module:: entrezpy-example.conduit.fetch-summaries
   :synopsis:
-    Example of using entrezpy's Wally to run a summary pipeline
+    Example of using entrezpy's Conduit to run a summary pipeline
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 
 ..
   Copyright 2018 The University of Sydney
 
-  Demonstrate Entrezpy's Wally class and setup. Wally facilitates the
+  Demonstrate Entrezpy's Conduit class and setup. Conduit facilitates the
   creation of E-Utility query pipelines [0].
 
   The examples are stored as parameters in the list `examples` (taken from [0]).
   Outline
   -------
   0. Import entrezpy
-  1. Create a Wally instance  with the required parameters:
+  1. Create a Conduit instance  with the required parameters:
       - instance name
       - user email.
       These are required by NCBI [1]. The instance name corresponds to the
       Eutils `tool` parameter [1].
-  2. Get a new Wally pipeline
+  2. Get a new Conduit pipeline
   3. Add queries to the pipline
   4. Run the pipeline
   3. Print specific attributes form the summaries to STDOUT
@@ -35,7 +35,7 @@
 ::
   $reporoot
   |-- examples
-  |   `-- entrezpy-examples.wally.fetch-summaries.py  <-You are here
+  |   `-- entrezpy-examples.conduit.fetch-summaries.py  <-You are here
   `-- src
       `-- entrezpy
           `-- efetch
@@ -67,8 +67,8 @@ import time
 import argparse
 
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
-# Import wally module
-import entrezpy.wally
+# Import conduit module
+import entrezpy.conduit
 
 def main():
   ap = argparse.ArgumentParser(description='Simple ncbipy-esearch-example')
@@ -96,9 +96,9 @@ def main():
   args = ap.parse_args()
 
   start = time.time()
-  # Init a Wally instance
-  w = entrezpy.wally.Wally(args.email, args.apikey, args.apikey_envar, threads=args.threads)
-  # Create new Wally pipeline summary_pipeline
+  # Init a Conduit instance
+  w = entrezpy.conduit.Conduit(args.email, args.apikey, args.apikey_envar, threads=args.threads)
+  # Create new Conduit pipeline summary_pipeline
   summary_pipeline = w.new_pipeline()
   # Add search query
   pid = summary_pipeline.add_search({'db' : 'gene',

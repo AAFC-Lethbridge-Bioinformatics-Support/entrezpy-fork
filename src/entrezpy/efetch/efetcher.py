@@ -30,6 +30,7 @@ import entrezpy.base.query
 import entrezpy.efetch.efetch_parameter
 import entrezpy.efetch.efetch_request
 import entrezpy.efetch.efetch_analyzer
+import entrezpy.logger
 
 
 logger = logging.getLogger(__name__)

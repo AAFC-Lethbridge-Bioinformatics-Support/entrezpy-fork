@@ -72,7 +72,9 @@ import argparse
 
 
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
+import entrezpy.logger
 import entrezpy.efetch.efetcher
+
 
 def main():
   # Python argument parser (see [2] for more details)
@@ -108,6 +110,7 @@ def main():
              ]
 
   # Loop over examples
+  entrezpy.efetch.efetcher.logger.setLevel(entrezpy.logger.set_loglevel('info'))
   start = time.time()
   for i in range(len(examples)):
     # Loop over retmodes

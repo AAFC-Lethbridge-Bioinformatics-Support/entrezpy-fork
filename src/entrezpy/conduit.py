@@ -15,8 +15,8 @@
   You should have received a copy of the GNU General Public License
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
-.. module:: entrezpy.wally
-   :synopsis: Exports class Wally implementing entrezpy pipelines to query
+.. module:: entrezpy.conduit
+   :synopsis: Exports class Conduit implementing entrezpy pipelines to query
       NCBI E-Utilities
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
@@ -44,18 +44,18 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 
-class Wally:
-  """Wally simplifies to create pipelines and queries for entrezpy. Wally stores
-  results from previous requests, allowing to concatenate queries and
+class Conduit:
+  """Conduit simplifies to create pipelines and queries for entrezpy. Conduit
+  stores results from previous requests, allowing to concatenate queries and
   retrieve obtained results later if required to reduce the need to redownload
-  data. Wally can use multiple threads to speed up data download, but some
+  data. Conduit can use multiple threads to speed up data download, but some
   external libraries can break, e.g. SQLite3.
 
   Pipelines
   ---------
-  Queries instances in pipelines of :class:`Wally.Pipeline` are stored in the
-  dictionary :attr:`Wally.queries` with the query id as key and are accessible
-  by all Wally instances. A single :class:`Wally.Pipeline` stores only the
+  Queries instances in pipelines of :class:`Conduit.Pipeline` are stored in the
+  dictionary :attr:`Conduit.queries` with the query id as key and are accessible
+  by all Conduit instances. A single :class:`Conduit.Pipeline` stores only the
   query id for this instance
 
   :param str email: user email
@@ -71,7 +71,7 @@ class Wally:
   """Analyzed query storage"""
 
   class Query:
-    """ Entrezpy query for a Wally pipeline. Wally assembles pipelines using
+    """ Entrezpy query for a Conduit pipeline. Conduit assembles pipelines using
     several Query() instances. If a dependency is given, it uses those
     parameters as basis using `:meth:`.resolve_dependency`.
 
@@ -100,7 +100,7 @@ class Wally:
       Parameters passed to this instance will overwrite dependency parameters
       """
       if self.dependency:
-        parameter = Wally.analyzers[self.dependency].result.get_link_parameter()
+        parameter = Conduit.analyzers[self.dependency].result.get_link_parameter()
         if self.function == 'elink':
           parameter['dbfrom'] = parameter['db']
         parameter.update(self.parameter)
@@ -108,11 +108,10 @@ class Wally:
 
   class Pipeline:
     """The Pipeline class implements a query pipeline with several consecutive
-    queries. New pipelines are obtained through :class:`.Wally`. Query instances
-    are stored in :attr:`Wally.queries` and the corresponding query id's in
-    :attr:`.queries`. Every added query returns its id which can be used to
-    retrieve it.
-    """
+    queries. New pipelines are obtained through :class:`.Conduit`. Query
+    instances are stored in :attr:`Conduit.queries` and the corresponding query
+    id's in :attr:`.queries`. Every added query returns its id which can be
+    used to retrieve it. """
 
     def __init__(self):
       """:ivar  queries: queries for this Pipeline instance
@@ -127,46 +126,43 @@ class Wally:
       :param str dependency: query id from earlier query
       :param analyzer: analyzer for this query
       :type  analyzer: :class:`entrezpy.base.analyzer.EutilsAnalyzer`
-      :return: Wally query
-      :rtype: :class:`WallyQuery`
+      :return: Conduit query
+      :rtype: :class:`ConduitQuery`
       """
-      return self.add_query(Wally.Query('esearch', parameter, dependency, analyzer))
+      return self.add_query(Conduit.Query('esearch', parameter, dependency, analyzer))
 
     def add_link(self, parameter=None, dependency=None, analyzer=None):
-      """Adds Elink query. Signature as :meth:`Wally.Pipeline.add_search`"""
-      return self.add_query(Wally.Query('elink', parameter, dependency, analyzer))
+      """Adds Elink query. Signature as :meth:`Conduit.Pipeline.add_search`"""
+      return self.add_query(Conduit.Query('elink', parameter, dependency, analyzer))
 
     def add_post(self, parameter=None, dependency=None, analyzer=None):
-      """Adds Epost query. Signature as :meth:`Wally.Pipeline.add_search`"""
-      return self.add_query(Wally.Query('epost', parameter, dependency, analyzer))
+      """Adds Epost query. Signature as :meth:`Conduit.Pipeline.add_search`"""
+      return self.add_query(Conduit.Query('epost', parameter, dependency, analyzer))
 
     def add_summary(self, parameter=None, dependency=None, analyzer=None):
-      """Adds Esummary query. Signature as :meth:`Wally.Pipeline.add_search`"""
-      return self.add_query(Wally.Query('esummary', parameter, dependency, analyzer))
+      """Adds Esummary query. Signature as :meth:`Conduit.Pipeline.add_search`"""
+      return self.add_query(Conduit.Query('esummary', parameter, dependency, analyzer))
 
     def add_fetch(self, parameter=None, dependency=None, analyzer=None):
-      """Adds Efetch query. Same signature as :meth:`Wally.Pipeline.add_search`
+      """Adds Efetch query. Same signature as :meth:`Conduit.Pipeline.add_search`
       but analyzer is required as this step obtains highly variable results.
       """
-      #if not analyzer:
-        #logger.error(json.dumps({__name__ : {'Error' : {'Missing required parameter' : 'analyzer',
-                                                        #'action' : 'abort'}}}))
-      return self.add_query(Wally.Query('efetch', parameter, dependency, analyzer))
+      return self.add_query(Conduit.Query('efetch', parameter, dependency, analyzer))
 
     def add_query(self, query):
       """Adds query to own pipeline and storage
 
-      :param query: Wally query
-      :type  query: :class:`Wally.Query`
+      :param query: Conduit query
+      :type  query: :class:`Conduit.Query`
       :return: query id of added query
       :rtype: str
       """
       self.queries.put(query.id)
-      Wally.queries[query.id] = query
+      Conduit.queries[query.id] = query
       return query.id
 
   def __init__(self, email, apikey=None, apikey_envar=None, threads=None):
-    self.tool = 'wally'
+    self.tool = 'entrezpyConduit'
     self.email = email
     self.apikey = apikey
     self.api_envar = apikey_envar
@@ -176,41 +172,41 @@ class Wally:
     """Runs one query in pipeline and checks for errors. If errors are
     encounterd the pipeline aborts.
 
-    :param pipeline: Wally pipeline
-    :type  pipeline: :class:`Wally.Pipeline`
+    :param pipeline: Conduit pipeline
+    :type  pipeline: :class:`Conduit.Pipeline`
     """
     while not pipeline.queries.empty():
-      q = Wally.queries[pipeline.queries.get()]
+      q = Conduit.queries[pipeline.queries.get()]
       q.resolve_dependency()
       logger.info(json.dumps({__name__ : {'Inquiring' : {'query_id' : q.id,
                                                          'function' : q.function}}}))
       if q.function == 'esearch':
-        Wally.analyzers[q.id] = self.search(q)
+        Conduit.analyzers[q.id] = self.search(q)
       if q.function == 'elink':
-        Wally.analyzers[q.id] = self.link(q)
+        Conduit.analyzers[q.id] = self.link(q)
       if q.function == 'efetch':
-        Wally.analyzers[q.id] = self.fetch(q)
+        Conduit.analyzers[q.id] = self.fetch(q)
       if q.function == 'epost':
-        Wally.analyzers[q.id] = self.post(q)
+        Conduit.analyzers[q.id] = self.post(q)
       if q.function == 'esummary':
-        Wally.analyzers[q.id] = self.summarize(q)
+        Conduit.analyzers[q.id] = self.summarize(q)
       self.check_query(q)
-      if Wally.analyzers[q.id].isEmpty():
+      if Conduit.analyzers[q.id].isEmpty():
         logger.info(json.dumps({__name__ : {'empty response': {'query_id' : q.id,
                                                                'action' : 'skip'}}}))
-        return Wally.analyzers[q.id]
-    return Wally.analyzers[q.id]
+        return Conduit.analyzers[q.id]
+    return Conduit.analyzers[q.id]
 
   def check_query(self, query):
     """Check for successful query.
 
-    :param query: Wally query
-    :type  query: :class:`Wally.Query`
+    :param query: Conduit query
+    :type  query: :class:`Conduit.Query`
     """
-    if not Wally.analyzers[query.id]:
+    if not Conduit.analyzers[query.id]:
       sys.exit(logger.error(json.dumps({__name__ : {'Request error': {'query_id' : query.id,
                                                                       'action' : 'abort'}}})))
-    if not Wally.analyzers[query.id].isSuccess():
+    if not Conduit.analyzers[query.id].isSuccess():
       sys.exit(logger.info(json.dumps({__name__ : {'response error': {'query_id' : query.id,
                                                                       'action' : 'abort'}}})))
 
@@ -227,10 +223,10 @@ class Wally:
     return analyzer.get_result()
 
   def new_pipeline(self):
-    """Retrurns new Wally pipeline.
+    """Retrurns new Conduit pipeline.
 
-    :return: Wally pipeline
-    :rtype: :class:`Wally.Pipeline`
+    :return: Conduit pipeline
+    :rtype: :class:`Conduit.Pipeline`
     """
     return self.Pipeline()
 
@@ -238,8 +234,8 @@ class Wally:
     """Configures and runs an Esearch query. Analyzer are class references and
     instantiated here.
 
-    :param query: Wally Query
-    :type  query: :class:`Wally.Query`
+    :param query: Conduit Query
+    :type  query: :class:`Conduit.Query`
     :param analyzer: reference to analyzer class
     :return: analyzer
     :rtype: :class:`entrezpy.esearch.esearch_analyzer.EsearchAnalyzer`
@@ -255,8 +251,8 @@ class Wally:
     """Configures and runs an Esummary query. Analyzer are class references and
     instantiated here.
 
-    :param query: Wally Query
-    :type  query: :class:`Wally.Query`
+    :param query: Conduit Query
+    :type  query: :class:`Conduit.Query`
     :param analyzer: reference to analyzer class
     :return: analyzer
     :rtype: :class:`entrezpy.esummary.esummary_analyzer.EsummaryAnalyzer`
@@ -272,8 +268,8 @@ class Wally:
     """Configures and runs an Elink query. Analyzer are class references and
     instantiated here.
 
-    :param query: Wally Query
-    :type  query: :class:`Wally.Query`
+    :param query: Conduit Query
+    :type  query: :class:`Conduit.Query`
     :param analyzer: reference to analyzer class
     :return: analyzer
     :rtype: :class:`entrezpy.elink.elink_analyzer.ElinkAnalyzer`
@@ -289,8 +285,8 @@ class Wally:
     """Configures and runs an Epost query. Analyzer are class references and
     instantiated here.
 
-    :param query: Wally Query
-    :type  query: :class:`Wally.Query`
+    :param query: Conduit Query
+    :type  query: :class:`Conduit.Query`
     :param analyzer: reference to analyzer class
     :return: analyzer
     :rtype: :class:`entrezpy.epost.epost_analyzer.EpostAnalyzer`
@@ -305,8 +301,8 @@ class Wally:
   def fetch(self, query, analyzer=entrezpy.efetch.efetch_analyzer.EfetchAnalyzer):
     """uns an Efetch query. The Analyzer needs to be added to the quuery
 
-    :param query: Wally Query
-    :type  query: :class:`Wally.Query`
+    :param query: Conduit Query
+    :type  query: :class:`Conduit.Query`
     :param analyzer: reference to analyzer class
     :return: analyzer
     :return: analyzer

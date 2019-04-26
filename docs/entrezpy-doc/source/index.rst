@@ -22,19 +22,19 @@ Synopsis
 
   $ pip install entrezpy --user
 
->>> import entrezpy.wally
->>> w = entrezpy.wally.Wally('myemail')
->>> fetch_influenza = w.new_pipeline()
+>>> import entrezpy.conduit
+>>> c = entrezpy.conduit.Conduit('myemail')
+>>> fetch_influenza = c.new_pipeline()
 >>> sid = fetch_influenza.add_search({'db' : 'nucleotide', 'term' : 'H3N2 [organism] AND HA', 'rettype':'count', 'sort' : 'Date Released', 'mindate': 2000, 'maxdate':2019, 'datetype' : 'pdat'})
 >>> fid = fetch_influenza.add_fetch({'retmax' : 10, 'retmode' : 'text', 'rettype': 'fasta'}, dependency=sid)
->>> w.run(fetch_influenza)
+>>> c.run(fetch_influenza)
 
 Entrezpy is a dedicated Python library to interact with NCBI_ :term:`Entrez`
 databases [Entrez2016]_ via the E-Utilities [Sayers2018]_. Entrezpy facilitates
 the implementation of queries to query or download data from the Entrez
 databases, e.g. search for specific sequences or publiations or fetch your
 favorite genome. For more complex queries ``entrezpy`` offers the class
-:class:`entrezpy.wally.Wally` to run query pipelines or reuse previous queries.
+:class:`entrezpy.conduit.Conduit` to run query pipelines or reuse previous queries.
 
 Supported E-Utility functions:
 
@@ -43,6 +43,10 @@ Supported E-Utility functions:
  - :ref:`elink`
  - :ref:`epost`
  - :ref:`esummary`
+
+Entrez pipeline design helper class:
+
+ - :ref:`conduit_mod`
 
 Licence and Copyright
 ---------------------
@@ -76,7 +80,7 @@ To report bugs and/or errors, please open an issue at
 https://gitlab.com/ncbipy/entrezpy or contact me at:
 jan.buchmann@sydney.edu.au
 
-Of course, feel free to improve the code and open a pull request.
+Of course, feel free to fork the code, improve it, and/or open a pull request.
 
 
 NCBI API key
@@ -163,7 +167,7 @@ Reference
   module_references/esearch
   module_references/efetch
   module_references/requester
-  module_references/wally
+  module_references/conduit
 
 
 Glossary
