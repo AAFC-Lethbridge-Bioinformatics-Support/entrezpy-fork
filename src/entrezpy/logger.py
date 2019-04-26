@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 """
-.. module:: logging
+.. module:: logger
   :synopsis:
-    This module is part of entrezpy. It configures logging via Python's :mod:`logging` implements the base class for all
-    entrezpy analzyer for NCBI E-Utils responses.
+    This module is part of entrezpy. It configures logging via Python's
+    :mod:`logging`.
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
@@ -31,19 +31,21 @@ default_config = {
   'formatters': {
     'short': { 'format': '%(asctime)s %(levelname)s %(name)s: %(message)s'},
   },
-  'handlers': {
+  'handlers':
+  {
     'console': {
-      'level': 'INFO',
-      'formatter': 'short',
-      'class': 'logging.StreamHandler',
-    },
-    'file': {
-      'level': 'DEBUG',
-      'formatter': 'short',
-      'class': 'logging.FileHandler',
-      'filename' : os.path.join(os.getcwd(), 'entrepy-{}.log'.format(time.time())),
-      'delay' : True
-    },
+    'level': 'INFO',
+    'formatter': 'short',
+    'class': 'logging.StreamHandler',
+  },
+  'file':
+  {
+    'level': 'DEBUG',
+    'formatter': 'short',
+    'class': 'logging.FileHandler',
+    'filename' : os.path.join(os.getcwd(), 'entrepy-{}.log'.format(time.time())),
+    'delay' : True
+  },
   },
   'loggers': {
         '': {
@@ -57,3 +59,7 @@ default_config = {
         }
     },
 }
+
+def set_loglevel(loglevel):
+  if loglevel == 'info':
+    return logging.INFO
