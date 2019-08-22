@@ -48,6 +48,10 @@ Entrez pipeline design helper class:
 
  - :ref:`conduit_mod`
 
+NCBI Entrez utilities and asociated parameters
+
+ - https://dataguide.nlm.nih.gov/eutilities/utilities.html
+
 Licence and Copyright
 ---------------------
 

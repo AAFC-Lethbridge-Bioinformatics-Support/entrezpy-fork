@@ -204,10 +204,102 @@ Line 14: Add fetch step to Conduit pipeline with the last link result as
 
 Line 15:  Run the pipeline.
 
-Adjusting
----------
+Extending `entrezpy`
+--------------------
 
-Implementing a simple EfetchAnalzyer
--------------------------------------
+Implementing a simple EfetchAnalzyer to obtain publication information
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  WIP, but see ``examples/entrezpy-example.conduit.fetch-genome.py``, lines 74-85.
+This shows how to adjust classes derieved from `EutilsResult`, `EutilsAnalyzer`.
+
+The goal is to fetch PubMed information related specific articles. To this end,
+we need to develop a specific EutilsAnalyzer and EutilsResult class which can be
+used in Conduit.
+
+The [Efetch Entrez Utility](https://dataguide.nlm.nih.gov/eutilities/utilities.html#efetch)
+is responsible to fetch publications. Its manual (the link) lists all possible
+databses and which records (Record type) can be fetched in which format. For
+the first example, we'll fetch Pubmed data in XML, specifically, the author and
+the corresponding references. The first example we'll use is the seminal
+publication from Barbara McClintock describing the AC/Ds elements in Maize. The
+correspondong Pubed ID (PMID) is 15430309.
+
+Before we start to write an EutilsAnalyzer, we need to understand the structure
+of the received data. This can be done using the EDirect tools from NCBI and
+piping its results to a pager, e.g. `less`
+
+.. code-block:: bash
+  :linenos:
+
+  efetch -db pubmed -id 20148030 -mode XML | less
+
+it shows us the XML fields, specifically the `tags`  present in a typical
+Pubmed record  Please note, the abstract is missing which is common for older
+publications.
+
+We now know how such records are structured and the name of the tags we want
+to extract. Now we can start to extend entrepy.
+First, we need to design a EutilsResult class to store publication records.
+
+The base class for `EutilsResults` is implemented in
+`src/entrezpy/base/result.py`. We will inherit this class and implement its four
+virtual classes in our derived class, called `PumedResult`.
+Looking the
+
+sie methods
+.. code-block:: python
+
+  def size(self):
+    """Returns result size in the corresponfong ResultSize unit
+
+    :rtype: int
+    :raises NotImplementedError: if implementation is missing"""
+    raise NotImplementedError("Help! Require implementation")
+
+  def dump(self):
+    """Dumps all instance attributes
+
+    :rtype: dict
+    :raises NotImplementedError: if implementation is missing"""
+    raise NotImplementedError("Help! Require implementation")
+
+  def get_link_parameter(self, reqnum=0):
+    """Assembles parameters for automated follow-ups. Use the query key from
+    the first request by default.
+
+    :param int reqnum: request number for which query_key should be returned
+    :return: EUtils parameters
+    :rtype: dict
+    :raises NotImplementedError: if implementation is missing"""
+    raise NotImplementedError("Help! Require implementation")
+
+  def isEmpty(self):
+    """Indicates empty result.
+
+    :rtype: bool
+    :raises NotImplementedError: if implementation is missing"""
+    raise NotImplementedError("Help! Require implementation")
+
+
+
+
+
+
+
+
+
+
+
+
+WIP, but see ``examples/entrezpy-example.conduit.fetch-genome.py``, lines 74-85.
+20148030
+
+# getting result from console
+sys.stdout = old_stdout
+xml_string = result.getvalue()
+root = ET.fromstring(xml_string)
+res = root.findall("./PubmedArticle/MedlineCitation/Article/Abstract/AbstractText")
+abstracts = []
+for item in res:
+    abstracts.append(item.text)
+return abstracts
