@@ -207,46 +207,363 @@ Line 15:  Run the pipeline.
 Extending `entrezpy`
 --------------------
 
-Implementing a simple EfetchAnalzyer to obtain publication information
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Fetching publication information from Entrez
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This shows how to adjust classes derieved from `EutilsResult`, `EutilsAnalyzer`.
+Prerequisites
++++++++++++++
 
-The goal is to fetch PubMed information related specific articles. To this end,
-we need to develop a specific EutilsAnalyzer and EutilsResult class which can be
-used in Conduit.
+- ``entrezpy`` is either installed via PyPi or cloned from the ``git``
+    repository. ADD URL
 
-The [Efetch Entrez Utility](https://dataguide.nlm.nih.gov/eutilities/utilities.html#efetch)
-is responsible to fetch publications. Its manual (the link) lists all possible
-databses and which records (Record type) can be fetched in which format. For
+- basic familiarity with object oriented Python, i.e. inheritance ADD URL
+
+- Python 3.6 or higher is assumed.
+
+Overview
+++++++++
+
+- fetch an example entry to determine its structure
+- write simple Conduit pipleine to fetch Pubmed records
+- implement a EutilsResult class for Pubmed records
+- implement a EutilsAnalyzer class Pubmed requsts
+
+Syntax
+++++++
+
+- ``$ ls`` indicates a command on the the command line, here ``ls``.
+
+
+This tutorial explains how to adjust the entrezpy classes  ``EutilsResult`` and
+``EutilsAnalyzer`` to fetch Pubmed data records. To this end, we need to develop
+a specific EutilsAnalyzer and EutilsResult class which can be used in Conduit.
+We will write a simple Conduit pipeline which will fetch the record. The fetched
+records will be stored and analyzed using our implemented classes.
+
+The [Efetch Entrez Utility](https://dataguide.nlm.nih.gov/eutilities/utilities.html#efetch) is
+responsible to fetch publications. Its manual (the link) lists all possible
+databases and which records (Record type) can be fetched in which format. For
 the first example, we'll fetch Pubmed data in XML, specifically, the author and
 the corresponding references. The first example we'll use is the seminal
 publication from Barbara McClintock describing the AC/Ds elements in Maize. The
 correspondong Pubed ID (PMID) is 15430309.
 
-Before we start to write an EutilsAnalyzer, we need to understand the structure
-of the received data. This can be done using the EDirect tools from NCBI and
-piping its results to a pager, e.g. `less`
+
+In ``entrezpy``, a result is the sum of all individual requests. If you want to
+analyze the number of citations for a specific author, the result is the number
+of cirtations and to obtain this you have to parse several Pubmed records.
+Therefore, ``entrezpy`` requires a result class. Thereofore, we need to store
+individual results within a result class.
+
+Pubmed data structure
++++++++++++++++++++++
+
+Before we start to write our implementation, we need to understand the structure
+of the received data. This can be done using the EDirect tools from
+NCBI. The result is printed to the standard output. For its examination, it can
+be either stored into a file, or prefereably, piped to a pager, e.g. ``less``
+[http://www.greenwoodsoftware.com/less/] or ``more``
+[https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/]. These are usually
+installed on most \*NIX systems.
+
+.. _tut-efetch-example:
 
 .. code-block:: bash
   :linenos:
+  :name: tut-efetch-example
 
-  efetch -db pubmed -id 20148030 -mode XML | less
+  $ efetch -db pubmed -id 15430309 -mode XML | less
 
-it shows us the XML fields, specifically the `tags`  present in a typical
-Pubmed record  Please note, the abstract is missing which is common for older
-publications.
+The entry should start and end as the code block below. Data not related to the
+author and references has been removed for the sake of clearity.
 
-We now know how such records are structured and the name of the tags we want
-to extract. Now we can start to extend entrepy.
-First, we need to design a EutilsResult class to store publication records.
+.. code-block:: XML
+  :linenos:
 
-The base class for `EutilsResults` is implemented in
-`src/entrezpy/base/result.py`. We will inherit this class and implement its four
-virtual classes in our derived class, called `PumedResult`.
-Looking the
+  <?xml version="1.0" ?>
+  <!DOCTYPE PubmedArticleSet PUBLIC "-//NLM//DTD PubMedArticle, 1st January 2019//EN" "https://dtd.nlm.nih.gov/
+  <PubmedArticleSet>
+    <PubmedArticle>
+        <MedlineCitation Status="MEDLINE" IndexingMethod="Automated" Owner="NLM">
+            <PMID Version="1">15430309</PMID>
+    <!- SKIPPED DATA ->
+      <AuthorList CompleteYN="Y">
+        <Author ValidYN="Y">
+          <LastName>McCLINTOCK</LastName>
+          <ForeName>B</ForeName>
+          <Initials>B</Initials>
+        </Author>
+     </AuthorList>
+  <!- SKIPPED DATA ->
+      <ReferenceList>
+        <Reference>
+            <Citation>Genetics. 1941 Mar;26(2):234-82</Citation>
+            <ArticleIdList>
+                <ArticleId IdType="pubmed">17247004</ArticleId>
+            </ArticleIdList>
+        </Reference>
+      <!- SKIPPED DATA ->
+      <ReferenceList>
+  <!- SKIPPED DATA ->
+    </PubmedArticle>
+  </PubmedArticleSet>
 
-sie methods
+
+This shows us the XML fields, specifically the `tags`,  present in a typical
+Pubmed record. The root tag for each batch of fetched data records is
+``<PubmedArticleSet>`` and each individual data record is described in the nested
+tags ``<PubmedArticle>``. We are interested in the following tags nested within
+``<PubmedArticle>``:
+
+  - ``<AuthorList>``
+  - ``<ReferenceList>``
+
+Before we can start with the actual implementation, we need to write a
+program to fetch the requested records. This can be done using the Conduit class.
+
+Simple Conduit pipeline to fetch Pubmed Records
++++++++++++++++++++++++++++++++++++++++++++++++
+
+ - write simple conduit pipelne program
+ - inherit required base classes
+
+A simple conduit pipeline requiring two arguments:
+
+  - user email
+  - PMID (here 15430309)
+
+.. literalinclude:: ../../../../examples/tutorials/pubmed/pubmed-fetcher.py
+  :linenos:
+  :language: python
+  :lines: 36-45,62-65,70-
+
+- Lines 1-3: import standard Pyhton libraries
+
+- Lines 6-9: import entrezpy (adjust as described)
+
+- Lines 10: import conduit (adjust as described)
+
+- Line 14: create new conduit instance
+
+- Line 15: create new pipeline
+
+- Line 16: add fetch request to the pipeline
+
+- Line 17: run pipeline
+
+Let's test this program to see if all modules are found and fetching works:
+
+``$ python pubmed-fetcher.py your@email 15430309``
+
+Since we didn't specify an analzyer yet, we epxect the raw XML output is printed
+to the standard output. So far, this produces the same output as the efetch
+command above.
+
+If this command fails and/or now output is printed to the standard output,
+something went wrong with your ``entrezpy`` installation or ``entrezpy`` module
+import.
+
+We can now start to implement our specific ``EutilsResult`` and
+``EutilsAnalyzer`` classes. From the documentation or publication ADD URL, we
+know that EutilsAnalzyer parses the response and stores results in
+EutilsResults. Therefore, we need to derive and adjust these classes for our
+needs. Initially, we will just add the bare minimum to test if we can inherit
+the base classes.
+
+.. code-block:: python
+  :linenos:
+
+  import os
+  import sys
+
+
+  # If enrezpy is installed via PyPi uncomment the next line and remove the next after that
+  # import entrezpy
+  sys.path.insert(1, os.path.join(sys.path[0], '../../../src'))
+  import entrezpy.conduit
+  import entrezpy.base.result
+  import entrezpy.base.analyzer
+
+
+  class PubmedAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
+
+    def __init__():
+      super().__init__()
+
+  class PubmedResult(entrezpy.base.result.EutilsResult):
+
+    def __init__():
+      super().__init__()
+
+
+  def main():
+    c = entrezpy.conduit.Conduit(sys.argv[1])
+  # cut for brevity
+This listing shows the newly added classes and not the whole code.
+
+- Lines 14-17 and Lines 19-22 create our bare classes.
+
+Rerun the program to make sure the required entrezpy base modules are loaded.
+The result should be identical to the previuos run.
+
+If there were no errors, we know can query Entrez databases and our
+classes ``PubmedAnalyzer`` and ``PubmedResult`` can inherit their base classes.
+However, before we inplement these classes, we need to decide how want to store
+a Pubmed data record.
+
+How to store PubMed data records
+++++++++++++++++++++++++++++++++
+The data records can be stored in different ways, but using a class  we can
+facilitate collecting and retrieving the requested data. We implement a
+sinmple class to represent a Pubmed record as follows, similar to a struct in
+C/C++. Furfther, we use the ``dict``  ``pubmed_records`` in ``PubmedResult`` to
+store ``PubmedRecord`` instances using the PMID as key. This avoids duplicates
+and faciliates lookup later.
+
+.. literalinclude:: ../../../../examples/tutorials/pubmed/pubmed-fetcher.py
+  :linenos:
+  :language: python
+  :lines: 49-55
+
+Implement ``PumedResult``
++++++++++++++++++++++++++
+
+As mentioned above, a result in ``entrezpy`` is the sum of all individual
+requests. We already decided to use a ``dict`` to store individual publication
+records. The EutilsResult documentation ADD URL shows us the requred aprameter
+for its constructor:
+
+- function name: name for the function produing this result (req)
+- qid:  the query id (req)
+- db: the queried Entrez database (req)
+- webenv: the WebEnv of the response (opt)
+- querykey: the query key of the corresponding WebEnv (opt)
+
+Firther, we need to implement four virtual methods.
+
+.. literalinclude:: ../../../../examples/tutorials/pubmed/pubmed-fetcher.py
+  :linenos:
+  :language: python
+  :lines: 57-78
+
+- Lines 5-8: Inherit hte base class and instatniate a PiubmedResult instance
+             with the required arguments obtained rom the response and request.
+
+- Lines 10-11: Implemnts the virtual method ``size()`` to return the number
+               of stored Pubmed records.
+
+- Lines 13-16: Implements the virtual method ``isEmpty()`` which returns a boolean to
+               indicate if any records have been fetched at all.
+
+- Lines 18-19: Implements the virtual  method ``get_link_parameter()`` which
+               should return the required parameters for Elink. We will skip
+               this method for now.
+
+- Lines 21-22: Implements a specific PubmedResult method to store individual
+               PubmedResult instances in pubmed_records
+
+Implement class ``PumedAnalyzer``
++++++++++++++++++++++++++++++++++
+
+The ``PubmedAnalyzer`` class will parse all responses and prepare them for
+``PumedResult``. The documentation for ``PubmedAnalyzer`` indicates
+three virtual methods we need to implement.
+
+- ``init_result(self, response, request)``: initialize a result instance if none exists
+- ``analyze_error(self, response, request)``: what to do if an error ocured
+- ``analyze_result(self, response, request)``: convert the reponse into a way we can parse it
+
+The first method we implement is init_result. So far, we know that we have a
+``PubmedResult`` class. We will adjust this method later, but for now we can
+implement it in a convieniente way so we can focus on the bigger analysis
+methods.
+
+
+We create an instance of our PubmedResult class as an analyzer attribute. The
+result attribute is documented in the EutilsAnalyzer documentation. We will
+elaboraet this method later, bit first we implement parsing the reponses from
+Entrez.
+
+The second method we implement is the error handling:.
+
+.. literalinclude:: ../../../../examples/tutorials/pubmed/pubmed-fetcher.py
+  :linenos:
+  :language: python
+  :lines: 50-61
+
+Since we request results in XML, we can print the error directly to STDOUT. When
+fetching numerous documents, you can log this output to follow up errors. Of
+course, you can, and likely should, implement a more complete error handling,
+but this is outsie the scope of this tutorial.
+The default error efetch_analzyer() has a method to recognize between JSON and
+XML and can be copied if required.
+
+
+Next, we implement is the parsing of the responses. We need to decide how to
+implement a Pubmed record. We implement a class to represent a Pubmed record as
+follows:
+
+.. code-block:: python
+  :linenos:
+
+  class PubmedRecord:
+
+    def __init__(self):
+      self.pmid = None
+      self.title = None
+      self.authors = [{'fname': None, 'lname': None}]
+      self.citations = []
+
+
+Implement ``PumedResult`` class from ``EutilsResult`` class
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+- implement a single result
+- decide how to store single results
+- implement required virtual functions
+
+We know are structure of PubMed records (see above) and the name of the tags we
+want to extract. We crated our two classes ``PubmedAnalyzer`` and
+``PubmedResult``.  Now it's time to extend them.
+
+We start with ``PubmedResult``.
+
+
+
+After having implemneted a single data record, we need to think how to store
+several records in ``PumedResult``. A reasonable choice is to store individual
+records in an array, or list.
+
+We can now start to write our ``PumedResult`` class.
+  We can get al the required infoirmations
+
+of the response inherit the base class and set the attributes to store individual PubMed records:
+
+.. literalinclude:: ../../../../examples/tutorials/pubmed/pubmed_result.py
+  :linenos:
+  :language: python
+  :lines: 1
+
+Lines 1-3: import standard Python libraries.
+
+Lines 5-7: import entrezpy and the base class. Adjust as described.
+
+Line 11: define the PubmedResult class and inherit the base class
+
+
+Now its time to take a closer look at the class ``EutilsResults`` since
+the class ``PumedResult`` is derived from it. The class ``EutilsResults`` is
+implemented in ``src/entrezpy/base/result.py`` and protoypes four virtual
+classes which we need to implement in our derived class ``PumedResult``:
+
+  - ``size()``: return the number of fetched Pubmed records
+  - ``dump()``: Dumps all instance attributes for debugging and logging
+  - ``get_link_parameter()``: Linking results using ``EutilsELink`` requires to
+                              define the required attributes.
+  - ``isEmpty()``: What indicates an empty result. Empty results are not
+                    failed results since the requets worked but did not return
+                    any records because none were found.
+
 .. code-block:: python
 
   def size(self):
@@ -289,7 +606,7 @@ sie methods
 
 
 
-
+20148030
 
 WIP, but see ``examples/entrezpy-example.conduit.fetch-genome.py``, lines 74-85.
 20148030
