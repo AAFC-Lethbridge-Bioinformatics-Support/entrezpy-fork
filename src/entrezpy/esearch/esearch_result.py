@@ -39,7 +39,7 @@ class EsearchResult(entrezpy.base.result.EutilsResult):
   """
 
   def __init__(self, response, request):
-    super().__init__('esearch', request.query_id, request.db, response.get('webenv'),
+    super().__init__(request.eutil, request.query_id, request.db, response.get('webenv'),
                      response.pop('querykey', None))
     self.count = int(response.get('count'))
     self.retmax = int(response.pop('retmax'))
