@@ -80,7 +80,8 @@ class EutilsAnalyzer:
     raise NotImplementedError("Require implementation of analyze_error()")
 
   def analyze_result(self, response, request):
-    """Virtual function to handle error responses
+    """Virtual function to handle responses, i.e. parsing them and prepare
+    them for :class:`entrezpy.base.result.EutilsResult`
 
     :param response: converted response from :meth:`.convert_response`
     :type  response: dict or `io.StringIO`
@@ -101,6 +102,7 @@ class EutilsAnalyzer:
       raise NotImplementedError("Unknown format: {}".format(request.retmode))
     response = self.convert_response(raw_response, request)
     if self.isErrorResponse(response, request):
+      self.hasErrorResponse = True
       self.analyze_error(response, request)
     else:
       self.analyze_result(response, request)
