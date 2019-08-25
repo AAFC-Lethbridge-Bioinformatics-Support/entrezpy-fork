@@ -50,7 +50,7 @@ class EutilsResult:
     self.references = entrezpy.base.referencer.EutilReferencer(self.webenv, querykey)
 
   def size(self):
-    """Returns result size in the corresponfong ResultSize unit
+    """Returns result size in the corresponding ResultSize unit
 
     :rtype: int
     :raises NotImplementedError: if implementation is missing"""
