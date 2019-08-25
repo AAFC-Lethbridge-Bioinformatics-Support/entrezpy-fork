@@ -34,15 +34,16 @@ Test your Python version
 ------------------------
 Test if we have at least **Python 3.6** :
 
-.. code:: python
+.. code:: bash
 
   $ python
 
->>> import sys
->>> sys.version_info
->>> sys.version_info(major=3, minor=6, micro=6, releaselevel='final', serial=0)
-                           ^        ^
+.. code::
 
+  >>> import sys
+  >>> sys.version_info
+  >>> sys.version_info(major=3, minor=6, micro=6, releaselevel='final', serial=0)
+                           ^        ^
 
 .. _pipyinstall:
 
@@ -60,14 +61,16 @@ Test if we can import ``entrezpy``:
 
   $ python
 
->>> import entrezpy
+.. code::
+
+  >>> import entrezpy
 
 .. _syspathinstall:
 
 Append to ``sys.path``
 ----------------------
-Add ``entrezpy`` to your pipeline via `sys.path`. This requires to clone
-the source code adjusting `sys.path`.
+Add ``entrezpy`` to your pipeline via ``sys.path``. This requires to clone
+the source code adjusting ``sys.path``.
 
 Assuming following directory structure where entrezpy was cloned into
 ``include``:

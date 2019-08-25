@@ -56,17 +56,13 @@ Licence and Copyright
 ---------------------
 
 ``entrezpy`` is licensed under the `GNU Lesser General Public License v3
-(LGPLv3)`_ or later. Please see :ref:`ncbi-disclaimer` concerning the copyright
-of the material available through E-Utilities.
+(LGPLv3)`_ or later.
 
-.. _ncbi-disclaimer:
+Concerning the copyright of the material available through E-Utilities, please
+read their disclaimer and copyright statement at
+https://www.ncbi.nlm.nih.gov/home/about/policies/.
 
-Disclaimer and Copyright Issues
--------------------------------
 
-https://www.ncbi.nlm.nih.gov/home/about/policies/
-
-.. _ncbi-apikey:
 
 Source code
 -----------
@@ -81,11 +77,11 @@ Contact
 -------
 
 To report bugs and/or errors, please open an issue at
-https://gitlab.com/ncbipy/entrezpy or contact me at:
-jan.buchmann@sydney.edu.au
+https://gitlab.com/ncbipy/entrezpy or contact me at: jan.buchmann@sydney.edu.au
 
 Of course, feel free to fork the code, improve it, and/or open a pull request.
 
+.. _ncbi-apikey:
 
 NCBI API key
 ------------
@@ -129,10 +125,9 @@ Manual
 
 .. toctree::
   :maxdepth: 2
-  :caption: Contents:
 
   setup/installation
-  usage/examples
+  tutorials/tutorial
 
 ``Entrezpy`` E-Utility functions
 ================================
@@ -153,10 +148,10 @@ Manual
   :maxdepth: 1
   :caption: Entrezpy In-depth
 
-  usage/entrezpy_basis
-  background/eutils_entrezpy
-  background/eutils_historyserver
-  background/entrezdb
+  indepth/entrezpy_basis
+  indepth/eutils_entrezpy
+  indepth/eutils_historyserver
+  indepth/entrezdb
 
 
 Reference

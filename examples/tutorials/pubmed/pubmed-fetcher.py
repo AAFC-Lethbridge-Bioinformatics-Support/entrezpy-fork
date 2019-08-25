@@ -35,10 +35,11 @@
 
 import os
 import sys
-import json
 import xml.etree.ElementTree
 
-# If enrezpy is installed using PyPi uncomment line 40 and comment line 41
+
+# If entrezpy is installed using PyPi uncomment th line 'import entrezpy'
+# and comment the 'sys.path.insert(...)'
 # import entrezpy
 sys.path.insert(1, os.path.join(sys.path[0], '../../../src'))
 # Import required entrepy modules
@@ -46,8 +47,13 @@ import entrezpy.conduit
 import entrezpy.base.result
 import entrezpy.base.analyzer
 
-class PubmedRecord:
 
+class PubmedRecord:
+  """
+  Simple data class to store individual Pubmed records. Individual authors will
+  be stored as dict('lname':last_name, 'fname': first_name) in authors.
+  Citations as string elements in the list citations.
+  """
   def __init__(self):
     self.pmid = None
     self.title = None
@@ -56,7 +62,12 @@ class PubmedRecord:
 
 class PubmedResult(entrezpy.base.result.EutilsResult):
   """
-  Class to store inidivual Pubmed records.
+  Derived class to store a Pubmed query. Individual Pubmed records
+  (PubmecRecord) are stored in pubmed_records.
+
+  :param response: inspected response from PubmedAnalyzer
+  :param request: request linked to the current response
+  :ivar dict pubmed_records: storing PubmedRecord instances
   """
   def __init__(self, response, request):
     super().__init__(request.eutil, request.query_id, request.db)
@@ -139,9 +150,10 @@ class PubmedAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
 def main():
   c = entrezpy.conduit.Conduit(sys.argv[1])
   fetch_pubmed = c.new_pipeline()
-  fetch_pubmed.add_fetch({'db':'pubmed', 'id':[sys.argv[2]], 'retmode':'xml'},
-                         analyzer=PubmedAnalyzer())
+  fetch_pubmed.add_fetch({'db':'pubmed', 'id':[sys.argv[2].split(',')],
+                          'retmode':'xml'}, analyzer=PubmedAnalyzer())
   a = c.run(fetch_pubmed)
+  print(a)
   res = a.get_result()
   for i in res.pubmed_records:
     print(i, res.pubmed_records[i].authors, res.pubmed_records[i].citations)
