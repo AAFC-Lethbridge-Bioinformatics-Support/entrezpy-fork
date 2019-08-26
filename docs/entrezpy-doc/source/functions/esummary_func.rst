@@ -24,7 +24,7 @@ Usage
   print(analyzer.get_result().summaries)
 
 ``Esummarizer``
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 :class:`entrezpy.esummary.esummarizer.Esummarizer`
 
@@ -85,9 +85,9 @@ the request is returned.
 Approach
 --------
 
-1. Parameters are checked and the request size is configured
-2. UIDs are posted to NCBI
-4. If no errors were encountered, returns the analyzer with the result storing
+#. Parameters are checked and the request size is configured
+#. UIDs are posted to NCBI
+#. If no errors were encountered, returns the analyzer with the result storing
    the WebEnv and query_key for the UIDs.
 
 References
