@@ -81,6 +81,16 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
+rst_prolog = """
+.. |pubmed| replace:: PubMed
+.. |entrezpy| replace:: ``entrezpy``
+.. |EutilsAnalyzer| replace:: :class:`entrezpy.base.analyzer.EutilsAnalyzer`
+.. |EutilsResult| replace:: :class:`entrezpy.base.result.EutilsResult`
+.. |Conduit| replace:: :class:`entrezpy.conduit.Conduit`
+.. |PubmedResult| replace:: ``PubmedResult``
+.. |PubmedAnalyzer| replace:: ``PubmedAnalyzer``
+.. |PubmedRecord| replace:: ``PubmedRecord``
+"""
 
 # -- Options for HTML output ----------------------------------------------
 
