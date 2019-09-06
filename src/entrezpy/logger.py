@@ -33,33 +33,38 @@ default_config = {
   },
   'handlers':
   {
-    'console': {
-    'level': 'INFO',
-    'formatter': 'short',
-    'class': 'logging.StreamHandler',
-  },
-  'file':
-  {
-    'level': 'DEBUG',
-    'formatter': 'short',
-    'class': 'logging.FileHandler',
-    'filename' : os.path.join(os.getcwd(), 'entrepy-{}.log'.format(time.time())),
-    'delay' : True
-  },
-  },
-  'loggers': {
-        '': {
-            'handlers': ['console'],
-            'level': 'ERROR',
-        },
-    'plugins': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False
-        }
+    'console':
+    {
+      'level': 'INFO',
+      'formatter': 'short',
+      'class': 'logging.StreamHandler',
     },
+    'file':
+    {
+      'level': 'DEBUG',
+      'formatter': 'short',
+      'class': 'logging.FileHandler',
+      'filename' : os.path.join(os.getcwd(), 'entrepy-{}.log'.format(time.time())),
+      'delay' : True
+    }
+  },
+  'loggers':
+  {
+    '':
+    {
+      'handlers': ['console'],
+      'level': 'ERROR',
+    },
+    'plugins':
+    {
+      'handlers': ['console'],
+      'level': 'INFO',
+      'propagate': False
+    }
+  },
 }
 
-def set_loglevel(loglevel):
-  if loglevel == 'info':
+def set_loglevel(loglevel=None):
+  if not loglevel:
     return logging.INFO
+  return logging.loglevel

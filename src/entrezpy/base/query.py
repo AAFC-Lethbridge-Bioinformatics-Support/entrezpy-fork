@@ -32,6 +32,7 @@ import threading
 
 import entrezpy.requester.requester
 import entrezpy.base.monitor
+import entrezpy.logger
 
 
 class EutilsQuery:
