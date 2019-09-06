@@ -1,4 +1,5 @@
 .. _docsumtut:
+
 Fetching sequence metadata from Entrez
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -21,7 +22,7 @@ Overview
 
 This tutorial explains how to write a simple sequence docsum fetcher using
 |Conduit| and by adjust |EutilsResult| and |EutilsAnalyzer|. It is based on a
-esearch followed by fetching the data as docsum JSON. This tutorial is very
+esearch followed by fetching the data as ``docsum`` JSON. This tutorial is very
 similar as :ref:`pubmedtut`, the main difference being parsing JSON and using
 two steps in |Conduit|. The main steps are very similar and the reader is should
 look there for more details.
@@ -37,11 +38,12 @@ look there for more details.
 The `Efetch Entrez Utility <eutils_>`_ is NCBI's utility responsible for
 fetching data records. Its `manual <eutils_>`_ lists all possible databases and
 which records (Record type) can be fetched in which format. We'll fetch
-|docsum| data in JSON after performing an ``esearch`` step using accessions
-numbers as query.
+|docsum| data in JSON using the EUtil ``esummary`` after performing an
+``esearch`` step using accessions numbers as query. Instead of using efetch, we
+will  use ``esummary`` and replace the default analyzer with our own.
 
 In |entrezpy|, a result (or query), is the sum of all individual requests
-required to obtain the whole query. ``efetch`` fetches data in batches. In this
+required to obtain the whole query. ``esummary`` fetches data in batches. In this
 example, all batches are collected prior to printing the infomration to standard
 output. The method :meth:`DocsumAnalyzer.analyze_result` can be adjusted to
 store or analyze the results from each batch as soon as the are fetched.
@@ -71,9 +73,9 @@ installed on most \*NIX systems.
             ``esearch`` and ``efetch``.
   :name: docsum-tut-efetch-example
 
-  $ esearch -db nuccore -query HOU142311 | efetch -format docsum -mode json
+  $ esearch -db nuccore -query HOU142311 | esummary -mode json
 
-The entry should start and end as shown in :numref:`Listing %s <26378223-xml-example>`.
+The entry should start and end as shown in :numref:`Listing %s <docsum-json-example>`.
 
 .. literalinclude:: HOU142311.json
   :language: json
@@ -125,149 +127,102 @@ How to store |docsum| data records
 
 The data records can be stored in different ways, but using a class  facilitates
 collecting and retrieving the requested data. We implement a simple class
-(analogous to a C/C++ struct [#fn-struct]_) to represent a |pubmed| record.
+(analogous to a C/C++ struct [#fn-struct]_) to represent a |docsum| record.
+Becuase we fetch data in JSON format, the class performs a rather dull parsing.
+The nested Subtype class handles the ``subtype`` and ``subname`` attributes
+in a |docsum| response.
 
 .. literalinclude:: ../../../../../examples/tutorials/seqmetadat/seqmetadata-fetcher.py
   :caption: Implementing a |docsum| data record
-  :name: lst:pmed-datrec
+  :name: lst:docsum-datrec
   :linenos:
   :language: python
   :lines: 51-98
 
 
-
-Defining |PubmedResult| and |PubmedAnalyzer|
-++++++++++++++++++++++++++++++++++++++++++++
-
-From the documentation or publication, we know that |EutilsAnalyzer| parses
-responses and stores results in |EutilsResult|. Therefore, we need to derive
-and adjust these classes for our |PubmedResult| and |PubmedAnalyzer|
-classes. We will add these classes to our program ``pubmed-fetcher.py``. The
-documentation tells us what the required parameters for each class are and the
-virtual methods we need to implement.
-
-Implement |PubmedResult|
+Implement |DocsumResult|
 ........................
 
 We have to extend the :ref:`virtual methods  <virtualmethod>` declared in
 |EutilsResult|. The documentation informs us about the required parameters and
 expected return values.
 
-In addition, we declare the method :meth:`PubmedResult.add_pubmed_record` to
-handle adding new |pubmed| data record instances as defined in
-:numref:`Listing %s <lst:pmed-datrec>`. The |PubmedResult| methods in this
-tutorial are trivial since and we can implement the class in onw go
+In addition, we declare the method :meth:`PubmedResult.add_docsum` to
+handle adding new |docsum| data record instances as defined in
+:numref:`Listing %s <lst:docsum-datrec>`. The |docsum| methods in this
+tutorial are trivial and we can implement the class in one go
 
-.. literalinclude:: ../../../../../examples/tutorials/pubmed/pubmed-fetcher.py
-  :caption: Implementing |PubmedResult|
+.. literalinclude:: ../../../../../examples/tutorials/seqmetadat/seqmetadata-fetcher.py
+  :caption: Implementing |DocsumResult|
+  :name: lst:docsum-result
   :linenos:
   :language: python
-  :lines: 64-110
+  :lines: 100-146
   :emphasize-lines: 1, 10, 14, 19, 26, 33, 43
 
 * Line 1: inherit the base class |EutilsResult|
-* Line 10-12: initialize |PubmedResult| instance with the required
+* Line 10-12: initialize |DocsumResult| instance with the required
     parameters and attributes. We don't need any information from the
     response, e.g. WebEnv.
 * Line 14-17: implement :meth:`entrezpy.base.result.EutilsResult.size`
 * Line 19-24: implement :meth:`entrezpy.base.result.EutilsResult.isEmpty`
 * Line 26-31: implement :meth:`entrezpy.base.result.EutilsResult.get_link_parameter`
 * Line 33-41: implement :meth:`entrezpy.base.result.EutilsResult.dump`
-* Line 43-46: specific |PubmedResult| method to store individual |PubmedRecord|
+* Line 43-46: specific |PubmedResult| method to store individual |DocsumResult|
     instances
 
-.. note:: Linking |pubmed| records for subsequent searches is better handled by
-  creating a pipeline performing ``esearch`` queries followed by ``elink``
-  queries and a final ``efetch`` query. The fetch result for |pubmed| records
-  has no WebEnv value and is missing the originating database since ``efetch``
-  is usually the last query within a series of ``Eutils`` queries. You can test
-  this using the following EDirect pipeline:
-  ``$ efetch -db pubmed -id 20148030 | elink -target nuccore``
-  Therefore, we implement a warning, informing the user linking is not
-  possible. Nevertheless, the method could return any parsed information, e.g.
-  nucleotide UIDs, and used as parameter for a subsequent fetch. However, some
-  features could not be used, e.g. the Entrez ``history`` server.
+.. note:: The fetch result for |docsum| records  has no WebEnv value and is
+  missing the originating database since ``esummary``  is usually the last
+  query within a series of ``Eutils`` queries.  Therefore, we implement a
+  warning, informing the user linking is not  possible.
 
-Implementing |PubmedAnalyzer|
+Implementing |DocsumAnalyzer|
 .............................
 
 We have to extend the :ref:`virtual methods  <virtualmethod>` declared in
 |EutilsAnalyzer|. The documentation informs us about the required parameters
 and expected return values.
 
-.. literalinclude:: ../../../../../examples/tutorials/pubmed/pubmed-fetcher.py
+.. literalinclude:: ../../../../../examples/tutorials/seqmetadat/seqmetadata-fetcher.py
   :caption: Implementing |PubmedAnalyzer|
   :linenos:
   :language: python
-  :lines: 111-191
-  :emphasize-lines: 1, 5, 8, 14, 21
+  :lines: 147-172
+  :emphasize-lines: 1, 5, 8, 14, 20
 
 * Line 1: Inherit the base class |EutilsAnalyzer|
 * Lines 5-6: initialize |PubmedResult| instance.
 * Lines 8-12: declare :meth:`entrezpy.base.analyzer.EutilsAnalyzer.init_result`
-* Lines 14-19: decalre :meth:`entrezpy.base.analyzer.EutilsAnalyzer.analyze_error`
-* Lines 21-69: declare :meth:`entrezpy.base.analyzer.EutilsAnalyzer.analyze_result`
+* Lines 14-18: decalre :meth:`entrezpy.base.analyzer.EutilsAnalyzer.analyze_error`
+* Lines 20-25: declare :meth:`entrezpy.base.analyzer.EutilsAnalyzer.analyze_result`
 
-The XML parser is the critical, and most likely most complex, piece to
-implement. However, if you want to parse your Entrez results you anyway need to
-develop a parser. If you already have a parser, you can use an object
-composition approach [#fn-oocomp].
-Further, you can add a method in ``analyze_result`` to store the processed
-data in a database or implementing checkpoints.
-
-.. note:: Explaining the XML parser is beyond the scope of this tutorial
-          (and there are likely better approaches, anyways).
+Compared to the :ref:`pubmed analyzer <pubmed-analyzer>`, parsing the JOSN
+output is very easy. If you already have a parser, you can use an object
+composition approach [#fn-oocomp]. Further, you can add a method in
+``analyze_result`` to store the processed data in a database or
+implementing checkpoints.
 
 Putting everything together
 +++++++++++++++++++++++++++
 
-The completed implementation is shown in :numref:`Listing %s <pubmed-fetcher>`.
+The completed implementation is shown in :numref:`Listing %s <docsum-fetcher>`.
 
-.. literalinclude:: ../../../../../examples/tutorials/pubmed/pubmed-fetcher.py
-  :caption: Complete |pubmed| fetcher to extract author and citations.
-  :name: pubmed-fetcher
+.. literalinclude:: ../../../../../examples/tutorials/seqmetadat/seqmetadata-fetcher.py
+  :caption: Complete |docsum| fetcher
+  :name: docsum-fetcher
   :linenos:
   :language: python
   :lines: 1,34-
-  :emphasize-lines: 163,164,166, 168-172,174-181
 
-* Line 163: Adjust argumetn processing to allow several comma-separarted PMIDs
-* Line 164: add our implemented |PubmedAnalyzer| as parameter to analzye
-            results as described in :meth:`entrezpy.conduit.Conduit.Pipeline.add_fetch`
-* Line 166: run the pipeline and store the analyzer in ``a``
-* Lines 168-172: Testing mthods
-* Line 174: get |PubmedResult| instance
-* Lines 175-181: process fetched data records into columns
-
-The implementaion can be invoked as shown in :numref:`Listing %s <fetch-pmids>`.
+The implementaion can be invoked as shown in :numref:`Listing %s <fetch-docsum>`.
 
 .. code-block:: bash
-  :caption: Fetching and formatting data records for several different PMIDs
-  :name: fetch-pmids
+  :caption: Fetching |docsum| data for several accessions
+  :name: fetch-docsum
 
-  $ python pubmed-fetcher.py you@email 6,15430309,31077305,27880757,26378223| column -s= -t |less
-
-You'll notice that not all data records have all fields. This is because they
-are missing in these records or some tags have different names.
-
-Running ``pubmed-fetcher.py`` with UID 20148030 will fail
-(:numref:`Listing %s <fetch-error-pmid>`).
-
-.. code-block:: bash
-  :caption: Fetching the data record PMID20148030 results in an error
-  :name: fetch-error-pmid
-
-  $ python pubmed-fetcher.py you@email 20148030
-
-The reason for this is can be found in the requested XML. Running the command
-in :numref:`Listing %s <grep-error-pmid>` hints the problem. Adjusting and
-fixing is a task left for interested readers.
-
-.. code-block:: bash
-  :caption: Hint to find teh reason why  PMID 20148030 fails
-  :name: grep-error-pmid
-
-  $ efetch -db pubmed -id 20148030  -mode xml | grep -A7 \<AuthorList
+  $ cat "NC_016134.3" > accs
+  $ cat "HOU142311" >> accs
+  $ cat accs | python seqmetadata-fetcher.py --email email -db nuccore
 
 .. rubric:: Footnotes
 

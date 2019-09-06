@@ -124,7 +124,7 @@ class DocsumResult(entrezpy.base.result.EutilsResult):
 
   def get_link_parameter(self, reqnum=0):
     """Implement virtual method :meth:`entrezpy.base.result.EutilsResult.get_link_parameter`.
-    Fetching a pubmed record has no intrinsic elink capabilities and therefore
+    Fetching summary record has no intrinsic elink capabilities and therefore
     should inform users about this."""
     print("{} has no elink capability".format(self))
     return {}
@@ -135,12 +135,12 @@ class DocsumResult(entrezpy.base.result.EutilsResult):
     :return: instance attributes
     :rtype: dict
     """
-    return {self:{'dump':{'pubmed_records':[x for x in self.docsums],
+    return {self:{'dump':{'docsum_records':[x for x in self.docsums],
                               'query_id': self.query_id, 'db':self.db,
                               'eutil':self.function}}}
 
   def add_docsum(self, docsum):
-    """The only non-virtual and therefore PubmedResult-specific method to handle
+    """The only non-virtual and therefore DocsumResult-specific method to handle
     adding new data records"""
     self.docsums[docsum.uid] = docsum
 
@@ -159,13 +159,13 @@ class DocsumAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
 
   def analyze_error(self, response, request):
     """Implement virtual method :meth:`entrezpy.base.analyzer.analyze_error`. Since
-    we expect XML errors, just print the error to STDOUT for
-    logging/debugging."""
+    we expect JSON, just print the error to STDOUT as string."""
     print(json.dumps({__name__:{'Response': {'dump' : request.dump(),
-                                             'error' : response.getvalue()}}}))
+                                             'error' : response}}}))
 
   def analyze_result(self, response, request):
-    """Implement virtual method :meth:`entrezpy.base.analyzer.analyze_result`."""
+    """Implement virtual method :meth:`entrezpy.base.analyzer.analyze_result`.
+    The results is a JSON structure and allows easy parsing"""
     self.init_result(response, request)
     for i in response['result']['uids']:
       self.result.add_docsum(Docsum(response['result'][i]))
@@ -189,7 +189,7 @@ def main():
 
   c = entrezpy.conduit.Conduit(args.email)
   fetch_docsum = c.new_pipeline()
-  sid = fetch_docsum.add_search({'db':args.db, 'term':','.join([str(x) for x in sys.stdin])})
+  sid = fetch_docsum.add_search({'db':args.db, 'term':','.join([str(x.strip()) for x in sys.stdin])})
   fetch_docsum.add_summary({'rettype':'docsum', 'retmode':'json'},
                             dependency=sid, analyzer=DocsumAnalyzer())
   docsums = c.run(fetch_docsum).get_result().docsums

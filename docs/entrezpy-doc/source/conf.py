@@ -91,6 +91,8 @@ rst_prolog = """
 .. |PubmedAnalyzer| replace:: ``PubmedAnalyzer``
 .. |PubmedRecord| replace:: ``PubmedRecord``
 .. |docsum| replace:: ``Docsum``
+.. |DocsumResult| replace:: ``DocsumResult``
+.. |DocsumAnalyzer| replace:: ``DocsumAnalyzer``
 """
 
 # -- Options for HTML output ----------------------------------------------
