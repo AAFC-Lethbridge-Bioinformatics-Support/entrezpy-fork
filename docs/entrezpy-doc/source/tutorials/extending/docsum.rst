@@ -1,7 +1,6 @@
-.. _pubmedtut:
-
-Fetching publication information from Entrez
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _docsumtut:
+Fetching sequence metadata from Entrez
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. topic:: Prerequisites
 
@@ -9,42 +8,43 @@ Fetching publication information from Entrez
   * |entrezpy| is either installed via PyPi or cloned from the ``git``
     repository  (:ref:`install`).
   * basic familiarity with `object oriented Python <oopython_>`_, i.e. inheritance
+  * read the tutorial :ref:`pubmedtut`
   * The full implementation can be found in the repository at
-    `examples/tutorials/pubmed/pubmed-fetcher.py <implement>`_
+    `examples/tutorials/seqmetadata/seqmetadata-fetcher.py <implement>`_
 
 .. topic:: Acknowledgment
 
-  I'd like to thank Pedram Hosseini (pdr[dot]hosseini[at]gmail[dot]com) for
-  pointing out the requirement for this tutorial.
+  I'd like to thank <contib> for proposing this scenario.
 
 Overview
 ++++++++
 
-This tutorial explains how to write a simple |pubmed| data record fetcher using
-|Conduit| and by adjust |EutilsResult| and |EutilsAnalyzer|.
+This tutorial explains how to write a simple sequence docsum fetcher using
+|Conduit| and by adjust |EutilsResult| and |EutilsAnalyzer|. It is based on a
+esearch followed by fetching the data as docsum JSON. This tutorial is very
+similar as :ref:`pubmedtut`, the main difference being parsing JSON and using
+two steps in |Conduit|. The main steps are very similar and the reader is should
+look there for more details.
 
 .. topic:: Outline
 
   * develop a |Conduit| pipline
-  * implement a |pubmed| data structure
+  * implement a |Docsum| data structure
   * inherit |EutilsResult| and |EutilsAnalyzer|
   * implement the required virtual methods
   * add methods to derived classes
 
 The `Efetch Entrez Utility <eutils_>`_ is NCBI's utility responsible for
 fetching data records. Its `manual <eutils_>`_ lists all possible databases and
-which records (Record type) can be fetched in which format. For the first
-example, we'll fetch |pubmed| data in XML, specifically, the UID, authors,
-title, abstract, and citations. We will test and develop the pipeline using
-the article  the article with |pubmed| ID (PMID) 26378223 becusae it has all the
-required fields. In the end we will see that not all fields are always present.
+which records (Record type) can be fetched in which format. We'll fetch
+|docsum| data in JSON after performing an ``esearch`` step using accessions
+numbers as query.
 
 In |entrezpy|, a result (or query), is the sum of all individual requests
-required to obtain the whole query. If you want to analyze the number of
-citations for a specific author, the result is the number of citations which
-you obtained using a query. To obtain the final number, you have to parse
-several |pubmed| records. Therefore, |entrezpy| requires a result
-|EutilsResult| class to store the partial results obtained from a query.
+required to obtain the whole query. ``efetch`` fetches data in batches. In this
+example, all batches are collected prior to printing the infomration to standard
+output. The method :meth:`DocsumAnalyzer.analyze_result` can be adjusted to
+store or analyze the results from each batch as soon as the are fetched.
 
 .. _virtualmethod:
 .. rubric:: A quick note on virtual functions
@@ -56,7 +56,7 @@ the same signature and return the same result type as the base class. To
 implement the method in the inherited class, you need to look up the method in
 the base class.
 
-|pubmed| data structure
+|docsum| data structure
 +++++++++++++++++++++++
 
 Before we start to write our implementation, we need to understand the
@@ -67,101 +67,74 @@ pager, e.g. ``less`` [#fn-less]_ or ``more`` [#fn-more]_. These are usually
 installed on most \*NIX systems.
 
 .. code-block:: bash
-  :caption: Fetching |pubmed| data record for PMID 26378223 using EDirect's
-            ``efetch``
-  :name: tut-efetch-example
+  :caption: Fetching |docsum| data record for accession HOU142311 using EDirect's
+            ``esearch`` and ``efetch``.
+  :name: docsum-tut-efetch-example
 
-  $ efetch -db pubmed -id 26378223 -mode XML | less
+  $ esearch -db nuccore -query HOU142311 | efetch -format docsum -mode json
 
 The entry should start and end as shown in :numref:`Listing %s <26378223-xml-example>`.
 
-.. literalinclude:: 26378223.xml
-  :language: xml
-  :caption: XML |pubmed| data record for publication PMID26378223. Data not
-            related to authors, abstract, title, and references has been
-            removed for clarity.
-  :name: 26378223-xml-example
+.. literalinclude:: HOU142311.json
+  :language: json
+  :caption: JSON |docsum| data record for accession HOU142311. Only the first
+            few attributes lines are shown for brevity.
+  :name: docsum-json-example
   :linenos:
-
-This shows us the XML fields, specifically the ``tags``,  present in a typical
-|pubmed| record. The root tag for each batch of fetched data records is
-``<PubmedArticleSet>`` and each individual data record is described in the nested
-tags ``<PubmedArticle>``. We are interested in the following tags nested within
-``<PubmedArticle>``:
-
-  * ``<ArticleTitle>``
-  * ``<Abstract>``
-  * ``<AuthorList>``
-  * ``<ReferenceList>``
+  :lines: 1-38, 140-
 
 The first step is to write a program to fetch the requested records. This can
 be done using the |Conduit| class.
 
-Simple Conduit pipeline to fetch |pubmed| Records
+Simple Conduit pipeline to fetch |docsum| Records
 +++++++++++++++++++++++++++++++++++++++++++++++++
 
-We will write simple |entrezpy| pipeline named ``pubmed-fetcher.py`` using
+We will write simple |entrezpy| pipeline named ``seqmetadata-fetcher.py`` using
 |Conduit| to test and run our implementations. A simple |Conduit| pipeline
 requires two arguments:
 
   * user email
-  * PMID (here 15430309)
+  * accession numbers
 
-.. literalinclude:: simple-conduit.tutorial.py
-  :caption: Basic |Conduit| pipeline to fetch |pubmed| data records. The required
-            arguments are positional arguments given at the command line.
+
+.. literalinclude:: ../../../../../examples/tutorials/seqmetadat/seqmetadata-fetcher.py
+  :caption: Basic |Conduit| pipeline to fetch |docsum| data records. The required
+            arguments are parsed by ArgumentParser.
   :linenos:
   :language: python
   :name: basic-conduit
-  :lines: 1-16, 54-
-  :emphasize-lines: 15, 19-22
+  :lines: 1,33-50, 173-194
 
-* Lines 3-4:  import standard Python libraries
-* Lines 12-15:  import the module :mod:`entrezpy.conduit` (adjust as necessary)
-* Line 19:  create new |Conduit| instance with an email address from the first
-            command line argument
-* Line 20:  create new pipeline ``fetch_pubmed`` using
-            :meth:`entrezpy.conduit.Conduit.new_pipeline`
-* Line 21:  add fetch request to the ``fetch_pubmed`` pipeline with the PMID
-            from the second command line argument using
-            :meth:`entrezpy.conduit.Conduit.Pipeline.add_fetch`
+* Lines 1-17:  import standard Python libraries and ``entrezpy`` modules
+* Lines 21-35: Setup argument parser
+* Line 37:  create new |Conduit| instance with an email address.
+* Line 38:  New pipeline instance :meth:`entrezpy.conduit.Conduit.new_pipeline`
+* Line 39:  add search request to the  pipeline with the databse name from the
+            user passed argument and a search strin assembled from standard
+            input. Store the query id in ``sid``.
+            :meth:`entrezpy.conduit.Conduit.Pipeline.add_search`
+* Line 40   add summary step with the search query as dependency.
+            (:meth:`entrezpy.conduit.Conduit.Pipeline.add_summary`)
 * Line 22:  run pipeline using :meth:`entrezpy.conduit.Conduit.run`
 
-Let's test this program to see if all modules are found and conduit works.
+We need to implement the DocsumAnalyzer, but before we have to design a |docsum|
+data structure.
 
-``$ python pubmed-fetcher.py your@email 15430309``
-
-Since we didn't specify an analyzer yet, we expect the raw XML output is printed
-to the standard output. So far, this produces the same output as
-:numref:`Listing %s <tut-efetch-example>`.
-
-If this command fails and/or no output is printed to the standard output,
-something went wrong. Possible issues may include  no internet connection,
-wrongly installed |entrezpy|, wrong import statements, or bad permissions.
-
-If everything went smoothly, we wrote a basic but working pipeline to
-fetch |pubmed| data from NCBI's Entrez database. We can now start to implement our
-specific |EutilsResult| and |EutilsAnalyzer| classes. However, before we
-implement these classes, we need to decide how want to store a |pubmed| data
-record.
-
-How to store |pubmed| data records
+How to store |docsum| data records
 ++++++++++++++++++++++++++++++++++
 
 The data records can be stored in different ways, but using a class  facilitates
 collecting and retrieving the requested data. We implement a simple class
 (analogous to a C/C++ struct [#fn-struct]_) to represent a |pubmed| record.
 
-.. literalinclude:: ../../../../../examples/tutorials/pubmed/pubmed-fetcher.py
-  :caption: Implementing a |pubmed| data record
+.. literalinclude:: ../../../../../examples/tutorials/seqmetadat/seqmetadata-fetcher.py
+  :caption: Implementing a |docsum| data record
   :name: lst:pmed-datrec
   :linenos:
   :language: python
-  :lines: 52-63
+  :lines: 51-98
 
-Further, we will use the ``dict`` ``pubmed_records`` as attribute of
-|PubmedResult| to store |PubmedRecord| instances using the PMID as key to
-avoid duplicates.
+
 
 Defining |PubmedResult| and |PubmedAnalyzer|
 ++++++++++++++++++++++++++++++++++++++++++++
@@ -307,4 +280,4 @@ fixing is a task left for interested readers.
 .. _oopython: https://docs.python.org/3/tutorial/classes.html
 .. _eutils: https://dataguide.nlm.nih.gov/eutilities/utilities.html#efetch
 .. _edirect: https://www.ncbi.nlm.nih.gov/books/NBK179288/
-.. _implement: https://gitlab.com/ncbipy/entrezpy/blob/master/examples/tutorials/pubmed/pubmed-fetcher.py
+.. _implement: https://gitlab.com/ncbipy/entrezpy/blob/master/examples/tutorials/seqmedata/seqmedata-fetcher.py

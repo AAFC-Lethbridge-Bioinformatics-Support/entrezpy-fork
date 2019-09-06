@@ -47,5 +47,4 @@ e.g. processing them for a database or parsing for specific information.
   :maxdepth: 2
 
   extending/pubmed
-
-
+  extending/docsum
