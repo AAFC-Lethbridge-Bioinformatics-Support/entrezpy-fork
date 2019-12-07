@@ -1,0 +1,68 @@
+\begin{tikzpicture}
+  \tikzset
+  {
+    qrymtx/.style={
+      matrix of nodes,
+      nodes in empty cells,
+      nodes = {mtxnode},
+      row sep = 0.3em,
+      column sep = 2em
+    },
+    mtxnode/.style={
+      font = \small\ttfamily,
+      inner sep = 0.4em,
+      outer sep = 0em
+    },
+    reqnode/.style={
+      font = \footnotesize,
+      align = left
+    },
+    reqblock/.style=
+    {
+      draw,
+      dashed,
+      thick,
+      inner sep = 0,
+      outer sep = 0.1em
+    },
+    qrynode/.style={
+      font = \footnotesize,
+      align=left
+    },
+    entrezpy/.style=
+    {
+      inner sep = 0,
+      outer sep =0.2em,
+      font = \small\bfseries\ttfamily,
+    },
+    analysis/.style={out=0, in=-180},
+    analysisline/.style={thick}
+  }
+
+  \matrix (q) [qrymtx]{
+    0 & 1 & 2 & 3 \\
+    4 & 5 & 6 & 7 \\
+    8             \\
+  };
+  \node[entrezpy, right=3.5em of q.east](analyzer) {EutilsAnalyzer()};
+  %\node[entrezpy, right=1em of analyzer](result) {EutilsResult()};
+
+  \node[reqnode, above=0.1em of q](reqs) {Requests (n=4)};
+  \node[qrynode, left=0.4em of q] (eq) {Entrezpy\\query\\(n=9)};
+
+  \draw[-, very thick]  ($(q-1-1)+(-0.3,0.3)$) -| ($(q-1-1) + (-0.5,0)$) |- ($(q-3-1)+(-0.3,-0.3)$);
+  \node[reqblock, fit=(q-1-1.north west)(q-1-4.south east)] (r1){};
+  \node[reqblock, fit=(q-2-1.north west)(q-2-4.south east)] (r2){};
+  \node[reqblock, fit=(q-3-1.north west)(q-3-1.south east)] (r3){};
+
+  \node[reqnode, right=0.2em of r1] (1) {1};
+  \node[reqnode, right=0.2em of r2] (2) {2};
+  \node[reqnode, below=0.2em of 2] (3) {3};
+
+  \coordinate (ain) at ($(analyzer.west)+(-0.4,0)$);
+  \draw[-Latex, analysisline] (ain) -- (analyzer.west);
+  \draw[analysisline] (1) to [analysis] (ain);
+  \draw[analysisline] (2) to [analysis] (ain);
+  \draw[analysisline] (3) to [analysis] (ain);
+  %\draw[-Latex, analysisline] (analyzer) to [analysis] (result);
+\end{tikzpicture}

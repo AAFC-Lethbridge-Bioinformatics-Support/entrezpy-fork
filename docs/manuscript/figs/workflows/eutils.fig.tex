@@ -1,0 +1,154 @@
+\documentclass[border=0pt]{standalone}
+\usepackage[pass,paperwidth=178mm, paperheight=280]{geometry}
+\usepackage{lmodern}
+\renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+\usepackage[T1]{fontenc}
+\usepackage{varwidth}
+\usepackage{tikz_styles}
+
+\begin{document}
+\begin{tikzpicture}
+  \matrix(sender)
+  [
+    matrix of nodes,
+    anchor = center,
+    outer,
+    nodes={inner}
+  ]
+  {
+     {Encode Search}        & {Send Request} \\
+     {Encode Fetch}         &                \\
+     {Extract\\information} & {Read Response}\\
+  };
+
+  \matrix(eutils)
+  [
+    matrix of nodes,
+    matrix anchor = north west,
+    right = of sender-1-2.north east,
+    anchor = center,
+    outer,
+    nodes={inner}
+  ]
+  {
+    {Receive/Decode\\request}  &               \\
+    {Send\\response}           & {Query Entrez}\\
+  };
+
+  \matrix(histserv)
+  [
+    matrix of nodes,
+    matrix anchor=south west,
+    right=of eutils.south east,
+    histouter,
+    nodes={histinner}
+  ]
+  {
+    {WebEnv-0}   & {WebEnv-1}  \\
+    {QueryKey-1} & {QueryKey-1}\\
+    {QueryKey-2} &             \\
+  };
+  \node[above, anchor=south west] (histservtitle) at (histserv.north west) {History Server};
+
+  \matrix(entrez)
+  [
+    matrix of nodes,
+    matrix anchor=north east,
+    below=of histserv.south east,
+    dbouter,
+    nodes={dbinner}
+  ]
+  { {PubMed} & {Protein} & {Nucleotide} & |[draw=none, fill=none, color=white]|{\dots}\\};
+  \node[above, anchor=north] (entreztitle) at (entrez.south) {Entrez};
+
+  \matrix(search)
+  [
+    matrix of nodes,
+    left = of sender-1-1,
+    fill = blue!60,
+    nodes = {anchor = west, outer sep=0, inner sep=0.2em},
+    align = left,
+    inner sep = 0,
+    outer sep = 0,
+    font = \footnotesize
+  ]
+  {
+    Search &            \\
+    What   & Viruses    \\
+    Where  & Nucleotides\\
+  };
+
+  \matrix(fetch)
+  [
+    matrix of nodes,
+    left = of sender-2-1.west,
+    %anchor = north east,
+    fill = red!50,
+    nodes = {anchor = west, outer sep=0, inner sep=0.2em},
+    align = left,
+    inner sep = 0,
+    outer sep = 0,
+    font = \footnotesize
+  ]
+  {
+    Fetch &           \\
+    What  & UIDs       \\
+    Where & Nucleotides\\
+  };
+
+  \node(result)
+  [
+    inner sep = 0,
+    outer sep = 0,
+    left = of sender-3-1.west,
+    anchor = east,
+    align=left,
+    font=\ttfamily\small
+  ]
+  {
+   \textgreater LC431552.1\\GTTCCATACAGAGACC..\\
+   \textgreater LC424340.1\\ATAGAGTCAGACTACA..
+  };
+
+  % sender side logic first request
+  \draw[->, thick, blue] (sender-1-1) -- (sender-1-2);
+  \draw[->, thick, blue] (sender-3-2.north west) -- (sender-3-1.north east);
+
+  % sender side logic second request
+  %\draw[->, thick, red] (sender-3-1) -- (sender-2-1);
+  \draw[->, thick, red] (sender-2-1.north east) -- (sender-1-2.south west);
+  \draw[->, thick, red] (sender-3-2) -- (sender-3-1);
+
+  % eutils (assumed) logic
+  \draw[->] (eutils-1-1) -- (eutils-2-1) node [midway, left] {Err};
+  \draw[->] (eutils-1-1.south east) -- (eutils-2-2.north west) node [midway, right] {Valid request};
+  \draw[->] (eutils-2-2) -- (eutils-2-1);
+    % use history server
+    \draw[<->] (eutils-2-2.east) -|
+               ($ (eutils-2-2.east)!0.5!(histserv-1-1.west)$) |-
+               (histserv-1-1.west);
+
+  % Entrez db
+  \coordinate[<-] (d) at ($(eutils-2-2.south) + (0, -0.2)$);
+  \draw[->] (d)  -- (eutils-2-2.south);
+  \draw[->] (d) .. controls +(90:-0.5) and +(90:0.7) .. (entrez-1-1.north);
+  \draw[->] (d) .. controls +(90:-0.5) and +(90:0.7) .. (entrez-1-2.north);
+  \draw[->] (d) .. controls +(90:-0.5) and +(90:0.7) .. (entrez-1-3.north);
+  \draw[->] (d) .. controls +(90:-0.5) and +(90:0.7) .. (entrez-1-4.north);
+
+  % sender - eutils interactions
+  \draw[->] (sender-1-2) -- (eutils-1-1);
+  \draw[-] ($ (sender-1-2)!0.5!(eutils-1-1)$) |- (sender-3-2.east) node [near start, left] {Err};
+  \draw[->] (eutils-2-1) |- (sender-3-2);
+
+  % result workflow
+  \coordinate (m) at ($(fetch.east)!.5!(sender-2-1.west)$);
+  \draw[->, thick, blue] (search) -- (sender-1-1);
+  \draw[->] ($(search-3-2.south west) + (0.3,0)$) -- ($(fetch-2-2.north west) + (0.3,0)$)
+            node (sres) [midway, fill=white, align=left, anchor=center] {1574516661\\1574516657};
+  %\draw[->, thick, blue]  (sender-3-1.north west) -- ($(sender-3-1.north west) + (-0.5,0)$) |- (sres.east);
+  \draw[->, thick, blue] (sender-3-1.north west) -| (m)|- (sres.east);
+  \draw[->, thick, red] (fetch.east) -- ($(fetch.east)!.5!(m)$) arc(0:-180:-.75em) -- (sender-2-1.west);
+  \draw[->, thick, red] (sender-3-1) -- (result.east);
+\end{tikzpicture}
+\end{document}

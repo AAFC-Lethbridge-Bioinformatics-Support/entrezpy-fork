@@ -1,0 +1,86 @@
+%-------------------------------------------------------------------------------
+% \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
+% \copyright 2018 The University of Sydney
+% convert -density 300  entrezpy.fig.pdf entrezpy.fig.png
+% -------------------------------------------------------------------------------
+\documentclass[preview, border=0]{standalone}
+\usepackage[margin=0mm, paperwidth=131mm, paperheight=280mm]{geometry}
+%\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{subfig}
+\usepackage{url}
+\usepackage{xspace}
+\usepackage{caption}
+\usepackage[tracking=true]{microtype}
+  \captionsetup[subfigure]{
+    position=top,
+    labelformat=simple,
+    labelfont={large, bf},
+    textfont={footnotesize, bf},
+    singlelinecheck=off,
+    justification=raggedright}
+  \renewcommand{\thesubfigure}{\Alph{subfigure}}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{../jpb.lst}
+\usepackage{helvet}
+\usepackage{workflows/tikz_styles}
+\newcommand{\entrezpy}{\texttt{entrezpy}\xspace}
+\newcommand{\Entrezpy}{\texttt{Entrezpy}\xspace}
+\newcommand{\exdb}[1]{\textit{#1}\xspace}
+\newcommand{\exfmt}[1]{\textit{#1}\xspace}
+\newcommand{\exorg}[1]{\textit{#1}\xspace}
+\newcommand{\extask}[1]{\textit{#1}\xspace}
+\newcommand{\webenv}{2743NCID}
+\newsavebox\mylistingbox
+
+\begin{document}
+  \begin{figure}
+    \subfloat[][Overview of an E-Utility query]{
+      \input{workflows/eutils_simple_uid.fig.tex}
+    }
+
+    \subfloat[][Overview of an E-Utility query using the Entrez History server]{
+      \input{workflows/eutils_simple_history.fig.tex}
+    }
+
+    \subfloat[][Entrezpy query and requests]{
+      \input{entrezpy_query.fig.tex}
+    }
+
+
+\begin{lrbox}{\mylistingbox}%
+    \begin{minipage}{\linewidth}%
+      \begin{bash}[xleftmargin=3mm, numbers=none]
+esearch -db nucleotide -query "viruses[organism]"  | efetch -format fasta
+\end{bash}%
+    \end{minipage}%
+  \end{lrbox}%
+  \subfloat[][Entrez Direct command for the example query]{\usebox{\mylistingbox}}
+
+\begin{lrbox}{\mylistingbox}%
+    \begin{minipage}{\linewidth}%
+      \begin{python}[xleftmargin=3mm]
+import entrezpy.wally
+
+w = entrezpy.wally.Wally('email') # Create new Wally instance
+fetch_ppl = w.new_pipeline()      # Create new and empty Wally pipeline
+# Add search query to the pipline and store its id
+sid = fetch_ppl.add_search({'db':'nucleotide',
+                            'term':'viruses[organism]',
+                            'rettype':'count'})
+# Add fetch query: request sequences in FASTA based on search result
+fetch_ppl.add_fetch({'retmode':'text', 'rettype':'fasta'}, dependency=sid)
+w.run(fetch_ppl)
+\end{python}%
+    \end{minipage}%
+  \end{lrbox}%
+  \subfloat[][Implementing the example query with \texttt{Wally}]{\usebox{\mylistingbox}}
+  \end{figure}
+\end{document}
