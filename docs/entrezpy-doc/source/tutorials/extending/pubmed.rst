@@ -1,3 +1,5 @@
+.. _pubmedtut:
+
 Fetching publication information from Entrez
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -33,8 +35,8 @@ The `Efetch Entrez Utility <eutils_>`_ is NCBI's utility responsible for
 fetching data records. Its `manual <eutils_>`_ lists all possible databases and
 which records (Record type) can be fetched in which format. For the first
 example, we'll fetch |pubmed| data in XML, specifically, the UID, authors,
-title, abstract, and citations. We will teste and develop the pipeline using
-the article  the article with |pubmed| ID (PMID) 26378223 becusae it has all the
+title, abstract, and citations. We will test and develop the pipeline using
+the article  the article with |pubmed| ID (PMID) 26378223 because it has all the
 required fields. In the end we will see that not all fields are always present.
 
 In |entrezpy|, a result (or query), is the sum of all individual requests
@@ -181,7 +183,7 @@ expected return values.
 In addition, we declare the method :meth:`PubmedResult.add_pubmed_record` to
 handle adding new |pubmed| data record instances as defined in
 :numref:`Listing %s <lst:pmed-datrec>`. The |PubmedResult| methods in this
-tutorial are trivial since and we can implement the class in onw go
+tutorial are trivial since and we can implement the class in one go
 
 .. literalinclude:: ../../../../../examples/tutorials/pubmed/pubmed-fetcher.py
   :caption: Implementing |PubmedResult|
@@ -222,6 +224,7 @@ and expected return values.
 
 .. literalinclude:: ../../../../../examples/tutorials/pubmed/pubmed-fetcher.py
   :caption: Implementing |PubmedAnalyzer|
+  :name: pubmed-analyzer
   :linenos:
   :language: python
   :lines: 111-191
@@ -256,15 +259,15 @@ The completed implementation is shown in :numref:`Listing %s <pubmed-fetcher>`.
   :lines: 1,34-
   :emphasize-lines: 163,164,166, 168-172,174-181
 
-* Line 163: Adjust argumetn processing to allow several comma-separarted PMIDs
-* Line 164: add our implemented |PubmedAnalyzer| as parameter to analzye
+* Line 163: Adjust argument processing to allow several comma-separated PMIDs
+* Line 164: add our implemented |PubmedAnalyzer| as parameter to analyze
             results as described in :meth:`entrezpy.conduit.Conduit.Pipeline.add_fetch`
 * Line 166: run the pipeline and store the analyzer in ``a``
-* Lines 168-172: Testing mthods
+* Lines 168-172: Testing methods
 * Line 174: get |PubmedResult| instance
 * Lines 175-181: process fetched data records into columns
 
-The implementaion can be invoked as shown in :numref:`Listing %s <fetch-pmids>`.
+The implementation can be invoked as shown in :numref:`Listing %s <fetch-pmids>`.
 
 .. code-block:: bash
   :caption: Fetching and formatting data records for several different PMIDs
@@ -289,7 +292,7 @@ in :numref:`Listing %s <grep-error-pmid>` hints the problem. Adjusting and
 fixing is a task left for interested readers.
 
 .. code-block:: bash
-  :caption: Hint to find teh reason why  PMID 20148030 fails
+  :caption: Hint to find the reason why  PMID 20148030 fails
   :name: grep-error-pmid
 
   $ efetch -db pubmed -id 20148030  -mode xml | grep -A7 \<AuthorList
