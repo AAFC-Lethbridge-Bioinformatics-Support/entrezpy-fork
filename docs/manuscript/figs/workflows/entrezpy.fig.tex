@@ -1,0 +1,81 @@
+\usepackage{tikz_styles}
+\begin{document}
+\begin{tikzpicture}
+  \matrix (A) [matrix of nodes, outer, nodes={inner}]
+  {
+    {1. Encode\\request}  & {8. Analyze\\response}      \\
+    {2. Send\\request}    & {7. Receive\\response}  \\
+  };
+  \node[above, anchor=south west] (tool)     at (A.north west) {Tool};
+
+  \matrix (B) [matrix of nodes, outer, nodes={inner}, below=of A]
+  {
+    {3. Receive\\request}  & {6. Send\\response}\\
+    {4. Decode\\request}   & {5. Query\\Entrez}   \\
+  };
+  \node[above, anchor=south west] (eutils)   at (B.north west) {Eutils};
+
+  \matrix (C) [matrix of nodes, dbouter, nodes={dbinner},
+               matrix anchor=north west, right=of B.north east]{
+                 {PubMed}     \\
+                 {Protein}    \\
+                 {Nucleotide} \\
+    |[draw=none, fill=none, color=white]|{\vdots}     \\
+  };
+  \node[above, anchor=south west] (entrez)   at (C.north west) {Entrez};
+  \matrix (D) [matrix of nodes, histouter, nodes={histinner},
+               matrix anchor=north east, below=of B.south east]{
+                 {WebEnv-0:} & {QueryKey-1} &               \\
+                 {WebEnv-1:} & {QueryKey-1} & {QueryKey-2}  \\
+  };
+  \node[above, anchor=south west] (histserv) at (D.north west) {History Server};
+
+  \matrix (req0) [matrix of nodes, reqmtx, nodes={request},
+                 matrix anchor=south west, above=of tool.west]
+  {
+    {\{task:search,what:viruses[ORGN],where:nucleotide,format:json\}} \\
+  };
+
+  \matrix (res0) [matrix of nodes, reqmtx, nodes={request},
+                 matrix anchor=south west, below=1.6em of req0-1-1.west]
+  {
+   { } & {\{count:"2957599",idlist:["1573716848","1573716846",..]\}} \\
+  };
+  \matrix (req1) [matrix of nodes, reqmtx, nodes={request},
+                 matrix anchor=south west, below=1.6em of res0-1-2.west]
+  {
+   { } & { } & {\{task: fetch,what:idlist,where:nucleotide,format:fasta\}} \\
+  };
+  \matrix (RSP) [matrix of nodes, reqmtx, nodes={text width=2cm, request},
+                 matrix anchor=south west, below=2.6em of req1-1-3.west]
+  {
+   {\textgreater LC431552.1\\GTTCCATACAGAGACC..}\\
+  };
+
+
+
+  \coordinate (connerror) at ($ (A-2-1)!0.35!(B-1-1) $);
+  %\coordinate (toolin) at ( A-2-1.south -| A.south east);
+  \coordinate (dbconn) at ( B-2-2.east -| B.south east);
+
+  \draw[internal] (A-1-1)--(A-2-1);
+  \draw[internal] (A-2-2)--(A-1-2);
+  \draw[connection] (A-2-1)-- (connerror) -- (B-1-1) node[midway, above] {OK};
+  \draw[connection, -] (connerror) -| (A-2-2.south) node [midway, above] (err) {Error};
+  %\draw[connection] (toolin)--(A-2-2.east);
+
+  \draw[internal] (B-1-1)--(B-2-1);
+  \draw[internal] (B-2-1)--(B-2-2);
+  \draw[internal] (B-2-1.north east)--(B-1-2.south west) node [error] (err) {Error};
+  \draw[internal] (B-2-2)--(B-1-2);
+  \draw[connection, -] (B-1-2)--(A-2-2.south);
+  %\draw[dbconn] (B-2-2.east) -- ( B-2-2.east -| B.south east);
+
+  \draw[internal, Latex-Latex]  (B-2-2.south |- D.north east) -- (B-2-2) node[midway, right]{use history};
+  \draw[query] (B-2-2.east) .. controls +(0:1) and +(0:-0.5) .. (C-1-1.west);
+  \draw[query,Latex-Latex] (B-2-2.east) .. controls +(0:1) and +(0:-0.5) .. (C-2-1.west);
+  \draw[thisquery] (B-2-2.east) .. controls +(0:1.2) and +(0:-1) .. (C-3-1.west);
+
+
+\end{tikzpicture}
+\end{document}
