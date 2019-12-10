@@ -41,7 +41,7 @@ Usage
 Supported E-Utility parameter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Parameters are passed as dictionary to
-:meth:`entrezpy.epost.eposter.Eposter.inquire` and are expected to be the
+:meth:`entrezpy.esummary.esummarizer.Esummarizer.inquire` and are expected to be the
 same as those for the E-Utility [0]. For example:
 
 ``{{'db' : 'pubmed','id' : [11237011,12466850]}``
@@ -70,7 +70,7 @@ Parameter                         Type
 
 Result
 ------
-Instance of :class:`entrezpy.esearch.esearch_result.EsearchResult`.
+Instance of :class:`entrezpy.esummary.esummary_result.EsummaryResult`.
 
 If ``retmax`` = 0 or ``retmode`` = ``count`` no :term:`UIDs` are returned. If
 ``usehistory`` is ``True`` (default), :term:`WebEnv` and :term:`query_key` for
