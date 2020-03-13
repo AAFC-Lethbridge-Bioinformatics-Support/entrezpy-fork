@@ -47,7 +47,7 @@ class EfetchParameter(entrezpy.base.parameter.EutilsParameter):
   JSON, unfortunately.
   """
 
-  req_limits = {'xml' : 100000, 'json' : 500, 'text' : 100000}
+  req_limits = {'xml' : 10000, 'json' : 500, 'text' : 10000}
   """Max number of UIDs to fetch per request mode"""
 
   valid_retmodes = {'pmc' :       {'xml'},
