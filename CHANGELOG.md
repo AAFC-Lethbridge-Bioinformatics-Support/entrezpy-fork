@@ -8,7 +8,7 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ## [2.0.4](https://gitlab.com/ncbipy/entrezpy/compare/2.0.3...2.0.4) - 2020-05-18
 
 ### Fixed
-  
+
   - Adjust max retmax values for Efetch and Essumary
 
 ## [2.0.3](https://gitlab.com/ncbipy/entrezpy/compare/2.0.2...2.0.3)
