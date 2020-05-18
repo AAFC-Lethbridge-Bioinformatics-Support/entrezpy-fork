@@ -67,20 +67,20 @@ esearch -db nucleotide -query "viruses[organism]"  | efetch -format fasta
 \begin{lrbox}{\mylistingbox}%
     \begin{minipage}{\linewidth}%
       \begin{python}[xleftmargin=3mm]
-import entrezpy.wally
+import entrezpy.conduit
 
-w = entrezpy.wally.Wally('email') # Create new Wally instance
-fetch_ppl = w.new_pipeline()      # Create new and empty Wally pipeline
+c = entrezpy.conduit.Conduit('email') # Create new Conduit instance
+fetch_ppl = c.new_pipeline()          # Create empty Conduit pipeline
 # Add search query to the pipline and store its id
 sid = fetch_ppl.add_search({'db':'nucleotide',
                             'term':'viruses[organism]',
                             'rettype':'count'})
 # Add fetch query: request sequences in FASTA based on search result
 fetch_ppl.add_fetch({'retmode':'text', 'rettype':'fasta'}, dependency=sid)
-w.run(fetch_ppl)
+c.run(fetch_ppl)
 \end{python}%
     \end{minipage}%
   \end{lrbox}%
-  \subfloat[][Implementing the example query with \texttt{Wally}]{\usebox{\mylistingbox}}
+  \subfloat[][Implementing the example query with \texttt{Conduit}]{\usebox{\mylistingbox}}
   \end{figure}
 \end{document}

@@ -3,13 +3,19 @@
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 (or tries as best as it can)
 
-## [Unreleased](https://gitlab.com/ncbipy/entrezpy/compare/2.0.3...master)
+## [Unreleased](https://gitlab.com/ncbipy/entrezpy/compare/2.0.4...master)
 
-## [2.0.3](https://gitlab.com/ncbipy/entrezpy/compare/2.0.2...2.0.3) - 2020-05-18
+## [2.0.4](https://gitlab.com/ncbipy/entrezpy/compare/2.0.3...2.0.4) - 2020-05-18
+
+### Fixed
+  
+  - Adjust max retmax values for Efetch and Essumary
+
+## [2.0.3](https://gitlab.com/ncbipy/entrezpy/compare/2.0.2...2.0.3)
 
 ### Fixed
 
-  - Adjust max retmax values for Efetch and Esummary
+  - Adjust retmax for FASTA efetch to fetch all requested entries (Issue #6)
 
 ## [2.0.2](https://gitlab.com/ncbipy/entrezpy/compare/2.0.1...2.0.2) - 2019-08-25
 

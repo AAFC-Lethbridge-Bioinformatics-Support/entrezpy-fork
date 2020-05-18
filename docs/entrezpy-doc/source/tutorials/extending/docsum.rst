@@ -13,10 +13,6 @@ Fetching sequence metadata from Entrez
   * The full implementation can be found in the repository at
     `examples/tutorials/seqmetadata/seqmetadata-fetcher.py <implement>`_
 
-.. topic:: Acknowledgment
-
-  I'd like to thank <contib> for proposing this scenario.
-
 Overview
 ++++++++
 
