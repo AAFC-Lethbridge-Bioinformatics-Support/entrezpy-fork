@@ -3,7 +3,13 @@
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 (or tries as best as it can)
 
-## [Unreleased](https://gitlab.com/ncbipy/entrezpy/compare/2.0.4...master)
+## [Unreleased](https://gitlab.com/ncbipy/entrezpy/compare/2.0.5...master)
+
+## [2.0.5](https://gitlab.com/ncbipy/entrezpy/compare/2.0.4...2.0.5) - 2020-06-05
+
+### Fixed
+
+  - Typo in EsummaryAnalyzer
 
 ## [2.0.4](https://gitlab.com/ncbipy/entrezpy/compare/2.0.3...2.0.4) - 2020-05-18
 

@@ -48,6 +48,7 @@ Licence and Copyright
 (LGPLv3)`_ or later. Please see https://www.ncbi.nlm.nih.gov/home/about/policies/
 concerning the copyright of the material available through E-Utilities.
 
+Please cite the publication if you use entrezpy.
 
 Installation
 ------------
