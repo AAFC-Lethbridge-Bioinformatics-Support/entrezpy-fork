@@ -247,7 +247,7 @@ class Conduit:
                                                 threads=self.threads,
                                                 qid=query.id).inquire(query.parameter, analyzer)
 
-  def summarize(self, query, analyzer=entrezpy.esummary.esummary_analyzer.EsummaryAnalzyer):
+  def summarize(self, query, analyzer=entrezpy.esummary.esummary_analyzer.EsummaryAnalyzer):
     """Configures and runs an Esummary query. Analyzer are class references and
     instantiated here.
 

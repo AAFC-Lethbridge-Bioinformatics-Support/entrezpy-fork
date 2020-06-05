@@ -63,4 +63,4 @@ class EsummaryResult(entrezpy.base.result.EutilsResult):
     if results:
       for i in results['uids']:
         if int(i) not in self.summaries:
-          self.summaries[int(i)] = results.pop(i)
+          self.summaries[int(i)] = results.get(i)
