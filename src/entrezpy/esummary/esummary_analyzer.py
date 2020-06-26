@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-class EsummaryAnalzyer(entrezpy.base.analyzer.EutilsAnalyzer):
+class EsummaryAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
   """EsummaryAnalyzer implements the analysis of ESsummary responses from
   E-Utils. JSON formatted data is enforced in responses. Summaries are stored in
   a :class:`entrezpy.esummary.esummary_result.EsummaryResult` instance.

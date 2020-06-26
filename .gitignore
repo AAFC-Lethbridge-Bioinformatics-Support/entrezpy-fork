@@ -358,3 +358,5 @@ TSWLatexianTemp*
 
 # standalone packages
 *.sta
+issues
+*.geany

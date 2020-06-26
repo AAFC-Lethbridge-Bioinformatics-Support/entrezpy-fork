@@ -1,0 +1,16 @@
+%-------------------------------------------------------------------------------
+%  \author Jan P Buchmann <jan.buchmann@sydney.edu.au>
+%  \copyright 2018 The University of Sydney
+%  \description
+%-------------------------------------------------------------------------------
+\begin{python}[basicstyle=\footnotesize\ttfamily]
+  import entrezpy.conduit
+  # Create new Conduit instance
+  c = entrezpy.conduit.Conduit('email')
+  # Create empty Conduit pipeline
+  p = c.new_pipeline()
+  # Add search query and store its id
+  sid = p.add_search({'db':'nucleotide', 'term':'Viruses[orgn]'})
+  p.add_fetch(dependency=sid)
+  c.run(p)
+\end{python}

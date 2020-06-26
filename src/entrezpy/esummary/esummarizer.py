@@ -47,7 +47,7 @@ class Esummarizer(entrezpy.base.query.EutilsQuery):
   def __init__(self, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
     super().__init__('esummary.fcgi', tool, email, apikey, apikey_var, threads, qid)
 
-  def inquire(self, parameter, analyzer=entrezpy.esummary.esummary_analyzer.EsummaryAnalzyer()):
+  def inquire(self, parameter, analyzer=entrezpy.esummary.esummary_analyzer.EsummaryAnalyzer()):
     """Implements :meth:`entrezpy.base.quet.EutilsQuery.unquire`.
 
     :param dict parameter: Esummary parameter

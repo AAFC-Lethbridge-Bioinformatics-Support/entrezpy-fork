@@ -74,7 +74,6 @@ class EsearchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
       :param request: Esearch request
       :type request: :class:`entrezpy.esearch.esearch_request.EsearchRequest`
     """
-    self.hasErrorResponse = True
     err_msg = {'tool' : request.tool, 'request' : request.id,
                'query' : request.query_id, 'error': response['esearchresult']}
     logger.info(json.dumps({__name__ : {'Response-Error' : err_msg}}))

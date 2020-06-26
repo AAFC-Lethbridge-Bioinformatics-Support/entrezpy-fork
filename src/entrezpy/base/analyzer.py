@@ -24,8 +24,15 @@
 
 
 import io
+import sys
 import json
+import logging
 import xml.etree.ElementTree
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
 
 
 class EutilsAnalyzer:
@@ -51,8 +58,8 @@ class EutilsAnalyzer:
   """Store formats known to EutilsAnalzyer"""
 
   def __init__(self):
-    """Inits EutilsAnalyzer with unknown type of result yet. The result will be
-    set upon receiving the first response by :meth:`.init_result`.
+    """Inits EutilsAnalyzer with unknown type of result yet. The result needs to
+    be set upon receiving the first response by :meth:`.init_result`.
 
     :ivar bool hasErrorResponse: flag indicating error in response
     :ivar result: result instance
@@ -62,7 +69,8 @@ class EutilsAnalyzer:
     self.result = None
 
   def init_result(self, response, request):
-    """Virtual function to initialize result instance
+    """Virtual function to initialize result instance. This allows to set
+    attributes from the first response and request.
 
     :param response: converted response from :meth:`.convert_response`
     :type  response: dict or `io.StringIO`
@@ -80,7 +88,8 @@ class EutilsAnalyzer:
     raise NotImplementedError("Require implementation of analyze_error()")
 
   def analyze_result(self, response, request):
-    """Virtual function to handle error responses
+    """Virtual function to handle responses, i.e. parsing them and prepare
+    them for :class:`entrezpy.base.result.EutilsResult`
 
     :param response: converted response from :meth:`.convert_response`
     :type  response: dict or `io.StringIO`
@@ -101,9 +110,15 @@ class EutilsAnalyzer:
       raise NotImplementedError("Unknown format: {}".format(request.retmode))
     response = self.convert_response(raw_response, request)
     if self.isErrorResponse(response, request):
+      self.hasErrorResponse = True
       self.analyze_error(response, request)
     else:
       self.analyze_result(response, request)
+
+    if self.result is None:
+      logger.error(json.dumps({__name__ : {'Error' : 'result attribute not set. Something went wrong',
+                                           'action' : 'abort'}}))
+      sys.exit()
 
   def convert_response(self, raw_response, request):
     """Converts raw_response into the expected format, deduced from request and

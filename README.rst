@@ -48,6 +48,7 @@ Licence and Copyright
 (LGPLv3)`_ or later. Please see https://www.ncbi.nlm.nih.gov/home/about/policies/
 concerning the copyright of the material available through E-Utilities.
 
+Please cite the publication if you use entrezpy.
 
 Installation
 ------------
@@ -71,6 +72,8 @@ Documentation
 Entrezpy is fully documented using Spinx
 (http://www.sphinx-doc.org/en/stable/). The manual, usage examples and module
 reference can be found here: http://entrezpy.readthedocs.io/
+
+``entrezpy`` has been published in Bioinformatics: https://doi.org/10.1093/bioinformatics/btz385
 
 References
 ----------

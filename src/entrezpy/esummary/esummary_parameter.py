@@ -41,7 +41,7 @@ class EsummaryParameter(entrezpy.base.parameter.EutilsParameter):
   stored on the Entrez history server using WebEnv and query_key. The default
   retmode is JSON."""
 
-  max_request_size = {'xml' : 100000, 'json' : 500}
+  max_request_size = {'xml' : 10000, 'json' : 500}
   """maximum number of data sets per request"""
 
   def __init__(self, param):

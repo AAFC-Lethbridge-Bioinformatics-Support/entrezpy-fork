@@ -9,7 +9,11 @@
 \definecolor{lst_deepred}{rgb}{0.6,0,0}
 \definecolor{lst_deepgreen}{rgb}{0,0.5,0}
 \definecolor{lst_grey}{rgb}{0.2,0.2,0.2}
-\definecolor{background}{rgb}{0.9,0.9,0.9}
+\definecolor{comment}{RGB}{211, 58, 29}
+\definecolor{string}{RGB}{0, 128, 0}
+%\definecolor{background}{rgb}{0.9,0.9,0.9}
+\definecolor{background}{rgb}{1,1,1}
+\definecolor{textcol}{RGB}{40, 40, 40}
 \usepackage{inconsolata}
 \usepackage{listings}
 
@@ -21,23 +25,24 @@ otherkeywords={self},             % Add keywords here
 keywordstyle=\footnotesize\bfseries\color{lst_deepblue},
 emph={MyClass,__init__},          % Custom highlighting
 emphstyle=\footnotesize\bfseries\color{lst_deepred},    % Custom highlighting style
-stringstyle=\color{lst_deepgreen},
+stringstyle=\color{string},
 captionpos=b,
 keepspaces=true,
 numbers=left,
 numbersep=3pt,
 showspaces=false,
-numberstyle=\tiny\color{lst_grey},
+numberstyle=\tiny\color{textcol},
 aboveskip=5pt,
 upquote=true,
 columns=fixed,
+commentstyle=\color{comment},
 extendedchars=true,
 breaklines=true,
 %frame=false,
-showstringspaces=true,
+showstringspaces=false,
 showtabs=true,
 tab=\rightarrowfill,
-tabsize=1,
+tabsize=2,
 %backgroundcolor=\color{background},
 }}
 
@@ -52,7 +57,7 @@ tabsize=1,
 % Python for external files
 \newcommand\pythonexternal[2][]{{
 \pythonstyle
-\lstinputlisting[#1]{#2}}}
+\lstinputlisting[#2]{#1}}}
 
 % Python for inline
 \newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
@@ -63,7 +68,7 @@ language=Bash,
 basicstyle=\footnotesize\ttfamily,
 keywordstyle=\footnotesize\bfseries\color{lst_deepblue},
 emphstyle=\footnotesize\bfseries\color{lst_deepred},    % Custom highlighting style
-stringstyle=\color{lst_deepgreen},
+stringstyle=\color{string},
 captionpos=b,
 keepspaces=true,
 numbers=left,

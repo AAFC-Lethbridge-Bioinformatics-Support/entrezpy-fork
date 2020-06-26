@@ -44,25 +44,23 @@ Supported E-Utility functions:
  - :ref:`epost`
  - :ref:`esummary`
 
-Entrez pipeline design helper class:
+* Entrez pipeline design helper class: :ref:`conduit_mod`
 
- - :ref:`conduit_mod`
+* NCBI Entrez utilities and asociated parameters: https://dataguide.nlm.nih.gov/eutilities/utilities.html
+
+* ``entrezpy`` publication: [Buchmann2019]_
 
 Licence and Copyright
 ---------------------
 
 ``entrezpy`` is licensed under the `GNU Lesser General Public License v3
-(LGPLv3)`_ or later. Please see :ref:`ncbi-disclaimer` concerning the copyright
-of the material available through E-Utilities.
+(LGPLv3)`_ or later.
 
-.. _ncbi-disclaimer:
+Concerning the copyright of the material available through E-Utilities, please
+read their disclaimer and copyright statement at
+https://www.ncbi.nlm.nih.gov/home/about/policies/.
 
-Disclaimer and Copyright Issues
--------------------------------
 
-https://www.ncbi.nlm.nih.gov/home/about/policies/
-
-.. _ncbi-apikey:
 
 Source code
 -----------
@@ -77,11 +75,11 @@ Contact
 -------
 
 To report bugs and/or errors, please open an issue at
-https://gitlab.com/ncbipy/entrezpy or contact me at:
-jan.buchmann@sydney.edu.au
+https://gitlab.com/ncbipy/entrezpy or contact me at: jan.buchmann@sydney.edu.au
 
 Of course, feel free to fork the code, improve it, and/or open a pull request.
 
+.. _ncbi-apikey:
 
 NCBI API key
 ------------
@@ -110,14 +108,12 @@ References
 ----------
 
 .. .. target-notes::
-
 .. [Entrez2016] https://doi.org/10.1093/nar/gkw1071
-
 .. [Sayers2018] https://www.ncbi.nlm.nih.gov/books/NBK25497
-
+.. [Buchmann2019] https://doi.org/10.1093/bioinformatics/btz385
 .. _NCBI: http://www.ncbi.nlm.nih.gov/
-
 .. _GNU Lesser General Public License v3 (LGPLv3): https://www.gnu.org/licenses/lgpl-3.0.en.html
+
 
 
 Manual
@@ -125,10 +121,9 @@ Manual
 
 .. toctree::
   :maxdepth: 2
-  :caption: Contents:
 
   setup/installation
-  usage/examples
+  tutorials/tutorial
 
 ``Entrezpy`` E-Utility functions
 ================================
@@ -149,10 +144,10 @@ Manual
   :maxdepth: 1
   :caption: Entrezpy In-depth
 
-  usage/entrezpy_basis
-  background/eutils_entrezpy
-  background/eutils_historyserver
-  background/entrezdb
+  indepth/entrezpy_basis
+  indepth/eutils_entrezpy
+  indepth/eutils_historyserver
+  indepth/entrezdb
 
 
 Reference

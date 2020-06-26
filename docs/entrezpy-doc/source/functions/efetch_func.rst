@@ -78,7 +78,7 @@ Parameter                         Type
 
 Result
 ------
-Instance of :class:`entrezpy.esearch.esearch_result.EsearchResult`.
+Instance of :class:`entrezpy.efetch.efetch_result.EfetchResult`.
 
 If ``retmax`` = 0 or ``retmode`` = ``count`` no :term:`UIDs` are returned. If
 ``usehistory`` is ``True`` (default), :term:`WebEnv` and :term:`query_key` for

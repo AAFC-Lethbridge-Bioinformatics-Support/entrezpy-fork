@@ -1,0 +1,104 @@
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{calc}
+\usetikzlibrary{matrix}
+\usetikzlibrary{shapes}
+\usetikzlibrary{fit}
+\usetikzlibrary{arrows.meta}
+\definecolor{squerycol}{RGB}{210, 225, 40}
+\definecolor{fquerycol}{RGB}{225, 194, 40}
+\definecolor{reqcol}{RGB}{21,153,142}
+\definecolor{eutilcol}{RGB}{69, 132, 176}
+\definecolor{entrezcol}{RGB}{88,133,175}
+\definecolor{entrezbg}{RGB}{39,68,114}
+\definecolor{textcol}{RGB}{40, 40, 40}
+
+%\newcommand{\PortCircle}[2]{
+%\draw cirlce (#1);
+%\def\ports{\pgfmathdiv{360}{#2}}
+%\foreach \ii in \ports
+  %portx=\pgfmathparse{sin(60)} \pgfmathresult
+%\pgfmathsetmacro{\pos}{\ii/#1}
+%\coordinate[pos=\pos](\ii);
+%}
+
+\tikzset{
+  eutilsty/.style=
+  {
+    circle,
+    fill = eutilcol,
+    draw = eutilcol,
+    inner sep = 0,
+    outer sep = -2\pgflinewidth,
+    minimum height = 4.75em,
+  },
+  eutils/.style={
+    font=\small\itshape\bfseries,
+    text = white,
+    inner sep = 0,
+    outer sep = 0
+  },
+  entrez/.style=
+  {
+    matrix of nodes,
+    nodes = {entrezdb},
+    fill = entrezbg,
+    anchor = west,
+    inner sep = 0em,
+    outer sep = 0em,
+    column sep = 0.3em
+  },
+  entrezdb/.style=
+  {
+    anchor = center,
+    inner sep = 0.1em,
+    outer sep = 0em,
+    fill = entrezcol,
+    text = white,
+    font = \footnotesize\bfseries,
+    minimum height = 1.5em,
+  },
+  outerqry/.style=
+  {
+    rounded corners,
+    outer sep = 0,
+    inner sep = 0.1em,
+    column sep = 3\pgflinewidth,
+    row sep=-\pgflinewidth
+  },
+  query/.style=
+  {
+    text=textcol,
+    font = \footnotesize,
+    anchor = west,
+    align = left,
+    text width= 2.9cm,
+    inner sep = 0.2em,
+    outer sep = 0
+  },
+  qrynode/.style=
+  {
+    midway,
+    font = \footnotesize,
+    align = left,
+    inner sep = 0.1em,
+    outer sep = 0,
+    color = textcol,
+    fill = white,
+    anchor = center
+  },
+  eutilsproc/.style=
+  {
+    dashed,
+    line width = 1.5pt
+  },
+  histserv/.style={
+    inner sep = 0,
+    outer sep = 0
+  },
+  descr/.style = {font=\footnotesize\itshape\bfseries, anchor=west, inner sep=0, outer sep=0},
+  fasta/.style = {font=\footnotesize\ttfamily\bfseries, align=left},
+  outerreq/.style = {outerqry, fill=reqcol},
+  query1/.style = {color=squerycol, -Latex,     line width = 1.5pt},
+  query2/.style = {query1, color=fquerycol}
+}
