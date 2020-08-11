@@ -23,7 +23,11 @@
 """
 
 
+import json
+
+
 import entrezpy.base.request
+import entrezpy.log.logger
 
 
 class EfetchRequest(entrezpy.base.request.EutilsRequest):
@@ -51,6 +55,7 @@ class EfetchRequest(entrezpy.base.request.EutilsRequest):
     self.seqstart = parameter.seqstart
     self.seqstop = parameter.seqstop
     self.complexity = parameter.complexity
+    self.logger = entrezpy.log.logger.get_class_logger(EfetchRequest)
 
   def get_post_parameter(self):
     qry = self.prepare_base_qry()
@@ -71,6 +76,7 @@ class EfetchRequest(entrezpy.base.request.EutilsRequest):
                   'retstart' : self.start, 'retmax' : self.retmax})
     else:
       qry.update({'id' : ','.join(str(x) for x in self.uids)})
+    self.logger.debug(json.dumps(self.dump()))
     return qry
 
   def dump(self):
@@ -90,9 +96,26 @@ class EfetchRequest(entrezpy.base.request.EutilsRequest):
             'complexity' : self.complexity}
 
   def get_observation(self):
-    """Overwrite :meth:`entrezpy.base.request.EutilsRequest.get_observation`
+    """Overwrites :meth:`entrezpy.base.request.EutilsRequest.get_observation`
     for Efetch requests"""
     cols = [self.query_id, self.id, self.start, self.retmax, self.status, self.duration]
     if self.request_error != None:
       cols.append(self.request_error)
     return '\t'.join(str(x) for x in cols)
+
+  def report_status(self):
+    """
+    :return: request status for ongoing request
+    :rtype: str
+    """
+    #status = {'queryid' : self.query_id, 'reqid':self.id, 'eutil':self.eutil,
+              #'status':self.status, 'duration':self.duration}
+    status = {'queryid' : self.query_id, 'reqid':self.id, 'retstart':self.start,
+              'retmax':self.retmax, 'status':self.status, 'duration':self.duration}
+    if self.request_error:
+      status.update({'error':request_error, 'url':self.url})
+    self.logger.info((json.dumps({'status' : status})))
+
+    self.logger.debug(json.dumps({'status' : status}))
+    #return status
+    #return '\t'.join(str(x) for x in cols)

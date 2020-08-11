@@ -25,12 +25,6 @@
 
 import sys
 import json
-import logging
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
 
 
 class EutilsParameter:
@@ -65,9 +59,7 @@ class EutilsParameter:
     :ivar bool doseq: use `id=` parameter for each uid in POST
     """
     if not parameter:
-      logger.error(json.dumps({__name__ : {'Error' : 'Missing query parameters',
-                                           'action' : 'abort'}}))
-      sys.exit()
+      sys.exit("Implementation Error: Require Eutils query parameters")
     self.db = parameter.get('db')
     self.webenv = parameter.get('WebEnv')
     self.querykey = parameter.get('query_key', 0)

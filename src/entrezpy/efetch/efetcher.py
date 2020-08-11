@@ -24,18 +24,13 @@
 
 
 import json
-import logging
+
 
 import entrezpy.base.query
 import entrezpy.efetch.efetch_parameter
 import entrezpy.efetch.efetch_request
 import entrezpy.efetch.efetch_analyzer
-import entrezpy.logger
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
+import entrezpy.log.logger
 
 
 class Efetcher(entrezpy.base.query.EutilsQuery):
@@ -50,6 +45,9 @@ class Efetcher(entrezpy.base.query.EutilsQuery):
   def __init__(self, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
     """:ivar result: :class:`entrezpy.base.result.EutilsResult`"""
     super().__init__('efetch.fcgi', tool, email, apikey, threads, qid=qid)
+    self.logger = entrezpy.log.logger.get_class_logger(Efetcher)
+    self.logger.info("Fetching..")
+    self.logger.debug(json.dumps(self.dump()))
 
   def inquire(self, parameter, analyzer=entrezpy.efetch.efetch_analyzer.EfetchAnalyzer()):
     """Implements :meth:`entrezpy.base.query.EutilsQuery.inquire` and configures
@@ -66,16 +64,14 @@ class Efetcher(entrezpy.base.query.EutilsQuery):
     :rtype: :class:`entrezpy.base.analyzer.EutilsAnalyzer` or None
     """
     param = entrezpy.efetch.efetch_parameter.EfetchParameter(parameter)
-    logger.debug(json.dumps({__name__ : {'Parameter' : param.dump()}}))
+    self.logger.debug(json.dumps({'Parameter' : param.dump()}))
     self.monitor_start(param)
     req_size = param.reqsize
     for i in range(param.expected_requests):
       if i * req_size + req_size > param.retmax:
         req_size = param.retmax % param.reqsize
-      self.add_request(entrezpy.efetch.efetch_request.EfetchRequest(self.eutil,
-                                                                    param,
-                                                                    (i*param.reqsize),
-                                                                    req_size), analyzer)
+      self.add_request(entrezpy.efetch.efetch_request.EfetchRequest(
+        self.eutil, param, (i*param.reqsize), req_size), analyzer)
     self.request_pool.drain()
     self.monitor_stop()
     if self.check_requests() == 0:
@@ -90,11 +86,9 @@ class Efetcher(entrezpy.base.query.EutilsQuery):
       :rtype: int
     """
     if not self.hasFailedRequests():
-      logger.info(json.dumps({__name__ : {'Query status' : {self.id : 'OK'}}}))
+      self.logger.info(json.dumps({'Query status' : {self.id : 'OK'}}))
       return 0
-    logger.info(json.dumps({__name__ : {'Query status' : {self.id : 'failed'}}}))
-    logger.debug(json.dumps({__name__ : {'Query status' :
-                                         {self.id : 'failed',
-                                          'request-dumps' : [x.dump_internals()
-                                                             for x in self.failed_requests]}}}))
+    self.logger.info(json.dumps({'Query status' : {self.id : 'failed'}}))
+    self.logger.debug(json.dumps({'Query status' : {self.id : 'failed',
+      'request-dumps' : [x.dump_internals() for x in self.failed_requests]}}))
     return 1

@@ -29,7 +29,9 @@ import entrezpy.log.logger
 
 def resolve_namespace(cls):
   """Resolves namespace for logger"""
-  return f"{entrezpy.log.logger.get_root()}.{cls.__module__}.{cls.__qualname__}"
+  #return f"{entrezpy.log.logger.get_root()}.{cls.__module__}.{cls.__qualname__}"
+  return f"{cls.__module__}.{cls.__qualname__}"
+
 
 class ClassLogger:
 
@@ -37,7 +39,9 @@ class ClassLogger:
     if cls is None:
       sys.exit("Require class as parameter. Abort.")
     self.logger = logging.getLogger(resolve_namespace(cls))
-    #self.level = self.set_level(verbosity)
+    self.level = self.set_level(verbosity)
+    print(self.level)
+    print(self.logger)
 
   def set_level(self, verbosity):
     if verbosity == 0:
@@ -46,11 +50,11 @@ class ClassLogger:
       self.logger.setLevel(20)
     else:
       self.logger.setLevel(10)
-    #return self.logger.isEnabledFor(self.logger.getEffectiveLevel())
+    return self.logger.isEnabledFor(self.logger.getEffectiveLevel())
 
   def log(self, msg):
     self.logger.debug(msg)
-    sys.exit()
+    #sys.exit()
 
 
 

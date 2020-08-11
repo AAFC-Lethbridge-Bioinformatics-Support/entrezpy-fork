@@ -24,14 +24,12 @@
 
 
 import sys
-import threading
-import logging
+import json
 import time
+import threading
 
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
+import entrezpy.log.logger
 
 
 class QueryMonitor:
@@ -45,6 +43,7 @@ class QueryMonitor:
     uses Python's multithreading deamon when using multithreading."""
     def __init__(self):
       super().__init__(daemon=True)
+      self.logger = entrezpy.log.logger.get_class_logger(QueryMonitor.Observer)
       self.expected_requests = 0
       self.processed_requests = 0
       self.doObserve = True
@@ -56,7 +55,11 @@ class QueryMonitor:
       self.doObserve = False
       print('\n', file=sys.stderr)
       for i in self.requests:
-        print(i.get_observation(), file=sys.stderr)
+        print("{0}/{1}\t{2}".format(self.processed_requests,
+                                      self.expected_requests,
+                                      i.get_observation()), end='\r', file=sys.stderr)
+        #print(i.get_observation(), file=sys.stderr
+        print(file=sys.stderr)
       self.join()
 
     def dispatch(self, parameter):
@@ -75,11 +78,13 @@ class QueryMonitor:
 
     def run(self):
       """Observes requests from an entrezpy query"""
+      print("wqwqwqwqwqw", file=sys.stderr)
       while self.doObserve:
         for i in self.requests:
-          print("{0}/{1}\t{2}".format(self.processed_requests,
-                                      self.expected_requests,
-                                      i.get_observation()), end='\r', file=sys.stderr)
+          self.logger.info(f"Request:{(self.processed_requests)}/{(self.expected_requests)}")
+          self.logger.debug(json.dumps({'request' : self.processed_requests,
+                                       'expected' : self.expected_requests,
+                                       'status' : i.report_status()}))
         time.sleep(1)
 
   def __init__(self):

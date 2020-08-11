@@ -28,7 +28,10 @@ default_config = {
   'version': 1,
   'formatters':
   {
-    'brief': {'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'}
+    'brief':
+    {
+      'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+    }
   },
   'handlers':
   {
@@ -47,7 +50,3 @@ default_config = {
     }
   }
 }
-
-def configure(name):
-  #default_config['loggers'][name] = default_config['loggers'].pop('default')
-  return default_config

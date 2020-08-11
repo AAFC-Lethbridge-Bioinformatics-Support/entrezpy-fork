@@ -123,6 +123,18 @@ class EutilsRequest:
       cols += [self.request_error, self.url]
     return '\t'.join(str(x) for x in cols)
 
+  def report_status(self):
+    """
+    :return: request status for ongoing request
+    :rtype: str
+    """
+    status = {'queryid' : self.query_id, 'reqid':self.id, 'eutil':self.eutil,
+              'status':self.status, 'duration':self.duration}
+    if self.request_error:
+      status.update({'error':self.error, 'url':self.url})
+    self.log.info(json.dumps(status))
+    #return '\t'.join(str(x) for x in cols)
+
   def get_request_id(self):
     """
     :returns: full request id
