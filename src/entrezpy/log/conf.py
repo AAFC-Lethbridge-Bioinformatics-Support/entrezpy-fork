@@ -28,10 +28,10 @@ default_config = {
   'version': 1,
   'formatters':
   {
-    'brief':
+    'default':
     {
       'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
-    }
+    },
   },
   'handlers':
   {
@@ -39,7 +39,7 @@ default_config = {
     {
       'class': 'logging.StreamHandler',
       'stream' : 'ext://sys.stderr',
-      'formatter': 'brief'
+      'formatter': 'default'
     }
   },
   'loggers':

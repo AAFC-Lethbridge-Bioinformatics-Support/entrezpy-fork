@@ -23,7 +23,13 @@
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
 
+
+import json
+
+
 import entrezpy.base.request
+import entrezpy.log.logger
+
 
 class ElinkRequest(entrezpy.base.request.EutilsRequest):
   """ The ElinkRequest class implements a single request as part of a Elinker
@@ -34,6 +40,11 @@ class ElinkRequest(entrezpy.base.request.EutilsRequest):
   :param parameter: request parameter
   :param type: :class:`entrezpy.elink.elink_parameter.ElinkParameter`
   """
+
+  logger = None
+
+  linkname_cmds = set(['neighbor', 'neighbor_history', 'neighbor_score'])
+
   def __init__(self, eutil, parameter):
     super().__init__(eutil, parameter.db)
     self.dbfrom = parameter.dbfrom
@@ -50,6 +61,7 @@ class ElinkRequest(entrezpy.base.request.EutilsRequest):
     self.mindate = parameter.mindate
     self.maxdate = parameter.maxdate
     self.doseq = parameter.doseq
+    ElinkRequest.logger = entrezpy.log.logger.get_class_logger(ElinkRequest)
 
   def get_post_parameter(self):
     """Implements :meth:`entrezpy.base.request.EutilsRequest.get_post_parameter`.
@@ -72,10 +84,9 @@ class ElinkRequest(entrezpy.base.request.EutilsRequest):
         qry.update({'id' : self.uids})
       else:
         qry.update({'id' : ','.join(str(x) for x in self.uids)})
-    if self.cmd == 'neighbor' or self.cmd == 'neighbor_history' or self.cmd == 'neighbor_score':
-      if not self.linkname:
-        self.linkname = '_'.join([self.dbfrom, self.db])
-      qry.update({'linkname' : self.linkname})
+
+    self.set_linkname(qry)
+
     if self.term:
       qry.update({'term' : self.term})
     if self.holding:
@@ -91,6 +102,12 @@ class ElinkRequest(entrezpy.base.request.EutilsRequest):
     if  not self.db:
       qry.pop('db')
     return qry
+
+  def set_linkname(self, qry):
+    if self.cmd in ElinkRequest.linkname_cmds:
+      if not self.linkname:
+        self.linkname = '_'.join([self.dbfrom, self.db])
+      qry.update({'linkname' : self.linkname})
 
   def dump(self):
     """Dumps instance attributes
@@ -109,3 +126,9 @@ class ElinkRequest(entrezpy.base.request.EutilsRequest):
                                 'reldate' : self.reldate,
                                 'mindate' : self.mindate,
                                 'maxdate' : self.maxdate})
+
+  def report_status(self, isrequest=None, expectedRequests=None):
+    """Reports the current status the the request"""
+    ElinkRequest.logger.debug((json.dumps({'queryid' : self.query_id, 'reqid':self.id,
+      'status':self.status,
+      'duration':self.duration, 'error':self.request_error, 'url':self.url})))

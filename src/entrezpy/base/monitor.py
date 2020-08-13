@@ -53,13 +53,8 @@ class QueryMonitor:
     def recall(self):
       """Stops an observation for a query"""
       self.doObserve = False
-      print('\n', file=sys.stderr)
       for i in self.requests:
-        print("{0}/{1}\t{2}".format(self.processed_requests,
-                                      self.expected_requests,
-                                      i.get_observation()), end='\r', file=sys.stderr)
-        #print(i.get_observation(), file=sys.stderr
-        print(file=sys.stderr)
+        i.report_status(self.processed_requests, self.expected_requests)
       self.join()
 
     def dispatch(self, parameter):
@@ -78,13 +73,9 @@ class QueryMonitor:
 
     def run(self):
       """Observes requests from an entrezpy query"""
-      print("wqwqwqwqwqw", file=sys.stderr)
       while self.doObserve:
         for i in self.requests:
-          self.logger.info(f"Request:{(self.processed_requests)}/{(self.expected_requests)}")
-          self.logger.debug(json.dumps({'request' : self.processed_requests,
-                                       'expected' : self.expected_requests,
-                                       'status' : i.report_status()}))
+          i.report_status(self.processed_requests, self.expected_requests)
         time.sleep(1)
 
   def __init__(self):

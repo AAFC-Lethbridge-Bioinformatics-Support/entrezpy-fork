@@ -24,14 +24,10 @@
 
 
 import json
-import logging
+
 
 import entrezpy.base.analyzer
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
+import entrezpy.log.logger
 
 
 class EfetchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
@@ -47,10 +43,13 @@ class EfetchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
     :meth:`entrezpy.base.analyzer.EutilsAnalzyer.analyze_error`.
   """
 
+  logger = None
+
   def __init__(self):
     """:ivar result: :class:`entrezpy.efetch.efetch_result.EfetchResult`"""
     super().__init__()
     self.result = None
+    EfetchAnalyzer.logger = entrezpy.log.logger.get_class_logger(EfetchAnalyzer)
 
   def init_result(self, response, request):
     """Should be implemented if used properly"""
@@ -65,13 +64,12 @@ class EfetchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
       print(self.norm_response(response, request.rettype))
 
   def analyze_error(self, response, request):
-    logger.info(json.dumps({__name__:{'Response':
-                                      {'dump' : request.dump(),
-                                       'error' : self.norm_response(response, request.rettype)}}}))
+    EfetchAnalyzer.logger.error(json.dumps(
+      {'Response-Error':self.norm_response(response, request.rettype)}))
 
-    logger.debug(json.dumps({__name__:{'Response-Error':
-                                       {'dump' : request.dump_internals(),
-                                        'error' : self.norm_response(response, request.rettype)}}}))
+    EfetchAnalyzer.logger.debug(json.dumps({'Response-Error':{
+      'dump':request.dump_internals(),
+      'error':self.norm_response(response, request.rettype)}}))
 
   def norm_response(self, response, rettype=None):
     """Normalizes response for printing

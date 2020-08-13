@@ -23,16 +23,14 @@
 
 
 import json
-import logging
+
 
 import entrezpy.base.query
 import entrezpy.elink.elink_parameter
 import entrezpy.elink.elink_request
 import entrezpy.elink.elink_analyzer
+import entrezpy.log.logger
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
 
 class Elinker(entrezpy.base.query.EutilsQuery):
   """Elinker implements elink queries to E-Utilities [0].
@@ -50,8 +48,12 @@ class Elinker(entrezpy.base.query.EutilsQuery):
   :param str qid: unique query id
   """
 
+  logger = None
+
   def __init__(self, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
     super().__init__('elink.fcgi', tool, email, apikey, apikey_var, threads, qid)
+    Elinker.logger = entrezpy.log.logger.get_class_logger(Elinker)
+    Elinker.logger.debug(json.dumps({'init':self.dump()}))
 
   def inquire(self, parameter, analyzer=entrezpy.elink.elink_analyzer.ElinkAnalyzer()):
     """ Implements virtual function inquire()
@@ -68,28 +70,26 @@ class Elinker(entrezpy.base.query.EutilsQuery):
     :return: analyzer  or None if request errors have been encountered
     :rtype: :class:`entrezpy.base.analyzer.EntrezpyAnalyzer` instance or None
     """
-    logger.debug(json.dumps({__name__ : {'dump' : self.dump()}}))
+    Elinker.logger.debug(json.dumps({'dump' : self.dump()}))
     p = entrezpy.elink.elink_parameter.ElinkParameter(parameter)
     self.monitor_start(p)
     self.add_request(entrezpy.elink.elink_request.ElinkRequest(self.eutil, p), analyzer)
     self.request_pool.drain()
     self.monitor_stop()
-    if self.check_requests() == 0:
+    if self.isGoodQuery():
       return analyzer
     return None
 
-  def check_requests(self):
+  def isGoodQuery(self):
     """Test for request errors
 
       :return: 1 if request errors else 0
       :rtype: int
     """
     if not self.hasFailedRequests():
-      logger.info(json.dumps({__name__ : {'Query status' : {self.id : 'OK'}}}))
-      return 0
-    logger.info(json.dumps({__name__ : {'Query status' : {self.id : 'failed'}}}))
-    logger.debug(json.dumps({__name__ : {'Query status' :
-                                         {self.id : 'failed',
-                                          'request-dumps' : [x.dump_internals()
-                                                             for x in self.failed_requests]}}}))
-    return 1
+      Elinker.logger.info(json.dumps({'query':self.id, 'status':'OK'}))
+      return True
+    Elinker.logger.warning(json.dumps({'query':self.id, 'status':'failed'}))
+    Elinker.logger.debug(json.dumps({'query':self.id, 'status':'failed',
+      'request-dumps': [x.dump_internals() for x in self.failed_requests]}))
+    return False
