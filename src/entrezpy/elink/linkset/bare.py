@@ -31,6 +31,28 @@ from entrezpy.elink.linkset.unit import linkout_nonlib_attribute
 from entrezpy.elink.linkset.unit import linkout_all_attribute
 from entrezpy.elink.linkset.unit import linkout_provider
 
+link_linksets = {'neighbor' : neighbor.Neighbor,
+                 'neighbor_score' : neighbor_score.NeighborScore,
+                 'neighbor_history' : neighbor_history.NeighborHistory}
+
+list_linksets = {'acheck' : linklist.LinkList,
+                 'ncheck' : linkin.LinkIn,
+                 'lcheck' : linkout.LinkOut,
+                 'llinks' : linkout_nonlib_attribute.LinkOutNonlibAttributes,
+                 'llinkslib' : linkout_all_attribute.LinkOutAllAttribute,
+                 'prlinks' : linkout_provider.LinkOutProvider}
+
+def new_unit(elink_cmd):
+    """ Returns class reference implementing ELink command result unit.
+
+    :param str elink_cmd: Elink command
+    """
+    if elink_cmd in link_linksets:
+      return link_linksets[elink_cmd]
+    if elink_cmd in list_linksets:
+      return list_linksets[elink_cmd]
+    return None
+
 class LinkSet:
   """The LinkSet class implements the base class for all Elink result outputs.
 
@@ -61,29 +83,6 @@ class LinkSet:
   :param str dbfrom: name of database to link from
   :param bool canLink: linkunits can be used for automated follow-up parameter
   """
-
-  link_linksets = {'neighbor' : neighbor.Neighbor,
-                   'neighbor_score' : neighbor_score.NeighborScore,
-                   'neighbor_history' : neighbor_history.NeighborHistory}
-
-  list_linksets = {'acheck' : linklist.LinkList,
-                   'ncheck' : linkin.LinkIn,
-                   'lcheck' : linkout.LinkOut,
-                   'llinks' : linkout_nonlib_attribute.LinkOutNonlibAttributes,
-                   'llinkslib' : linkout_all_attribute.LinkOutAllAttribute,
-                   'prlinks' : linkout_provider.LinkOutProvider}
-
-  @staticmethod
-  def new_unit(elink_cmd):
-    """ Returns class reference implementing ELink command result unit.
-
-    :param str elink_cmd: Elink command
-    """
-    if elink_cmd in LinkSet.link_linksets:
-      return LinkSet.link_linksets[elink_cmd]
-    if elink_cmd in LinkSet.list_linksets:
-      return LinkSet.list_linksets[elink_cmd]
-    return None
 
   def __init__(self, category, dbfrom, canLink):
     """The class LinkSet represent a Elink result. One Elink results corresponds

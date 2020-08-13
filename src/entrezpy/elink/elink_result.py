@@ -41,7 +41,7 @@ def canLink(lset):
     if lset.canLink:
       return True
     ElinkResult.logger.warning(json.dumps(
-      {f'linkset {lset.category}: no direct follow-up parameters'}))
+      {f'linkset {lset.category}': 'no direct follow-up parameters'}))
     return False
 
 
@@ -57,22 +57,6 @@ class ElinkResult(entrezpy.base.result.EutilsResult):
   """
 
   logger = None
-
-  #@staticmethod
-  #def canLink(lset):
-    #"""
-      #Test if linkset can be use to generate automated  follow-up queries
-
-      #:param lset: LinkSet
-      #:type lset: LinkSet instance
-      #:returns: True if empty, False otherwise
-      #:rtype: bool
-    #"""
-    #if lset.canLink:
-      #return True
-    #logger.info(json.dumps({__name__ : 'linkset \'{}\': no direct follow-up' \
-                                       #'parameters'.format(lset.category)}))
-    #return False
 
   def __init__(self, qid, cmd):
     """
@@ -188,5 +172,5 @@ class ElinkResult(entrezpy.base.result.EutilsResult):
     """
     if len(dbs) > 1:
       sys.exit(ElinkResult.logger.error(json.dumps(
-       {'Unexpected': 'more than 1 dbto in history linking parameter',
-        'dbs' : [x for x in dbs], 'action' : 'abort'})))
+       {'Unexpected':'more than 1 dbto in history linking parameter',
+        'dbs':[x for x in dbs], 'cmd':self.cmd, 'action':'abort'})))
