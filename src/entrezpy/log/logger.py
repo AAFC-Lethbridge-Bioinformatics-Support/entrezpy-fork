@@ -40,23 +40,14 @@ LOGLEVEL = 'INFO'
 def get_root():
   return 'entrezpy'
 
-def resolve_function_namespace(module):
-  """Resolves namespace for logger"""
-  print(vars(module))
-  #return f"{cls.__module__}.{cls.__qualname__}"
-
 def resolve_class_namespace(cls):
   """Resolves namespace for logger"""
   return f"{cls.__module__}.{cls.__qualname__}"
 
 def get_class_logger(cls):
   """Prepares logger for given class """
-  #logger = logging.getLogger(resolve_class_namespace(cls))
   logger = logging.getLogger(f"{cls.__module__}.{cls.__qualname__}")
   logger.setLevel(LOGLEVEL)
   return logger
-
-def set_loglevel(loglevel):
-  LOGLEVEL = loglevel
 
 
