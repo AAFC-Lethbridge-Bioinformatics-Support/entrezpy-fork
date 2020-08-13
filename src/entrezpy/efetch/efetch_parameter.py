@@ -48,12 +48,12 @@ class EfetchParameter(entrezpy.base.parameter.EutilsParameter):
   req_limits = {'xml' : 10000, 'json' : 500, 'text' : 10000}
   """Max number of UIDs to fetch per request mode"""
 
-  valid_retmodes = {'pmc' :       {'xml'},
-                    'gene' :      {'text', 'xml'},
-                    'poset' :     {'text', 'xml'},
-                    'pubmed' :    {'text', 'xml'},
-                    'nuccore' :   {'text', 'xml'},
-                    'protein' :   {'text', 'xml'},
+  valid_retmodes = {'pmc' : {'xml'},
+                    'gene' : {'text', 'xml'},
+                    'poset' : {'text', 'xml'},
+                    'pubmed' : {'text', 'xml'},
+                    'nuccore' : {'text', 'xml'},
+                    'protein' : {'text', 'xml'},
                     'sequences' : {'text', 'xml'}}
   """Enforced request uid sizes by NCBI for fetch requests by format"""
 
