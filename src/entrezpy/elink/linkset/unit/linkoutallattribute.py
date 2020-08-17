@@ -57,7 +57,9 @@ class LinkOutAllAttribute(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
       return {'id' : self.id, 'name' : self.name, 'nameabbr' : self.nameabbr,
               'url' : self.url, 'iconurl' : self.iconurl}
 
-  def __init__(self, unit):
+  def __init__(self, unit=None):
+    if unit is None:
+      unit = {}
     super().__init__(None, unit.pop('linkname', None))
     self.iconurl = unit.pop('iconurl', None)
     self.subjecttype = unit.pop('subjecttype', None)

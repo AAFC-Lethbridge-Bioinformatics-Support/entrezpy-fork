@@ -40,7 +40,7 @@ class LinkIn(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
     """:rtype: :class:`linkin.LinkIn`"""
     return cls(dbto, hasneighbor)
 
-  def __init__(self, dbto, hasneighbor):
+  def __init__(self, dbto=None, hasneighbor=None):
     """:ivar bool hasneighbor:"""
     super().__init__(dbto, None)
     self.hasneighbor = bool(hasneighbor == 'Y')

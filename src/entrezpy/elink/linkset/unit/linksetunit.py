@@ -34,7 +34,7 @@ class LinksetUnit:
   :param str linkname: linkname
   """
 
-  def __init__(self, dbto, linkname, cat='basic'):
+  def __init__(self, dbto, linkname, cat='base'):
     """Inits LinksetUnit instance with the linked database name and linkname
 
     :attribute str dbto: name of target database

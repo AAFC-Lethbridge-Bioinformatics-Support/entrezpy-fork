@@ -41,7 +41,7 @@ class NeighborHistory(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
     """:rtype: :class:`neighbor_history.Neighbor_history`"""
     return cls(dbto, linkname, webenv, querykey)
 
-  def __init__(self, dbto, linkname, webenv, querykey):
+  def __init__(self, dbto=None, linkname=None, webenv=None, querykey=None):
     super().__init__(dbto, linkname, cat='neighbor_history')
     self.webenv = webenv
     self.querykey = querykey

@@ -22,9 +22,9 @@
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
 
-import entrezpy.elink.linkset.bare
+import entrezpy.elink.linkset.base
 
-class RelaxedLinkset(entrezpy.elink.linkset.bare.LinkSet):
+class RelaxedLinkset(entrezpy.elink.linkset.base.LinkSet):
   """
   The RelaxedLinkset class represents a collection of Elink results where
   several UID's from a source database (dbfrom) are linked to several UID's

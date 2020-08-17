@@ -21,9 +21,9 @@
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
 
-import entrezpy.elink.linkset.bare
+import entrezpy.elink.linkset.base
 
-class LinkedLinkset(entrezpy.elink.linkset.bare.LinkSet):
+class LinkedLinkset(entrezpy.elink.linkset.base.LinkSet):
   """
   The LinkedLinkset class represents a collection of Elink results where
   one UID from a source database (dbfrom) is linked to one or several several

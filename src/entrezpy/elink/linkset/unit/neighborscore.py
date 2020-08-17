@@ -40,10 +40,10 @@ class NeighborScore(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
     """:rtype: :class:`neighbor_score.Neighbor_score`"""
     return cls(link, dbto, linkname)
 
-  def __init__(self, link, dbto, linkname):
+  def __init__(self, link=None, dbto=None, linkname=None):
     super().__init__(dbto, linkname)
-    self.uid = int(link['id'])
-    self.score = int(link['score'])
+    self.uid = None if link is None else int(link['id'])
+    self.score = None if link is None else  int(link['score'])
 
   def dump(self):
     """:rtype: dict"""

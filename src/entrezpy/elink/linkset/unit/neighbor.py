@@ -40,9 +40,9 @@ class Neighbor(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
     """:rtype: `neighbor.Neighbor`"""
     return cls(uid, dbto, linkname)
 
-  def __init__(self, uid, dbto, linkname):
+  def __init__(self, uid=None, dbto=None, linkname=None):
     super().__init__(dbto, linkname)
-    self.uid = int(uid)
+    self.uid = None if uid is None else int(uid)
 
   def dump(self):
     """:return: dict"""

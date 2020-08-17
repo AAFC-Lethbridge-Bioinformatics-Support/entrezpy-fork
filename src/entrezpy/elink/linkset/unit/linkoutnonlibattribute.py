@@ -39,7 +39,7 @@ class LinkOutNonlibAttributes(entrezpy.elink.linkset.unit.linksetunit.LinksetUni
     """:rtype: :class:`linkout_nonlib_attributes.LinkOutNonlibAttributes`"""
     return cls(objurl)
 
-  def __init__(self, objurl):
+  def __init__(self, objurl=None):
     super().__init__(None, None)
     self.objurl = objurl
 

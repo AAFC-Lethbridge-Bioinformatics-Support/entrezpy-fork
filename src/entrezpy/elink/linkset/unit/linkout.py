@@ -39,7 +39,7 @@ class LinkOut(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
     """:rtype: :class:`linkout.LinkOut`"""
     return cls(dbto, haslinkout)
 
-  def __init__(self, dbto, haslinkout):
+  def __init__(self, dbto=None, haslinkout=None):
     """:ivar bool haslinkout:"""
     super().__init__(dbto, None)
     self.haslinkout = bool(haslinkout == 'Y')

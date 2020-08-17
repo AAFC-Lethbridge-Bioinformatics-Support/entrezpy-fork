@@ -25,6 +25,11 @@
 
 import entrezpy.elink.linkset.unit.linksetunit
 
+def set_url(unit):
+  """Setting proper url value for empty and non-empty unit data."""
+  if unit:
+    return unit['url'].pop('value', None)
+  return None
 
 class LinkOutProvider(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
   """The `LinkOutProvider` class represents a result from the Elink command
@@ -60,8 +65,10 @@ class LinkOutProvider(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
 
     :param dict provider_obj: provider information
     """
-    def __init__(self, provider_obj):
-      self.id = int(provider_obj.pop('id'))
+    def __init__(self, provider_obj=None):
+      if provider_obj is None:
+        provider_obj = {}
+      self.id = None if not provider_obj else int(provider_obj.pop('id'))
       self.name = provider_obj.pop('name', None)
       self.nameabbr = provider_obj.pop('nameabbr', None)
       self.url = LinkOutProvider.set_url(provider_obj.pop('url', None))
@@ -70,14 +77,17 @@ class LinkOutProvider(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
       """:rtype: dict"""
       return {'id' : self.id, 'name' : self.name, 'nameabbr' : self.nameabbr, 'url' : self.url}
 
-  def __init__(self, unit):
+  def __init__(self, unit=None):
+    if unit is None:
+      unit = {}
     super().__init__(None, unit.pop('linkname', None))
-    self.url = unit['url'].pop('value', None)
+    self.url = set_url(unit)
     self.iconurl = LinkOutProvider.set_url(unit.pop('iconurl', None))
     self.subjecttypes = unit.pop('subjecttypes', None)
     self.categories = unit.pop('categories', None)
     self.attributes = unit.pop('attributes', None)
     self.provider = self.Provider(unit.pop('provider', None))
+
 
   def dump(self):
     """:return: dict"""

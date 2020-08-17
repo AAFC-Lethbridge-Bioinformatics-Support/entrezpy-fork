@@ -42,7 +42,7 @@ class LinkList(entrezpy.elink.linkset.unit.linksetunit.LinksetUnit):
     """:rtype: :class:`linksetunit.linkin.LinkList`"""
     return cls(dbto, linkname, menutag, htmltag, priority)
 
-  def __init__(self, dbto, linkname, menutag, htmltag, priority):
+  def __init__(self, dbto=None, linkname=None, menutag=None, htmltag=None, priority=None):
     super().__init__(dbto, linkname)
     self.menutag = menutag
     self.htmltag = htmltag
