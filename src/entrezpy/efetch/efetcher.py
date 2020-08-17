@@ -25,7 +25,6 @@
 
 import json
 
-
 import entrezpy.base.query
 import entrezpy.efetch.efetch_parameter
 import entrezpy.efetch.efetch_request
@@ -51,7 +50,8 @@ class Efetcher(entrezpy.base.query.EutilsQuery):
     Efetcher.logger.debug(json.dumps(self.dump()))
 
   def inquire(self, parameter, analyzer=entrezpy.efetch.efetch_analyzer.EfetchAnalyzer()):
-    """Implements :meth:`entrezpy.base.query.EutilsQuery.inquire` and configures
+    """
+    Implements :meth:`entrezpy.base.query.EutilsQuery.inquire` and configures
     fetch.
 
     .. note :: Efetch prefers to know the number of UIDs to fetch, i.e. number
@@ -82,10 +82,10 @@ class Efetcher(entrezpy.base.query.EutilsQuery):
 
 
   def isGoodQuery(self):
-    """Test for request errors
+    """
+    Tests for request errors
 
-      :return: 1 if request errors else 0
-      :rtype: int
+      :rtype: bool
     """
     if not self.failed_requests:
       Efetcher.logger.info(json.dumps({'query': self.id, 'status' : 'OK'}))
