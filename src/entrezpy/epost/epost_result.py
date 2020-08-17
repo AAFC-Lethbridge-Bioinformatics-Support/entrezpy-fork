@@ -23,14 +23,11 @@
 """
 
 
+import json
 import logging
 
 import entrezpy.base.result
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-logger.addHandler(logging.StreamHandler())
+import entrezpy.log.logger
 
 
 class EpostResult(entrezpy.base.result.EutilsResult):
@@ -43,20 +40,25 @@ class EpostResult(entrezpy.base.result.EutilsResult):
   :request type: :class:`entrezpy.epost.epost_request.EpostRequest`
   :param dict response: response
   """
+
+  logger = None
+
   def __init__(self, response, request):
     """:ivar list uids: posted UIDs"""
     super().__init__('epost', request.query_id, request.db, response.pop('webenv'),
                      response.pop('querykey'))
     self.uids = request.uids
+    EpostResult.logger = entrezpy.log.logger.get_class_logger(EpostResult)
+    EpostResult.logger.debug({'init':self.dump()})
 
   def dump(self):
-    return {'db' : self.db, 'size' : self.size(), 'len_uids' : len(self.uids),
-            'query_key' : self.references.dump(), 'uids' : self.uids,
-            'function' : self.function}
+    return {'db':self.db, 'size':self.size(), 'len_uids':len(self.uids),
+            'query_key':self.references.dump(), 'uids':self.uids,
+            'function':self.function}
 
   def get_link_parameter(self, reqnum=0):
-    return {'WebEnv' : self.webenv, 'db' : self.db,
-            'QueryKey' : self.references.get_querykey(self.webenv, reqnum)}
+    return {'WebEnv':self.webenv, 'db':self.db,
+            'QueryKey':self.references.get_querykey(self.webenv, reqnum)}
 
   def size(self):
     return len(self.uids)

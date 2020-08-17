@@ -23,7 +23,10 @@
 """
 
 
+import json
+
 import entrezpy.base.request
+import entrezpy.log.logger
 
 
 class EpostRequest(entrezpy.base.request.EutilsRequest):
@@ -35,21 +38,33 @@ class EpostRequest(entrezpy.base.request.EutilsRequest):
   :param parameter: request parameter
   :param type: :class:`entrezpy.epost.epost_parameter.EpostParameter`
   """
+
+  logger = None
+
   def __init__(self, eutil, parameter):
     super().__init__(eutil, parameter.db)
     self.uids = parameter.uids
     self.size = len(parameter.uids)
     self.webenv = parameter.webenv
     self.retmode = parameter.retmode
+    EpostRequest.logger = entrezpy.log.logger.get_class_logger(EpostRequest)
+    EpostRequest.logger.debug(json.dumps({'init': self.dump()}))
 
   def get_post_parameter(self):
     """Implements :meth:`entrezpy.base.request.EutilsRequest.get_post_parameter`"""
-    return self.prepare_base_qry(extend={'id' : ','.join(str(x) for x in self.uids),
-                                         'WebEnv' : self.webenv})
+    return self.prepare_base_qry(extend={'id':','.join(str(x) for x in self.uids),
+                                         'WebEnv':self.webenv})
 
   def dump(self):
-    """Dump instance attributes
+    """
+    Dump instance attributes
 
     :rtype: dict
     """
     return self.dump_internals({'retmode':self.retmode, 'WebEnv':self.webenv})
+
+  def report_status(self, isrequest=None, expectedRequests=None):
+    """Reports the current status the the request"""
+    EpostRequest.logger.debug((json.dumps({'queryid':self.query_id, 'reqid':self.id,
+      'status':self.status, 'duration':self.duration,
+      'error':self.request_error, 'url':self.url})))

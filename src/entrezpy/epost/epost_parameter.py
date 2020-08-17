@@ -27,10 +27,7 @@ import json
 import logging
 
 import entrezpy.base.parameter
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
+import entrezpy.log.logger
 
 
 class EpostParameter(entrezpy.base.parameter.EutilsParameter):
@@ -40,6 +37,9 @@ class EpostParameter(entrezpy.base.parameter.EutilsParameter):
 
   :param dict parameter: Eutils Epost parameters
   """
+
+  logger = None
+
   def __init__(self, parameter):
     """
     :ivar list uids: UIDs to post
@@ -55,27 +55,26 @@ class EpostParameter(entrezpy.base.parameter.EutilsParameter):
     self.request_size = self.query_size
     self.expected_requests = 1
     self.check()
+    EpostParameter.logger = entrezpy.log.logger.get_class_logger(EpostParameter)
+    EpostParameter.logger.debug(json.dumps({'init':self.dump()}))
 
   def check(self):
     """Implements :meth:`entrezpy.base.parameter.EutilsParameter.check`
     by checking for missing database parameter and UIDs.
     """
     if not self.haveDb():
-      sys.exit(logger.error(json.dumps({__name__:{'Missing parameter': 'db', 'action' : 'abort'}})))
+      sys.exit(EpostParameter.logger.error(json.dumps({'Missing parameter':'db',
+                                                       'action':'abort'})))
     if self.query_size == 0:
-      sys.exit(logger.error(json.dumps({__name__:{'Missing uids' : self.uids, 'action':'abort'}})))
+      sys.exit(EpostParameter.logger.error(json.dumps({'Missing uids':self.uids,
+                                                       'action':'abort'})))
 
   def dump(self):
     """Dump instance variables
 
     :rtype: dict
     """
-    return {'db' : self.db,
-            'WebEnv':self.webenv,
-            'query_key' : self.querykey,
-            'uids' : self.uids,
-            'retmode' : self.retmode,
-            'doseq' : self.doseq,
-            'query_size' : self.query_size,
-            'request_size' : self.request_size,
-            'expected_requets' : self.expected_requests}
+    return {'db':self.db, 'WebEnv':self.webenv, 'query_key':self.querykey,
+            'uids':self.uids, 'retmode':self.retmode, 'doseq':self.doseq,
+            'query_size':self.query_size, 'request_size':self.request_size,
+            'expected_requets':self.expected_requests}

@@ -24,16 +24,11 @@
 
 
 import json
-import logging
 import xml.etree.ElementTree
 
 import entrezpy.base.analyzer
 import entrezpy.epost.epost_result
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
+import entrezpy.log.logger
 
 
 class EpostAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
@@ -44,8 +39,11 @@ class EpostAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
   :class:`entrezpy.epost.epost_result.EpostResult`
   """
 
+  logger = None
+
   def __init__(self):
     super().__init__()
+    EpostAnalyzer.logger = entrezpy.log.logger.get_class_logger(EpostAnalyzer)
 
   def init_result(self, response, request):
     """Implements :meth:`entrezpy.base.analyzer.EutilsAnalyzer.init_result` and
@@ -84,12 +82,6 @@ class EpostAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
         break
       elem.clear()
 
-    logger.info(json.dumps({__name__:{'Error' : {'tool' : request.tool,
-                                                 'request-id' : request.id,
-                                                 'query-id' :request.query_id,
-                                                 'error' : error}}}))
-    logger.debug(json.dumps({__name__:{'Error' : {'tool': request.tool,
-                                                  'request-id': request.id,
-                                                  'query-id':request.query_id,
-                                                  'error': error,
-                                                  'request-dump':request.dump_internals()}}}))
+    EpostAnalyzer.logger.error(json.dumps(
+      {'tool':request.tool, 'error':error, 'request-id':request.id,
+       'query-id':request.query_id, 'request-dump':request.dump_internals()}))
