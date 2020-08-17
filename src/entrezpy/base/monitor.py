@@ -29,21 +29,21 @@ import time
 import threading
 
 
-import entrezpy.log.logger
-
-
 class QueryMonitor:
-  """The QueryMonitor class implements the monitoring of entrezpy requests in
+  """
+  The QueryMonitor class implements the monitoring of entrezpy requests in
   entrezpy queries. It controls individual Observers which are linked to one
   entrezpy query.
   """
 
   class Observer(threading.Thread):
-    """The Observer class implements the observation of one entrezpy query. It
-    uses Python's multithreading deamon when using multithreading."""
+    """
+    The Observer class implements the observation of one entrezpy query. It
+    uses Python's multithreading deamon when using multithreading.
+    """
+
     def __init__(self):
       super().__init__(daemon=True)
-      self.logger = entrezpy.log.logger.get_class_logger(QueryMonitor.Observer)
       self.expected_requests = 0
       self.processed_requests = 0
       self.doObserve = True
@@ -58,7 +58,8 @@ class QueryMonitor:
       self.join()
 
     def dispatch(self, parameter):
-      """Starts observation
+      """
+      Starts observation
 
       :param parameter: query parameter
       :type  parameter: 'class':`entrezpy.base.EutilsParameter`
@@ -84,7 +85,8 @@ class QueryMonitor:
     #self.locks = {}
 
   def register_query(self, query):
-    """Adds a query for observation
+    """
+    Adds a query for observation
 
     :param query: entrezpy query
     :type  query: :class:`entrezpy.base.query.EutilsQuery`
@@ -93,7 +95,8 @@ class QueryMonitor:
     self.observers[query.id] = self.Observer()
 
   def get_observer(self, query_id):
-    """Returns an observer for a specific query.
+    """
+    Returns an observer for a specific query.
 
     :param str query_id: entrezpy query id
     :rtype: :class:`base.mnonitor.QueryMonitor.Observer`
@@ -101,7 +104,8 @@ class QueryMonitor:
     return self.observers.get(query_id, None)
 
   def dispatch_observer(self, query, parameter):
-    """Start the observer for an entrezpy query
+    """
+    Start the observer for an entrezpy query
 
     :param query: entrezpy query
     :type  query: :class:`entrezpy.base.query.EutilsQuery`
@@ -113,7 +117,8 @@ class QueryMonitor:
       observer.dispatch(parameter)
 
   def recall_observer(self, query):
-    """Stops the observer for an entrezpy query
+    """
+    Stops the observer for an entrezpy query
 
     :param query: entrezpy query
     :type  query: :class:`entrezpy.base.query.EutilsQuery`
@@ -123,7 +128,8 @@ class QueryMonitor:
       observer.recall()
 
   def update_observer(self, query, parameter):
-    """ Function updating the settings for a thread. Honestly, I have no idea if
+    """
+    Function updating the settings for a thread. Honestly, I have no idea if
     the lock is really required. It works without locks, just updating the
     parameter.
 

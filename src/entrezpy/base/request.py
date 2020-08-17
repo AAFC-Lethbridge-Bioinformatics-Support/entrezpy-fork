@@ -23,7 +23,11 @@
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
 
+import json
 import time
+
+import entrezpy.log.logger
+
 
 class EutilsRequest:
   """EutilsRequest is the base class for requests from
@@ -48,6 +52,8 @@ class EutilsRequest:
   :param str eutil: eutil function for this request, e.g. efetch.fcgi
   :param str db: database for request
   """
+
+  logger = None
 
   def __init__(self, eutil, db):
     """ Initializes a new request with initial attributes as part of a query in
@@ -81,10 +87,12 @@ class EutilsRequest:
     self.start_time = None
     self.duration = None
     self.doseq = True
+    EutilsRequest.logger = entrezpy.log.logger.get_class_logger(EutilsRequest)
 
   def get_post_parameter(self):
-    """ Virtual function returning the POST parameters for the request from
-    required attributes.
+    """
+    Virtual function returning the POST parameters for the request from required
+    attributes.
 
     :rtype: dict
     :raises NotImplemetedError:
@@ -92,7 +100,8 @@ class EutilsRequest:
     raise NotImplementedError()
 
   def prepare_base_qry(self, extend=None):
-    """Returns instance attributes required for every POST request.
+    """
+    Returns instance attributes required for every POST request.
 
     :param dict extend: parameters extending basic parameters
     :return: base parameters for POST request
@@ -126,14 +135,8 @@ class EutilsRequest:
   def report_status(self):
     """
     :return: request status for ongoing request
-    :rtype: str
     """
-    status = {'queryid' : self.query_id, 'reqid':self.id, 'eutil':self.eutil,
-              'status':self.status, 'duration':self.duration}
-    if self.request_error:
-      status.update({'error':self.error, 'url':self.url})
-    self.log.info(json.dumps(status))
-    #return '\t'.join(str(x) for x in cols)
+    EutilsRequest.logger.debug(json.dumps(self.dump_internals()))
 
   def get_request_id(self):
     """
@@ -143,7 +146,8 @@ class EutilsRequest:
     return '.'.join([str(self.query_id), str(self.id)])
 
   def set_request_error(self, error):
-    """Set request error and HTTP/URL error message
+    """
+    Sets request error and HTTP/URL error message
 
     :param str error: HTTP/URL error
     """
@@ -151,29 +155,22 @@ class EutilsRequest:
     self.status = 1
 
   def start_stopwatch(self):
-    """Start time to measure request duration."""
+    """Starts time to measure request duration."""
     self.start_time = time.time()
 
-
   def calc_duration(self):
-    """Calculate request duration"""
+    """Calculates request duration"""
     self.duration = time.time() - self.start_time
 
   def dump_internals(self, extend=None):
-    """Dump internal attributes for request.
+    """
+    Dumps internal attributes for request.
 
     :param dict extend: extend dump with additional information
     """
-    if not extend:
+    if extend is None:
       extend = {}
-    reqdump = {'eutil' : self.eutil,
-               'db' : self.db,
-               'id' : self.id,
-               'query_id' : self.query_id,
-               'tool' : self.tool,
-               'url' : self.url,
-               'email' : self.contact,
-               'request_error' : self.request_error,
-               'size' : self.size,
-               'apikey' : self.apikey}
+    reqdump = {'eutil':self.eutil, 'db':self.db, 'id':self.id, 'query_id':self.query_id,
+               'tool':self.tool, 'url':self.url, 'email':self.contact, 'size':self.size,
+               'request_error':self.request_error, 'apikey':self.apikey}
     return dict(extend, **reqdump)

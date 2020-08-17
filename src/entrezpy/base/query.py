@@ -23,16 +23,32 @@
 """
 
 
+import atexit
+import base64
+import json
 import os
 import uuid
-import base64
-import atexit
 import queue
 import threading
 
 import entrezpy.requester.requester
 import entrezpy.base.monitor
+import entrezpy.log.logger
 
+def run_one_request(request):
+  """
+  Processes one request from the queue and logs its progress.
+
+  :param request: single entrezpy request
+  :type  request: :class:`entrezpy.base.request.EutilsRequest`
+  """
+  request.start_stopwatch()
+  o = EutilsQuery.query_monitor.get_observer(request.query_id)
+  o.observe(request)
+  response = EutilsQuery.query_requester.request(request)
+  request.calc_duration()
+  o.processed_requests += 1
+  return response
 
 class EutilsQuery:
   """ EutilsQuery implements the base class for all entrezpy queries to
@@ -69,21 +85,6 @@ class EutilsQuery:
 
   query_monitor = entrezpy.base.monitor.QueryMonitor()
   """References :class:`entrezpy.base.monitor.QueryMonitor` """
-
-  @staticmethod
-  def run_one_request(request):
-    """Processes one request from the queue and logs its progress.
-
-    :param request: single entrezpy request
-    :type  request: :class:`entrezpy.base.request.EutilsRequest`
-    """
-    request.start_stopwatch()
-    o = EutilsQuery.query_monitor.get_observer(request.query_id)
-    o.observe(request)
-    response = EutilsQuery.query_requester.request(request)
-    request.calc_duration()
-    o.processed_requests += 1
-    return response
 
   class RequestPool:
     """ Threading Pool for requests. This class inits the threading pool,
@@ -136,7 +137,7 @@ class EutilsQuery:
       """Run single threaded requests."""
       while not self.requests.empty():
         request, analyzer = self.requests.get()
-        response = EutilsQuery.run_one_request(request)
+        response = run_one_request(request)
         if response:
           analyzer.parse(response, request)
         else:
@@ -175,12 +176,14 @@ class EutilsQuery:
       """Overwrite :meth:`threading.Thread.run` for multithreaded requests."""
       while True:
         request, analyzer = self.requests.get()
-        response = EutilsQuery.run_one_request(request)
+        response = run_one_request(request)
         if response:
           analyzer.parse(response, request)
         else:
           self.failed_requests.append(request)
         self.requests.task_done()
+
+  logger = None
 
   def __init__(self, eutil, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
     """Inits EutilsQuery instance with eutil, toolname, email, apikey,
@@ -221,6 +224,8 @@ class EutilsQuery:
     self.request_counter = 0
     EutilsQuery.query_requester = entrezpy.requester.requester.Requester(1/self.requests_per_sec)
     EutilsQuery.query_monitor.register_query(self)
+    EutilsQuery.logger = entrezpy.log.logger.get_class_logger(EutilsQuery)
+    EutilsQuery.logger.debug(json.dumps({'init':self.dump()}))
 
   def inquire(self, parameter, analyzer):
     """Virtual function starting query. Each query requires its own implementation.

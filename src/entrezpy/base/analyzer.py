@@ -26,13 +26,9 @@
 import io
 import sys
 import json
-import logging
 import xml.etree.ElementTree
 
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
+import entrezpy.log.logger
 
 
 class EutilsAnalyzer:
@@ -57,6 +53,8 @@ class EutilsAnalyzer:
   known_fmts = {'xml', 'json', 'text'}
   """Store formats known to EutilsAnalzyer"""
 
+  logger = None
+
   def __init__(self):
     """Inits EutilsAnalyzer with unknown type of result yet. The result needs to
     be set upon receiving the first response by :meth:`.init_result`.
@@ -67,6 +65,7 @@ class EutilsAnalyzer:
     """
     self.hasErrorResponse = False
     self.result = None
+    EutilsAnalyzer.logger = entrezpy.log.logger.get_class_logger(EutilsAnalyzer)
 
   def init_result(self, response, request):
     """Virtual function to initialize result instance. This allows to set
@@ -107,7 +106,8 @@ class EutilsAnalyzer:
     :raises NotImplementedError: if request format is not in
       :attr:`EutilsAnalyzer.known_fmts`"""
     if request.retmode not in EutilsAnalyzer.known_fmts:
-      raise NotImplementedError("Unknown format: {}".format(request.retmode))
+      EutilsAnalyzer.logger.error(json.dumps({'unknown format': request.retmode}))
+      raise NotImplementedError(f"Unknown format: {request.retmode}")
     response = self.convert_response(raw_response, request)
     if self.isErrorResponse(response, request):
       self.hasErrorResponse = True
@@ -116,9 +116,8 @@ class EutilsAnalyzer:
       self.analyze_result(response, request)
 
     if self.result is None:
-      logger.error(json.dumps({__name__ : {'Error' : 'result attribute not set. Something went wrong',
-                                           'action' : 'abort'}}))
-      sys.exit()
+      sys.exit(EutilsAnalyzer.logger.error(json.dumps({'result attribute': 'not set',
+                                                       'action' : 'abort'})))
 
   def convert_response(self, raw_response, request):
     """Converts raw_response into the expected format, deduced from request and
