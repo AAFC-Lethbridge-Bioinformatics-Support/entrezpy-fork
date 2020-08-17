@@ -47,7 +47,7 @@ class Efetcher(entrezpy.base.query.EutilsQuery):
     """:ivar result: :class:`entrezpy.base.result.EutilsResult`"""
     super().__init__('efetch.fcgi', tool, email, apikey, threads, qid=qid)
     Efetcher.logger = entrezpy.log.logger.get_class_logger(Efetcher)
-    Efetcher.logger.debug(json.dumps(self.dump()))
+    Efetcher.logger.debug(json.dumps({'init':self.dump()}))
 
   def inquire(self, parameter, analyzer=entrezpy.efetch.efetch_analyzer.EfetchAnalyzer()):
     """
