@@ -132,7 +132,7 @@ class EutilsRequest:
       cols += [self.request_error, self.url]
     return '\t'.join(str(x) for x in cols)
 
-  def report_status(self):
+  def report_status(self, processed_requests=None, expected_requests=None):
     """
     :return: request status for ongoing request
     """
