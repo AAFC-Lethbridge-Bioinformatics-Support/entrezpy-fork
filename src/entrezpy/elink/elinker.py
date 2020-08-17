@@ -81,10 +81,10 @@ class Elinker(entrezpy.base.query.EutilsQuery):
     return None
 
   def isGoodQuery(self):
-    """Test for request errors
+    """
+    Tests for request errors
 
-      :return: 1 if request errors else 0
-      :rtype: int
+      :rtype: bool
     """
     if not self.hasFailedRequests():
       Elinker.logger.info(json.dumps({'query':self.id, 'status':'OK'}))
