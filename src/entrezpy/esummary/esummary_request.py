@@ -23,7 +23,10 @@
 """
 
 
+import json
+
 import entrezpy.base.request
+import entrezpy.log.logger
 
 
 class EsummaryRequest(entrezpy.base.request.EutilsRequest):
@@ -38,6 +41,8 @@ class EsummaryRequest(entrezpy.base.request.EutilsRequest):
   :param int size: requets size
   """
 
+  logger = None
+
   def __init__(self, eutil, parameter, start, size):
     super().__init__(eutil, parameter.db)
     self.retstart = start
@@ -47,6 +52,8 @@ class EsummaryRequest(entrezpy.base.request.EutilsRequest):
     self.uids = parameter.uids[start:start+size]
     self.webenv = parameter.webenv
     self.querykey = parameter.querykey
+    EsummaryRequest.logger = entrezpy.log.logger.get_class_logger(EsummaryRequest)
+    EsummaryRequest.logger.debug(json.dumps({'init':self.dump()}))
 
   def get_post_parameter(self):
     qry = self.prepare_base_qry(extend={'retmode':self.retmode})
@@ -54,15 +61,12 @@ class EsummaryRequest(entrezpy.base.request.EutilsRequest):
       qry.update({'WebEnv' : self.webenv, 'query_key':self.querykey,
                   'retstart' : self.retstart, 'retmax' : self.retmax})
     else:
-      qry.update({'id' : ','.join(str(x) for x in self.uids)})
+      qry.update({'id':','.join(str(x) for x in self.uids)})
     return qry
 
   def dump(self):
     """:rtype: dict"""
-    return self.dump_internals({'retstart' : self.retstart,
-                                'retmax' : self.retmax,
-                                'retmode' : self.retmode,
-                                'rettype' : self.rettype,
-                                'WebEnv' : self.webenv,
-                                'query_key' : self.querykey,
-                                'uids' : len(self.uids)})
+    return self.dump_internals(
+      {'retstart':self.retstart, 'retmax':self.retmax, 'WebEnv':self.webenv,
+       'retmode':self.retmode, 'rettype':self.rettype, 'uids':len(self.uids),
+       'query_key':self.querykey})

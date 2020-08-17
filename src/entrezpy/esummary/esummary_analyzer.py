@@ -24,21 +24,20 @@
 
 
 import json
-import logging
 
 import entrezpy.base.analyzer
 import entrezpy.esummary.esummary_result
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+import entrezpy.log.logger
 
 
 class EsummaryAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
-  """EsummaryAnalyzer implements the analysis of ESsummary responses from
-  E-Utils. JSON formatted data is enforced in responses. Summaries are stored in
-  a :class:`entrezpy.esummary.esummary_result.EsummaryResult` instance.
   """
+  EsummaryAnalyzer implements the analysis of ESsummary responses from E-Utils.
+  JSON formatted data is enforced in responses. Summaries are stored in a
+  :class:`entrezpy.esummary.esummary_result.EsummaryResult` instance.
+  """
+
+  logger = None
 
   def __init__(self):
     """:ivar result: Esummary results
@@ -46,16 +45,19 @@ class EsummaryAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
     """
     super().__init__()
     self.result = None
+    EsummaryAnalyzer.logger = entrezpy.log.logger.get_class_logger(EsummaryAnalyzer)
 
   def init_result(self, response, request):
-    """Inits :attr:`.result` as
-     :class:`entrezpy.esummary.esummary_result.EsummaryResult`.
+    """
+    Inits :attr:`.result` as
+    :class:`entrezpy.esummary.esummary_result.EsummaryResult`.
 
     :return: if result is initiated
     :rtype: bool
     """
     if not self.result:
-      self.result = entrezpy.esummary.esummary_result.EsummaryResult(response, request)
+      self.result = entrezpy.esummary.esummary_result.EsummaryResult(response,
+                                                                     request)
       return True
     return False
 
@@ -64,11 +66,10 @@ class EsummaryAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
       self.result.add_summaries(response.pop('result', None))
 
   def analyze_error(self, response, request):
-    log_msg = {'tool' : request.tool, 'request' : request.id, 'query' : request.query_id}
+    log_msg = {'tool':request.tool, 'request':request.id, 'query':request.query_id}
     if 'error' in response:
       log_msg.update({'error' : response.pop('error')})
     if 'esummaryresult' in response:
       log_msg.update({'error' : response.pop('esummaryresult')})
-    logger.info(json.dumps({__name__ : {'Response-Error': log_msg}}))
-    logger.debug(json.dumps({__name__ : {'Response-Error': log_msg,
-                                         'dump' : request.dump_internals()}}))
+    EsummaryAnalyzer.logger.error(json.dumps(
+      {'response':log_msg, 'dump':request.dump_internals()}))

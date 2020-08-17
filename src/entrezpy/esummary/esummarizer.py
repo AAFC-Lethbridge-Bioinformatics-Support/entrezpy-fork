@@ -24,17 +24,12 @@
 
 
 import json
-import logging
 
 import entrezpy.base.query
 import entrezpy.esummary.esummary_request
 import entrezpy.esummary.esummary_analyzer
 import entrezpy.esummary.esummary_parameter
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
+import entrezpy.log.logger
 
 
 class Esummarizer(entrezpy.base.query.EutilsQuery):
@@ -44,8 +39,12 @@ class Esummarizer(entrezpy.base.query.EutilsQuery):
   # [0]: https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.ESummary
   """
 
+  logger = None
+
   def __init__(self, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
     super().__init__('esummary.fcgi', tool, email, apikey, apikey_var, threads, qid)
+    Esummarizer.logger = entrezpy.log.logger.get_class_logger(Esummarizer)
+    Esummarizer.logger.debug(json.dumps({'init':self.dump()}))
 
   def inquire(self, parameter, analyzer=entrezpy.esummary.esummary_analyzer.EsummaryAnalyzer()):
     """Implements :meth:`entrezpy.base.quet.EutilsQuery.unquire`.
@@ -58,34 +57,30 @@ class Esummarizer(entrezpy.base.query.EutilsQuery):
       None
     """
     param = entrezpy.esummary.esummary_parameter.EsummaryParameter(parameter)
-    logger.debug(json.dumps({__name__ : {'Parameter' : param.dump()}}))
+    Esummarizer.logger.debug(json.dumps({'parameter':param.dump()}))
     req_size = param.reqsize
     self.monitor_start(param)
     for i in range(param.expected_requests):
       if i * req_size + req_size > param.retmax:
         req_size = param.retmax % param.reqsize
-      self.add_request(entrezpy.esummary.esummary_request.EsummaryRequest(self.eutil,
-                                                                          param,
-                                                                          (i*param.reqsize),
-                                                                          req_size), analyzer)
+      self.add_request(entrezpy.esummary.esummary_request.EsummaryRequest(
+        self.eutil, param, (i*param.reqsize), req_size), analyzer)
     self.request_pool.drain()
     self.monitor_stop()
-    if self.check_requests() == 0:
+    if self.isGoodQuery():
       return analyzer
     return None
 
-  def check_requests(self):
-    """Test for request errors
-
-      :return: 1 if request errors else 0
-      :rtype: int
+  def isGoodQuery(self):
     """
-    if not self.hasFailedRequests():
-      logger.info(json.dumps({__name__ : {'Query status' : {self.id : 'OK'}}}))
-      return 0
-    logger.info(json.dumps({__name__ : {'Query status' : {self.id : 'failed'}}}))
-    logger.debug(json.dumps({__name__ : {'Query status' :
-                                         {self.id : 'failed',
-                                          'request-dumps' : [x.dump_internals()
-                                                             for x in self.failed_requests]}}}))
-    return 1
+    Tests for request errors
+
+      :rtype: bool
+    """
+    if not self.failed_requests:
+      Esummarizer.logger.info(json.dumps({'query':self.id, 'status':'OK'}))
+      return True
+    Esummarizer.logger.warning(json.dumps({'query':self.id, 'status':'failed'}))
+    Esummarizer.logger.debug(json.dumps({'query':self.id, 'status':'failed',
+      'request-dumps':[x.dump_internals() for x in self.failed_requests]}))
+    return False

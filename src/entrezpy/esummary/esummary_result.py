@@ -23,25 +23,35 @@
 """
 
 
-import entrezpy.base.result
+import json
 
+import entrezpy.base.result
+import entrezpy.log.logger
 
 class EsummaryResult(entrezpy.base.result.EutilsResult):
-  """EsummaryResult stores summaries in :attr:`.summaries`, avoiding
-  duplicates and quick access. EsummaryResult has no WebEnv references."""
+  """
+  EsummaryResult stores summaries in :attr:`.summaries`, avoiding duplicates and
+  quick access. EsummaryResult has no WebEnv references.
+  """
+
+  logger = None
+
   def __init__(self, response, request):
     super().__init__('esummary', request.query_id, request.db)
     self.summaries = {}
     if response:
       self.add_summaries(response['result'])
+    EsummaryResult.logger = entrezpy.log.logger.get_class_logger(EsummaryResult)
+    EsummaryResult.logger.debug(json.dumps({'init':self.dump()}))
 
   def dump(self):
     """:rtype: dict"""
-    return {'db':self.db, 'size' : self.size(), 'function' : self.function,
-            'summaries': [self.summaries[x] for x in self.summaries]}
+    return {'db':self.db, 'size':self.size(), 'function':self.function,
+            'summaries':[self.summaries[x] for x in self.summaries]}
 
   def get_link_parameter(self, reqnum=0):
-    """Esummary has no link automated link ability
+    """
+    Esummary has no link automated link ability.
 
     :return: None
     """
@@ -56,7 +66,8 @@ class EsummaryResult(entrezpy.base.result.EutilsResult):
     return False
 
   def add_summaries(self, results):
-    """Adds summaries form a Esummary E-Utiliy response
+    """
+    Adds summaries form a Esummary E-Utiliy response.
 
     :param dict results: Esummaries
     """

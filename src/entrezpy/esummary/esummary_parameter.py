@@ -25,24 +25,23 @@
 import sys
 import math
 import json
-import logging
 
 import entrezpy.base.parameter
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
+import entrezpy.log.logger
 
 
 class EsummaryParameter(entrezpy.base.parameter.EutilsParameter):
-  """EsummaryParameter implements checks and configures an Esummary() query.
-  A summary query knows its size due to the id parameter or earlier result
-  stored on the Entrez history server using WebEnv and query_key. The default
-  retmode is JSON."""
+  """
+  EsummaryParameter implements checks and configures an Esummary() query. A
+  summary query knows its size due to the id parameter or earlier result stored
+  on the Entrez history server using WebEnv and query_key. The default retmode
+  is JSON.
+  """
 
   max_request_size = {'xml' : 10000, 'json' : 500}
   """maximum number of data sets per request"""
+
+  logger = None
 
   def __init__(self, param):
     super().__init__(param)
@@ -52,12 +51,13 @@ class EsummaryParameter(entrezpy.base.parameter.EutilsParameter):
     self.retmax = self.adjust_retmax(param.get('retmax'))
     self.reqsize = self.adjust_reqsize(param.get('reqsize'))
     self.retstart = int(param.get('retstart', 0))
-    #self.esummary_version = parameter.get('version', '2.0')
     self.calculate_expected_requests(reqsize=self.reqsize)
+    EsummaryParameter.logger = entrezpy.log.logger.get_class_logger(EsummaryParameter)
     self.check()
 
   def adjust_reqsize(self, reqsize):
-    """Adjusts request size for query
+    """
+    Adjusts request size for query
 
     :param reqsize: Request size parameter
     :type  reqsize: str or None
@@ -73,7 +73,8 @@ class EsummaryParameter(entrezpy.base.parameter.EutilsParameter):
     return int(reqsize)
 
   def adjust_retmax(self, retmax):
-    """Adjusts retmax parameter. Order of check is crucial.
+    """
+    Adjusts retmax parameter. Order of check is crucial.
 
     :param int retmax: retmax value
     :return: adjusted retmax or None if all UIDs are fetched
@@ -82,8 +83,8 @@ class EsummaryParameter(entrezpy.base.parameter.EutilsParameter):
     if self.uids:           # we got UIDs to fetch
       return len(self.uids)
     if retmax is None:      # we have no clue what to expect, e.g. WebEnv
-      logger.info(json.dumps({__name__ : {'No retmax': 'fetching 1 request \
-                                          limited by retmode and retmax'}}))
+      EsummaryParameter.logger.info(json.dumps(
+        {'No retmax':'fetching 1 request limited by retmode and retmax'}))
       return None
     return int(retmax)      # we set a limitation
 
@@ -104,28 +105,21 @@ class EsummaryParameter(entrezpy.base.parameter.EutilsParameter):
 
   def check(self):
     if not self.haveDb():
-      logger.error(json.dumps({__name__:{'Missing parameter': 'db', 'action':'abort'}}))
-      sys.exit()
+      sys.exit(EsummaryParameter.logger.error(
+        json.dumps({'Missing parameter':'db', 'action':'abort'})))
 
     if not self.haveExpectedRequets():
-      logger.error(json.dumps({__name__:{'Bad expected requests' :self.expected_requests,
-                                         'action':'abort'}}))
-      sys.exit()
+      sys.exit(EsummaryParameter.logger.error(json.dumps(
+        {'Bad expected requests':self.expected_requests, 'action':'abort'})))
     if not self.uids and not self.haveQuerykey() and not self.haveWebenv():
-      logger.error(json.dumps({__name__:{'Missing required parameters' : {'ids':self.uids,
-                                                                          'QueryKey':self.querykey,
-                                                                          'WebEnv':self.webenv},
-                                         'action':'abort'}}))
-      sys.exit()
+      sys.exit(EsummaryParameter.logger.error(json.dumps(
+        {'Missing required parameters':{'ids':self.uids, 'WebEnv':self.webenv,
+          'QueryKey':self.querykey}, 'action':'abort'})))
+    EsummaryParameter.logger.debug({'init':self.dump()})
 
   def dump(self):
-    return {'db' : self.db,
-            'WebEnv':self.webenv,
-            'query_key' : self.querykey,
-            'uids' : self.uids,
-            'retmode' : self.retmode,
-            'rettype' : self.rettype,
-            'retstart' : self.retstart,
-            'retmax' : self.retmax,
-            'request_size' : self.reqsize,
-            'expected_requets' : self.expected_requests}
+    return {'db':self.db, 'WebEnv':self.webenv, 'query_key':self.querykey,
+            'retmode':self.retmode, 'rettype':self.rettype,
+            'retstart':self.retstart, 'retmax':self.retmax, 'uids':self.uids,
+            'request_size':self.reqsize,
+            'expected_requets':self.expected_requests}
