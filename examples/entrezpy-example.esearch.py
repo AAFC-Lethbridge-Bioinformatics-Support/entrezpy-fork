@@ -73,6 +73,7 @@ import argparse
 
 sys.path.insert(1, os.path.join(sys.path[0], '../src'))
 import entrezpy.esearch.esearcher
+import entrezpy.esearch.esearch_analyzer
 
 
 def main():
@@ -114,10 +115,11 @@ def main():
       uniq[i] += 1
       if uniq[i] > 1:
         dupl_count[i] = uniq[i]
+    print(len(uniq), result.size())
     if len(uniq) !=  result.size():
       print("!: ERROR: Found  {} duplicate uids. Not expected. Duplicated UIDs:".format(len(dupl_count)))
       for i in dupl_count:
-        print("{}\t{}".format(i, dupl_count[i]))
+        print(f"{i}\t{dupl_count[i]}")
       return False
     return True
 
@@ -126,10 +128,11 @@ def main():
   for i in range(len(examples)):
     qrystart = time.time()
     # Init an Esearcher instance
+    a = entrezpy.esearch.esearch_analyzer.EsearchAnalyzer()
     es = entrezpy.esearch.esearcher.Esearcher('esearcher', args.email, args.apikey)
     # Query E-Utilities and return the default analyzer
-    a = es.inquire(examples[i])
-    print("+Query {}\n+++\tParameters: {}\n+++\tStatus:".format(i, examples[i]), end='')
+    a = es.inquire(examples[i], analyzer=a)
+    print(f"+Query {i}\n+++\tParameters: {examples[i]}\n+++\tStatus:", end='')
     # Test is query has been successful, e.g. no connection or NCBI errors
     if not a.isSuccess():
       print("\tFailed: Response errors")
@@ -137,17 +140,17 @@ def main():
     print("\tResponse OK")
     # Test is query resulted in no UIDs
     if a.isEmpty():
-      print("+++\tWARNING: No results for example {}".format(i))
-    print("+++\tStart dumping results\n+++%%%\t{}".format(json.dumps(a.get_result().dump())))
-    if check_uid_uniqeness(a.get_result()):
+      print(f"+++\tWARNING: No results for example {i}")
+    print(f"+++\tStart dumping results\n+++%%%\t{json.dumps(a.get_result().dump())}")
+    if 'rettype' not in examples[i] and check_uid_uniqeness(a.get_result()):
       if a.get_result().retmax == a.result.size():
         print("+++\tRequest OK")
       else:
         print("+++\tRequest failed")
-      print("+++\tFetched UIDs ({}):\n\t{}".format(a.result.size(), ','.join(str(x) for x in a.get_result().uids)))
-      print("+++\tFollow-up parameters:\n+++\t\t{}".format(a.follow_up()))
-    print("+++\tEnd  Results\n+++\tQuery time: {} sec".format(time.time()-qrystart))
-  print("+Total time: {} sec".format(time.time()-start))
+      print(f"+++\tFetched UIDs ({a.result.size()}):\n\t{','.join(str(x) for x in a.get_result().uids)}")
+      print(f"+++\tFollow-up parameters:\n+++\t\t{a.follow_up()}")
+    print(f"+++\tEnd  Results\n+++\tQuery time:{time.time()-qrystart}sec")
+  print(f"+Total time: {time.time()-start} sec")
   return 0
 
 if __name__ == '__main__':

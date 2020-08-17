@@ -26,27 +26,25 @@
 import sys
 import math
 import json
-import logging
 
 import entrezpy.base.parameter
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
+import entrezpy.log.logger
 
 
 MAX_REQUEST_SIZE = 100000
 """Maximum number of UIDs for one request"""
 
 class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
-  """EsearchParameter checks query specific parameters and configures an Esearch
+  """
+  EsearchParameter checks query specific parameters and configures an Esearch
   query. If more than one request is required the instance is reconfigured by
   :meth:`entrezpy.esearch.esearcher.Esearcher.configure_follow_up`.
 
   .. note :: EsearchParameter works best when using the NCBI Entrez history
     server. If usehistory is not used, linking requests cannot be guaranteed.
   """
+
+  logger = None
 
   def __init__(self, parameter):
     super().__init__(parameter)
@@ -64,6 +62,8 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
     self.mindate = parameter.get('mindate')
     self.maxdate = parameter.get('maxdate')
     self.idtype = parameter.get('idtype')
+    EsearchParameter.logger = entrezpy.log.logger.get_class_logger(EsearchParameter)
+    EsearchParameter.logger.debug(json.dumps({'init':self.dump()}))
     self.check()
 
   def goodDateparam(self):
@@ -71,13 +71,16 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
     useDate = False
     if self.useMinMaxDate():
       if self.reldate:
-        logger.error(json.dumps({__name__: {'Error' : 'Cannot use reldate and Min/Max dates'}}))
+        EsearchParameter.logger.error(
+          json.dumps({'reldate and Min/Max dates':'not used together',
+                      'parameters':self.dump()}))
         return False
       useDate = True
     if self.reldate:
       useDate = True
     if useDate and (not self.datetype):
-      logger.error(json.dumps({__name__: {'Error' : 'Require datetype with dates'}}))
+      EsearchParameter.logger.error(
+        json.dumps({'dates':'requires datetype', 'parameters':self.dump()}))
       return False
     return True
 
@@ -86,7 +89,8 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
     if self.mindate or self.maxdate: # Intend to use max/min dates
       if self.mindate and self.maxdate: # Require both
         return True
-      logger.error(json.dumps({__name__: {'Error' : 'Require mindate and maxdate'}}))
+      EsearchParameter.logger.error(json.dumps(
+        {'min/max date':'both required', 'parameters':self.dump()}))
     return False
 
   def set_uilist(self, rettype):
@@ -140,27 +144,27 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
     check for the minumum required parameters. Aborts if any check fails.
     """
     if not self.haveDb():
-      sys.exit(logger.error(json.dumps({__name__: {'Error' : {'Missing parameter': 'db'},
-                                                   'action' : 'abort'}})))
+      sys.exit(EsearchParameter.logger.error(json.dumps(
+        {'Missing parameter':'db', 'action':'abort'})))
 
     if not self.haveExpectedRequets():
-      sys.exit(logger.error(json.dumps({__name__ : {'Error' :
-                                                    {'expected requests' : self.expected_requests},
-                                                    'action' : 'abort'}})))
+      sys.exit(EsearchParameter.logger.error(json.dumps(
+        {'no expected requests':self.expected_requests, 'action':'abort'})))
 
     if not self.goodDateparam():
-      sys.exit(logger.error(json.dumps({__name__ : {'Error' : 'Bad date parameters',
-                                                    'action' : 'abort'}})))
+      sys.exit(EsearchParameter.logger.error(json.dumps(
+        {'Bad parameter':'date', 'action':'abort'})))
 
     if not self.term and not self.webenv:
-      sys.exit(logger.error(json.dumps({__name__:{'Error': {'Missing  parameters' : 'term, WebEnv'},
-                                                  'action' : 'abort'}})))
+      sys.exit(EsearchParameter.logger.error(json.dumps(
+        {'Missing  parameters':'term, WebEnv', 'action':'abort'})))
 
   def dump(self):
-    return {'db' : self.db, 'webenv' : self.webenv, 'querykey' : self.querykey,
-            'usehistory' : self.usehistory, 'term':self.term, 'retmode':self.retmode,
-            'uilist': self.uilist, 'retmax': self.retmax, 'retstart': self.retstart,
-            'sort' : self.sort, 'field' : self.field, 'datetype' : self.datetype,
-            'reldate' : self.reldate, 'mindate' : self.mindate, 'maxdate' : self.maxdate,
-            'expected_requsts' : self.expected_requests,
-            'request_size' : self.reqsize, 'max_request_size' : MAX_REQUEST_SIZE}
+    return {'db':self.db, 'webenv':self.webenv, 'querykey':self.querykey,
+            'usehistory':self.usehistory, 'term':self.term, 'sort':self.sort,
+            'retmode':self.retmode, 'max_request_size':MAX_REQUEST_SIZE,
+            'retmax':self.retmax, 'field':self.field, 'uilist':self.uilist,
+            'retstart':self.retstart, 'datetype':self.datetype,
+            'reldate':self.reldate, 'mindate':self.mindate,
+            'maxdate':self.maxdate, 'expected_requsts':self.expected_requests,
+            'request_size':self.reqsize}

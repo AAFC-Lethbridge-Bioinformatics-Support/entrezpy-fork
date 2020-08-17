@@ -25,15 +25,10 @@
 
 
 import json
-import logging
 
 import entrezpy.base.analyzer
 import entrezpy.esearch.esearch_result
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
+import entrezpy.log.logger
 
 
 class EsearchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
@@ -41,13 +36,18 @@ class EsearchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
   JSON formatted data is enforced in responses. The result are stored as a
   :class:`entrezpy.esearch.esearch_result.EsearchResult` instance.
   """
+
+  logger = None
+
   def __init__(self):
     """:ivar result: :class:`entrezpy.esearch.esearch_result.EsearchResult`"""
     super().__init__()
     self.result = None
+    EsearchAnalyzer.logger = entrezpy.log.logger.get_class_logger(EsearchAnalyzer)
 
   def init_result(self, response, request):
-    """Inits :class:`entrezpy.esearch.esearch_result.EsearchResult`.
+    """
+    Inits :class:`entrezpy.esearch.esearch_result.EsearchResult`.
 
     :return: if result is initiated
     :rtype: bool
@@ -58,7 +58,8 @@ class EsearchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
     return False
 
   def analyze_result(self, response, request):
-    """Implements :meth:`entrezpy.base.analyzer.EsearchAnalyzer.analyze_result`.
+    """
+    Implements :meth:`entrezpy.base.analyzer.EsearchAnalyzer.analyze_result`.
 
     :param dict response: Esearch response
     :param request: Esearch request
@@ -68,34 +69,38 @@ class EsearchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
       self.result.add_response(response.pop('esearchresult'))
 
   def analyze_error(self, response, request):
-    """Implements :meth:`entrezpy.base.analyzer.EutilsAnalyzer.analyze_error`.
+    """
+    Implements :meth:`entrezpy.base.analyzer.EutilsAnalyzer.analyze_error`.
 
       :param dict response: Esearch response
       :param request: Esearch request
       :type request: :class:`entrezpy.esearch.esearch_request.EsearchRequest`
     """
-    err_msg = {'tool' : request.tool, 'request' : request.id,
-               'query' : request.query_id, 'error': response['esearchresult']}
-    logger.info(json.dumps({__name__ : {'Response-Error' : err_msg}}))
+    err_msg = {'tool':request.tool, 'request':request.id,
+               'query':request.query_id, 'error': response['esearchresult']}
+    EsearchAnalyzer.logger.error(json.dumps({'response':err_msg}))
     err_msg.update({'request-dump' : request.dump_internals()})
-    logger.debug(json.dumps({__name__ : {"Response-Error": err_msg}}))
+    EsearchAnalyzer.logger.debug(json.dumps({'response':err_msg}))
 
   def size(self):
-    """Get number of analyzed UIDs in :attr:`.result`
+    """
+    Returns number of analyzed UIDs in :attr:`.result`
 
     :rtype: int
     """
     return self.result.size()
 
   def query_size(self):
-    """Get number of expected UIDs in :attr:`.result`
+    """
+    Returns number of expected UIDs in :attr:`.result`
 
     :rtype: int
     """
     return self.result.query_size()
 
   def reference(self):
-    """Get History Server references from :attr:`.result`
+    """
+    Returns History Server references from :attr:`.result`
 
     :return: History Server referencess
     :rtype: :class:`entrezpy.base.referencer.EutilReferencer.Reference`
@@ -103,7 +108,8 @@ class EsearchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
     return self.result.references.get_reference(self.result.webenv)
 
   def adjust_followup(self, parameter):
-    """Adjust result attributes due to follow-up.
+    """
+    Adjusts result attributes from follow-up.
 
     :param parameter: Esearch parameter
     :param type: :class:`entrezpy.esearch.esearch_parameter.EsearchParameter`

@@ -25,18 +25,14 @@
 
 
 import json
-import logging
 
 import entrezpy.base.request
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
+import entrezpy.log.logger
 
 
 class EsearchRequest(entrezpy.base.request.EutilsRequest):
-  """The EsearchRequest class implements a single request as part of a Esearch
+  """
+  The EsearchRequest class implements a single request as part of a Esearch
   query. It stores and prepares the parameters for a single request.
   See :class:`entrezpy.elink.elink_parameter.ElinkParameter` for parameter
   description. Requests sizes are congifured from setting a start, i.e. the
@@ -48,6 +44,9 @@ class EsearchRequest(entrezpy.base.request.EutilsRequest):
   :param int start: number of first UID to fetch
   :param int size: requets size
   """
+
+  logger = None
+
   def __init__(self, eutil,  parameter, start, size):
     super().__init__(eutil, parameter.db)
     self.id = None
@@ -65,10 +64,8 @@ class EsearchRequest(entrezpy.base.request.EutilsRequest):
     self.reldate = parameter.reldate
     self.mindate = parameter.mindate
     self.maxdate = parameter.maxdate
-    logger.debug(json.dumps({__name__ : {'Init': {'id':self.id,
-                                                  'query-id':self.query_id,
-                                                  'retstart':self.retstart,
-                                                  'retmax':self.retmax}}}))
+    EsearchRequest.logger = entrezpy.log.logger.get_class_logger(EsearchRequest)
+    EsearchRequest.logger.debug(json.dumps({'init': self.dump()}))
 
   def get_post_parameter(self):
     qry = self.prepare_base_qry()
@@ -100,22 +97,14 @@ class EsearchRequest(entrezpy.base.request.EutilsRequest):
       qry.update({'maxdate' : self.maxdate})
     if self.idtype:
       qry.update({'idtype' : self.idtype})
-    logger.debug(json.dumps({__name__ : {'POST' : {'id':self.id,
-                                                   'query-id':self.query_id,
-                                                   'dump':self.dump()}}}))
+    EsearchRequest.logger.debug(json.dumps(
+      {'POST':{'id':self.id, 'query-id':self.query_id, 'dump':self.dump()}}))
     return qry
 
   def dump(self):
     """:rtype: dict"""
-    return self.dump_internals({'retmax' : self.retmax,
-                                'retstart' : self.retstart,
-                                'retmode' : self.retmode,
-                                'usehistory' : self.usehistory,
-                                'WebEnv' : self.webenv,
-                                'query_key' : self.querykey,
-                                'sort' : self.sort,
-                                'field' : self.field,
-                                'datetype' : self.datetype,
-                                'reldate' : self.reldate,
-                                'mindate' : self.mindate,
-                                'maxdate' : self.maxdate})
+    return self.dump_internals({'retmax':self.retmax, 'WebEnv':self.webenv,
+      'retmode':self.retmode, 'usehistory':self.usehistory, 'sort':self.sort,
+      'retstart':self.retstart, 'query_key' : self.querykey, 'field':self.field,
+      'datetype':self.datetype, 'reldate':self.reldate, 'mindate':self.mindate,
+      'maxdate':self.maxdate})
