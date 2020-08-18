@@ -30,7 +30,7 @@ default_config = {
   {
     'default':
     {
-      'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+      'format': '%(asctime)s %(threadName)s [%(levelname)s] %(name)s: %(message)s'
     },
   },
   'handlers':
