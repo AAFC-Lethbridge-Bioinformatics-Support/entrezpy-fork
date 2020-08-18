@@ -51,7 +51,7 @@ class Elinker(entrezpy.base.query.EutilsQuery):
   logger = None
 
   def __init__(self, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
-    super().__init__('elink.fcgi', tool, email, apikey, apikey_var, threads, qid)
+    super().__init__('elink.fcgi', tool, email, apikey=apikey, threads=threads, qid=qid)
     Elinker.logger = entrezpy.log.logger.get_class_logger(Elinker)
     Elinker.logger.debug(json.dumps({'init':self.dump()}))
 

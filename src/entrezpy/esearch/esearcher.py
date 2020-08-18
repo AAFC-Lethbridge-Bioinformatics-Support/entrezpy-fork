@@ -22,7 +22,7 @@
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
 
-
+import sys
 import json
 
 import entrezpy.base.query
@@ -41,12 +41,10 @@ class Esearcher(entrezpy.base.query.EutilsQuery):
   get all queried UIDs if required.
   """
 
-  logger = None
-
   def __init__(self, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
-    super().__init__('esearch.fcgi', tool, email, apikey, apikey_var, threads, qid)
-    Esearcher.logger = entrezpy.log.logger.get_class_logger(Esearcher)
-    Esearcher.logger.debug(json.dumps({'init':self.dump()}))
+    super().__init__('esearch.fcgi', tool, email, apikey=apikey, threads=threads, qid=qid)
+    self.logger = entrezpy.log.logger.get_class_logger(Esearcher)
+    self.logger.debug(json.dumps({'init':self.dump()}))
 
   def inquire(self, parameter, analyzer=entrezpy.esearch.esearch_analyzer.EsearchAnalyzer()):
     """Implements :meth:`entrezpy.base.query.EutilsQuery.inquire` and configures
@@ -59,7 +57,7 @@ class Esearcher(entrezpy.base.query.EutilsQuery):
     :rtype: :class:`entrezpy.esearch.esearch_analyzer.EsearchAnalyzer` or None
     """
     p = entrezpy.esearch.esearch_parameter.EsearchParameter(parameter)
-    Esearcher.logger.debug(json.dumps({'parameter':p.dump()}))
+    self.logger.debug(json.dumps({'parameter':p.dump()}))
     self.monitor_start(p)
     follow_up = self.initial_search(p, analyzer)
     if not follow_up:
@@ -67,16 +65,16 @@ class Esearcher(entrezpy.base.query.EutilsQuery):
       if not analyzer.isSuccess():
         return None
       return analyzer
+    self.logger.debug(json.dumps({'Follow-up': follow_up.dump()}))
     self.monitor_update(follow_up)
-    Esearcher.logger.debug(json.dumps({'Follow-up': follow_up.dump()}))
     req_size = follow_up.reqsize
     for i in range(1, follow_up.expected_requests):
       if (i * req_size + req_size) > follow_up.retmax:
-        Esearcher.logger.debug(json.dumps({'adjust-reqsize':
+        self.logger.debug(json.dumps({'adjust-reqsize':
           {'request':i, 'start':(i*follow_up.reqsize), 'end':i*req_size+req_size,
            'query_size':follow_up.reqsize, 'adjusted-reqsize':follow_up.retmax%req_size}}))
         req_size = follow_up.retmax % req_size
-      Esearcher.logger.debug(json.dumps({'request':i, 'reqsize':req_size,
+      self.logger.debug(json.dumps({'request':i, 'reqsize':req_size,
         'expected':follow_up.expected_requests,'start':(i*follow_up.reqsize),
         'end':(i*follow_up.reqsize)+req_size}))
       self.add_request(entrezpy.esearch.esearch_request.EsearchRequest(self.eutil,
@@ -86,7 +84,7 @@ class Esearcher(entrezpy.base.query.EutilsQuery):
     self.request_pool.drain()
     self.monitor_stop()
     if not self.isGoodQuery():
-      Esearcher.logger.error(json.dumps({'follow-up':failed}))
+      self.logger.error(json.dumps({'follow-up':failed}))
       return None
     return analyzer
 
@@ -106,17 +104,21 @@ class Esearcher(entrezpy.base.query.EutilsQuery):
                                                                      parameter.reqsize), analyzer)
     self.request_pool.drain()
     if not self.isGoodQuery():
-      Esearcher.logger.error(json.dumps({'initial request':'failed'}))
+      self.logger.error(json.dumps({'initial request':'failed'}))
       return None
     if not analyzer.isSuccess():
-      Esearcher.logger.error(json.dumps({'initial response':'failed'}))
+      self.logger.error(json.dumps({'initial response':'failed'}))
       return None
     if not parameter.uilist: # we care only about count
+      self.logger.debug(json.dumps({'initial response':'no uilist'}))
       return None
     if parameter.retmax == 0: # synonym for uilist
+      self.logger.debug(json.dumps({'initial response':'retmax == 0'}))
       return None
     if reachedLimit(parameter, analyzer):# reached limit in first search
+      self.logger.debug(json.dumps({'initial response':'fetched whole query'}))
       return None
+    self.logger.debug(json.dumps({'initial response': 'follow-up required'}))
     return configure_follow_up(parameter, analyzer) # We need mooaahhr
 
   def isGoodQuery(self):
@@ -126,10 +128,10 @@ class Esearcher(entrezpy.base.query.EutilsQuery):
       :rtype: bool
     """
     if not self.failed_requests:
-      Esearcher.logger.info(json.dumps({'query': self.id, 'status' : 'OK'}))
+      self.logger.info(json.dumps({'query': self.id, 'status' : 'OK'}))
       return True
-    Esearcher.logger.warning(json.dumps({'query': self.id, 'status' : 'failed'}))
-    Esearcher.logger.debug(json.dumps({'query': self.id, 'status' : 'failed',
+    self.logger.warning(json.dumps({'query': self.id, 'status' : 'failed'}))
+    self.logger.debug(json.dumps({'query': self.id, 'status' : 'failed',
       'request-dumps' : [x.dump_internals() for x in self.failed_requests]}))
     return False
 
