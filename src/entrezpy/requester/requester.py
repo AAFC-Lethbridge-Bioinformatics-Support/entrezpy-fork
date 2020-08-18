@@ -75,11 +75,11 @@ class Requester:
     retries = 0
     success = False
     req_timeout = self.init_timeout
+    data = urllib.parse.urlencode(req.get_post_parameter(), doseq=req.doseq).encode('utf-8')
+    req.qry_url = data.decode()
     while not success:
       wait = self.wait
       try:
-        data = urllib.parse.urlencode(req.get_post_parameter(), doseq=req.doseq).encode('utf-8')
-        req.qry_url = data.decode()
         Requester.logger.debug(
           json.dumps({'Request' : {'qry-url' : req.qry_url, 'req-id' : req.id,
           'req-query' : req.query_id, 'req-url' : req.url,'try' : retries}}))
@@ -125,3 +125,19 @@ class Requester:
           return None
         success = True
       time.sleep(wait)
+
+
+  def run_one_request(self, request, monitor):
+    """
+    Processes one request from the queue and logs its progress.
+
+    :param request: single entrezpy request
+    :type  request: :class:`entrezpy.base.request.EutilsRequest`
+    """
+    request.start_stopwatch()
+    o = monitor.get_observer(request.query_id)
+    o.observe(request)
+    response = self.request(request)
+    request.calc_duration()
+    o.processed_requests += 1
+    return response

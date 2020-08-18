@@ -23,10 +23,12 @@
 """
 
 
-import sys
 import json
-import time
+import sys
 import threading
+import time
+
+import entrezpy.log.logger
 
 
 class QueryMonitor:
@@ -35,6 +37,9 @@ class QueryMonitor:
   entrezpy queries. It controls individual Observers which are linked to one
   entrezpy query.
   """
+
+  logger = None
+  observers = {}
 
   class Observer(threading.Thread):
     """
@@ -62,7 +67,6 @@ class QueryMonitor:
       Starts observation
 
       :param parameter: query parameter
-      :type  parameter: 'class':`entrezpy.base.EutilsParameter`
       """
       self.expected_requests = parameter.expected_requests
       if not self.is_alive():
@@ -79,20 +83,23 @@ class QueryMonitor:
           i.report_status(self.processed_requests, self.expected_requests)
         time.sleep(1)
 
-  def __init__(self):
-    """:ivar dict observers: observer storage for queries"""
-    self.observers = {}
+  def __init__(self, query):
+    """Inits observer and registers query for monitoring."""
+    self.register_query(query)
+    QueryMonitor.logger = entrezpy.log.logger.get_class_logger(QueryMonitor)
     #self.locks = {}
 
-  def register_query(self, query):
+  def register_query(self, query_id):
     """
     Adds a query for observation
 
     :param query: entrezpy query
     :type  query: :class:`entrezpy.base.query.EutilsQuery`
     """
-    #self.locks[query.id] = threading.Lock()
-    self.observers[query.id] = self.Observer()
+    #self.locks[query_id] = threading.Lock()
+    if query_id in QueryMonitor.observers:
+      sys.exit(QueryMonitor.logger.error(json.dumps({'Duplicate query_id':query_id})))
+    QueryMonitor.observers[query_id] = self.Observer()
 
   def get_observer(self, query_id):
     """
@@ -101,9 +108,11 @@ class QueryMonitor:
     :param str query_id: entrezpy query id
     :rtype: :class:`base.mnonitor.QueryMonitor.Observer`
     """
-    return self.observers.get(query_id, None)
+    if query_id in QueryMonitor.observers:
+      return QueryMonitor.observers[query_id]
+    sys.exit(QueryMonitor.logger.error(json.dumps({'No observer for query_id':query_id})))
 
-  def dispatch_observer(self, query, parameter):
+  def dispatch_observer(self, query_id, parameter):
     """
     Start the observer for an entrezpy query
 
@@ -112,22 +121,21 @@ class QueryMonitor:
     :param parameter: query parameter
     :type  parameter: 'class':`entrezpy.base.EutilsParameter`
     """
-    observer = self.observers.get(query.id, None)
-    if observer:
-      observer.dispatch(parameter)
+    QueryMonitor.logger.debug(json.dumps({'dispatching observer for':query_id,
+                                          'parameter':parameter.dump()}))
+    self.get_observer(query_id).dispatch(parameter)
 
-  def recall_observer(self, query):
+  def recall_observer(self, query_id):
     """
     Stops the observer for an entrezpy query
 
     :param query: entrezpy query
     :type  query: :class:`entrezpy.base.query.EutilsQuery`
     """
-    observer = self.observers.get(query.id, None)
-    if observer:
-      observer.recall()
+    QueryMonitor.logger.debug(json.dumps({'recalling observer for':query_id}))
+    self.get_observer(query_id).recall()
 
-  def update_observer(self, query, parameter):
+  def update_observer(self, query_id, parameter):
     """
     Function updating the settings for a thread. Honestly, I have no idea if
     the lock is really required. It works without locks, just updating the
@@ -138,4 +146,6 @@ class QueryMonitor:
     :param parameter: query parameter
     :type  parameter: 'class':`entrezpy.base.EutilsParameter`
     """
-    self.observers[query.id].expected_requests = parameter.expected_requests
+    QueryMonitor.logger.debug(json.dumps({'updating observer for':query_id,
+                                          'parameter':parameter.dump()}))
+    self.get_observer(query_id).expected_requests = parameter.expected_requests

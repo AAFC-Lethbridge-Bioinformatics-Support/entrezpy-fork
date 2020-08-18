@@ -53,8 +53,6 @@ class EutilsRequest:
   :param str db: database for request
   """
 
-  logger = None
-
   def __init__(self, eutil, db):
     """ Initializes a new request with initial attributes as part of a query in
     :class:`entrezpy.base.query.EutilsQuery`.
@@ -65,7 +63,7 @@ class EutilsRequest:
     :ivar str apikey: NBCI apikey
     :ivar str query_id: :attr:`entrezpy.base.query.EutilsQuery.query_id`  which
       initiated this request
-    :ivar int status: request status : 0->success, 1->Fail,3->Queued
+    :ivar int status: request status : 0->success, 1->Fail,2->Queued
     :ivar int size: size of request, e.g. number of UIDs
     :ivar float start_time: start time of request in seconds since epoch
     :ivar duration: duration for this request in seconds
@@ -81,13 +79,13 @@ class EutilsRequest:
     self.url = None
     self.contact = None
     self.apikey = None
-    self.status = 3
+    self.status = 2
     self.request_error = None
     self.size = 1
     self.start_time = None
     self.duration = None
     self.doseq = True
-    EutilsRequest.logger = entrezpy.log.logger.get_class_logger(EutilsRequest)
+    self.logger = entrezpy.log.logger.get_class_logger(EutilsRequest)
 
   def get_post_parameter(self):
     """
@@ -122,21 +120,13 @@ class EutilsRequest:
     """Set status if request failed"""
     self.status = 1
 
-  def get_observation(self):
-    """
-    :return: request attributes for ongoing request
-    :rtype: str
-    """
-    cols = [self.query_id, self.id, self.eutil, self.size, self.status, self.duration]
-    if self.request_error:
-      cols += [self.request_error, self.url]
-    return '\t'.join(str(x) for x in cols)
-
   def report_status(self, processed_requests=None, expected_requests=None):
     """
     :return: request status for ongoing request
     """
-    EutilsRequest.logger.debug(json.dumps(self.dump_internals()))
+    self.logger.info(json.dumps({'query':self.query_id,
+      'request':self.id, 'status':self.status}))
+    self.logger.debug(json.dumps(self.dump_internals()))
 
   def get_request_id(self):
     """

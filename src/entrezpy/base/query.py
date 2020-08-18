@@ -32,7 +32,8 @@ import queue
 import threading
 
 import entrezpy.requester.requester
-import entrezpy.base.monitor
+import entrezpy.requester.requestpool
+import entrezpy.requester.monitor
 import entrezpy.log.logger
 
 def run_one_request(request):
@@ -80,109 +81,6 @@ class EutilsQuery:
   base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
   """Base url for all Eutil request"""
 
-  query_requester = None
-  """References :class:`entrezpy.requester.requester.Requester` """
-
-  query_monitor = entrezpy.base.monitor.QueryMonitor()
-  """References :class:`entrezpy.base.monitor.QueryMonitor` """
-
-  class RequestPool:
-    """ Threading Pool for requests. This class inits the threading pool,
-    adds requests waits until all threads finish. A request consist of a tuple
-    with the request and corresponding analyzer. Failed requests are stored
-    separately to handle them later. If the number of threads is 0, use
-    :meth:`entrezpy.base.query.EutilsQuery.RequestPool.run_single`. Otherwise,
-    call :class:`entrezpy.base.query.EutilsQuery.ThreadedRequester`
-    This is useful in cases where analyzers are calling not thread-safe methods
-    or classes, e.g. Sqlite3
-    """
-
-    def __init__(self, num_threads, failed_requests):
-      """Initiates a threading pool with a given number of threads.
-
-      :param int num_threads: number of threads
-      :param reference failed_requests:
-        :attr:`entrezpy.base.query.EutilsQuery.failed_requests`
-      :ivar requests: request queue
-      :type requests: :class:`queue.Queue`
-      :ivar bool useThreads: flag to use single ot multithreading
-      """
-      self.requests = queue.Queue(num_threads)
-      self.failed_requests = failed_requests
-      atexit.register(self.destructor)
-      self.useThreads = True if num_threads > 0 else False
-      if self.useThreads:
-        for _ in range(num_threads):
-          EutilsQuery.ThreadedRequester(self.requests, self.failed_requests)
-
-    def add_request(self, request, analyzer):
-      """Adds one request into the threading pool as
-      **tuple**\ (`request`, `analzyer`).
-
-      :param  request: entrezpy request instance
-      :type   request: :class:`entrezpy.base.request.EutilsRequest`
-      :param analyzer: entrezpy analyzer instance
-      :type  analyzer: :class:`entrezpy.base.analyzer.EutilsAnalyzer`
-      """
-      self.requests.put((request, analyzer))
-
-    def drain(self):
-      """Empty threading pool and wait until all requests finish"""
-      if self.useThreads:
-        self.requests.join()
-      else:
-        self.run_single()
-
-    def run_single(self):
-      """Run single threaded requests."""
-      while not self.requests.empty():
-        request, analyzer = self.requests.get()
-        response = run_one_request(request)
-        if response:
-          analyzer.parse(response, request)
-        else:
-          self.failed_requests.append(request)
-
-    def destructor(self):
-      """ Shutdown all ongoing threads when exiting due to an error.
-
-      .. note::
-        Deamon processes don't always stop when the main
-        program exits and hang aroud. atexit.register(self.desctructor) seems
-        to be a way to implement a dectructor. Currently not used.
-      """
-      pass
-
-  class ThreadedRequester(threading.Thread):
-    """ThreadedRequester handles multitthreaded request. It inherits from
-    :class:`threading.Thread`. Requests are fetched  from
-    :class:`entrezpy.base.query.EutilsQuery.RequestPool` and processed in
-    :meth:`.run`.
-    """
-    def __init__(self, requests, failed_requests):
-      """Inits :class:`.ThreadedRequester` to handle multithreaded requests.
-
-      :param reference requests:
-        :attr:`entrezpy.base.query.EutilsQuery.RequestPool.requests`
-      :type reference failed_request:
-        :attr:`entrezpy.base.query.EutilsQuery.failed_requests`
-      """
-      super().__init__(daemon=True)
-      self.requests = requests
-      self.failed_requests = failed_requests
-      self.start()
-
-    def run(self):
-      """Overwrite :meth:`threading.Thread.run` for multithreaded requests."""
-      while True:
-        request, analyzer = self.requests.get()
-        response = run_one_request(request)
-        if response:
-          analyzer.parse(response, request)
-        else:
-          self.failed_requests.append(request)
-        self.requests.task_done()
-
   logger = None
 
   def __init__(self, eutil, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
@@ -220,15 +118,17 @@ class EutilsQuery:
     self.apikey = self.check_ncbi_apikey(apikey, apikey_var)
     self.num_threads = 0 if not threads else threads
     self.failed_requests = []
-    self.request_pool = EutilsQuery.RequestPool(self.num_threads, self.failed_requests)
     self.request_counter = 0
-    EutilsQuery.query_requester = entrezpy.requester.requester.Requester(1/self.requests_per_sec)
-    EutilsQuery.query_monitor.register_query(self)
-    EutilsQuery.logger = entrezpy.log.logger.get_class_logger(EutilsQuery)
-    EutilsQuery.logger.debug(json.dumps({'init':self.dump()}))
+    self.query_monitor = entrezpy.requester.monitor.QueryMonitor(self.id)
+    self.request_pool = entrezpy.requester.requestpool.RequestPool(self.num_threads,
+                                                                   self.failed_requests,
+                                                                   self.query_monitor,
+                                                                   entrezpy.requester.requester.Requester(1/self.requests_per_sec))
+    self.logger = entrezpy.log.logger.get_class_logger(EutilsQuery)
+    self.logger.debug(json.dumps({'init':self.dump()}))
 
   def inquire(self, parameter, analyzer):
-    """Virtual function starting query. Each query requires its own implementation.
+    """Virtual function starting query. Each query requires own implementations.
 
     :param dict parameter: E-Utilities parameters
     :param analzyer: query response analyzer
@@ -236,14 +136,14 @@ class EutilsQuery:
     :returns: analyzer
     :rtype: :class:`entrezpy.base.analyzer.EutilsAnalzyer`
     """
-    raise NotImplementedError("{} requires inquire() implementation".format(__name__))
+    raise NotImplementedError(f"{__name__}: inquire() not implemented")
 
   def check_requests(self):
     """Virtual function testing and handling failed requests. These requests
     fail due to HTTP/URL issues and stored
     :attr:`entrezpy.base.query.EutilsQuery.failed_requests`
     """
-    raise NotImplementedError("{} requires check_failed_requests() implementation".format(__name__))
+    raise NotImplementedError(f"{__name__}: check_failed_requests() not implemented")
 
   def check_ncbi_apikey(self, apikey=None, env_var=None):
     """Checks and sets NCBI apikey.
@@ -276,6 +176,7 @@ class EutilsQuery:
     request.url = self.url
     request.tool = self.tool
     request.apikey = self.apikey
+    request.status = 3
     return request
 
   def add_request(self, request, analyzer):
@@ -295,11 +196,11 @@ class EutilsQuery:
     :param query_parameters: query parameters
     :type query_parameters: :class:`entrezpy.base.parameter.EutilsParameter`
     """
-    EutilsQuery.query_monitor.dispatch_observer(self, query_parameters)
+    self.query_monitor.dispatch_observer(self.id, query_parameters)
 
   def monitor_stop(self):
     """Stops query monitoring"""
-    EutilsQuery.query_monitor.recall_observer(self)
+    self.query_monitor.recall_observer(self.id)
 
   def monitor_update(self, updated_query_parameters):
     """Updates query monitoring parameters if follow up requests are required.
@@ -307,7 +208,7 @@ class EutilsQuery:
     :param updated_query_parameters: updated query parameters
     :type  updated_query_parameters: :class:`entrezpy.base.parameter.EutilsParameter`
     """
-    EutilsQuery.query_monitor.update_observer(self, updated_query_parameters)
+    self.query_monitor.update_observer(self.id, updated_query_parameters)
 
   def hasFailedRequests(self):
     """Reports if at least one request failed."""
@@ -317,6 +218,7 @@ class EutilsQuery:
 
   def dump(self):
     """Dump all attributes"""
-    return {'id' : self.id, 'base_url' : EutilsQuery.base_url, 'eutil' : self.eutil,
-            'url' : self.url, 'req/sec' : self.requests_per_sec, 'tool' : self.tool,
-            'contact' : self.contact, 'apikey' : self.apikey, 'threads' : self.num_threads}
+    return {'id':self.id, 'base_url':EutilsQuery.base_url, 'eutil':self.eutil,
+            'url':self.url, 'req/sec':self.requests_per_sec, 'tool':self.tool,
+            'contact':self.contact, 'apikey':self.apikey,
+            'threads':self.num_threads}
