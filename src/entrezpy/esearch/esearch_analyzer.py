@@ -76,11 +76,9 @@ class EsearchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
       :param request: Esearch request
       :type request: :class:`entrezpy.esearch.esearch_request.EsearchRequest`
     """
-    err_msg = {'tool':request.tool, 'request':request.id,
-               'query':request.query_id, 'error': response['esearchresult']}
-    EsearchAnalyzer.logger.error(json.dumps({'response':err_msg}))
-    err_msg.update({'request-dump' : request.dump_internals()})
-    EsearchAnalyzer.logger.debug(json.dumps({'response':err_msg}))
+    EsearchAnalyzer.logger.error(json.dumps({'tool':request.tool,
+      'request':request.id, 'query':request.query_id,
+      'error':response['esearchresult'], 'request-dump':request.dump_internals()}))
 
   def size(self):
     """

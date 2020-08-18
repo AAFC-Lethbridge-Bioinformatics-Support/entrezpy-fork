@@ -45,8 +45,6 @@ class EsearchRequest(entrezpy.base.request.EutilsRequest):
   :param int size: requets size
   """
 
-  logger = None
-
   def __init__(self, eutil,  parameter, start, size):
     super().__init__(eutil, parameter.db)
     self.id = None
@@ -64,8 +62,8 @@ class EsearchRequest(entrezpy.base.request.EutilsRequest):
     self.reldate = parameter.reldate
     self.mindate = parameter.mindate
     self.maxdate = parameter.maxdate
-    EsearchRequest.logger = entrezpy.log.logger.get_class_logger(EsearchRequest)
-    EsearchRequest.logger.debug(json.dumps({'init': self.dump()}))
+    self.logger = entrezpy.log.logger.get_class_logger(EsearchRequest)
+    self.logger.debug(json.dumps({'init': self.dump()}))
 
   def get_post_parameter(self):
     qry = self.prepare_base_qry()
@@ -97,8 +95,7 @@ class EsearchRequest(entrezpy.base.request.EutilsRequest):
       qry.update({'maxdate' : self.maxdate})
     if self.idtype:
       qry.update({'idtype' : self.idtype})
-    EsearchRequest.logger.debug(json.dumps(
-      {'POST':{'id':self.id, 'query-id':self.query_id, 'dump':self.dump()}}))
+    self.logger.debug(json.dumps({'POST': self.dump()}))
     return qry
 
   def dump(self):
@@ -107,4 +104,4 @@ class EsearchRequest(entrezpy.base.request.EutilsRequest):
       'retmode':self.retmode, 'usehistory':self.usehistory, 'sort':self.sort,
       'retstart':self.retstart, 'query_key' : self.querykey, 'field':self.field,
       'datetype':self.datetype, 'reldate':self.reldate, 'mindate':self.mindate,
-      'maxdate':self.maxdate})
+      'maxdate':self.maxdate, 'id':self.id, 'query-id':self.query_id})
