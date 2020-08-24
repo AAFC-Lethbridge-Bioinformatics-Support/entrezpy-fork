@@ -41,14 +41,15 @@ class QueryMonitor:
   logger = None
   observers = {}
 
-  class Observer(threading.Thread):
+  #class Observer(threading.Thread):
+  class Observer:
     """
     The Observer class implements the observation of one entrezpy query. It
     uses Python's multithreading deamon when using multithreading.
     """
 
     def __init__(self):
-      super().__init__(daemon=True)
+      #super().__init__(daemon=True)
       self.expected_requests = 0
       self.processed_requests = 0
       self.doObserve = True
@@ -60,7 +61,7 @@ class QueryMonitor:
       self.doObserve = False
       for i in self.requests:
         i.report_status(self.processed_requests, self.expected_requests)
-      self.join()
+      #self.join()
 
     def dispatch(self, parameter):
       """
@@ -69,8 +70,8 @@ class QueryMonitor:
       :param parameter: query parameter
       """
       self.expected_requests = parameter.expected_requests
-      if not self.is_alive():
-        self.start()
+      #if not self.is_alive():
+        #self.start()
 
     def observe(self, request):
       """Adds one query request for observation"""

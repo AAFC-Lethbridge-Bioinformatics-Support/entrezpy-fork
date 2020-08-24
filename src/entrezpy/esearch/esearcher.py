@@ -74,13 +74,13 @@ class Esearcher(entrezpy.base.query.EutilsQuery):
           {'request':i, 'start':(i*follow_up.reqsize), 'end':i*req_size+req_size,
            'query_size':follow_up.reqsize, 'adjusted-reqsize':follow_up.retmax%req_size}}))
         req_size = follow_up.retmax % req_size
-      self.logger.debug(json.dumps({'request':i, 'reqsize':req_size,
-        'expected':follow_up.expected_requests,'start':(i*follow_up.reqsize),
-        'end':(i*follow_up.reqsize)+req_size}))
       self.add_request(entrezpy.esearch.esearch_request.EsearchRequest(self.eutil,
                                                                        follow_up,
                                                                        (i*follow_up.reqsize),
                                                                        req_size), analyzer)
+      self.logger.debug(json.dumps({'added request':i, 'reqsize':req_size,
+        'expected':follow_up.expected_requests,'start':(i*follow_up.reqsize),
+        'end':(i*follow_up.reqsize)+req_size}))
     self.request_pool.drain()
     self.monitor_stop()
     if not self.isGoodQuery():

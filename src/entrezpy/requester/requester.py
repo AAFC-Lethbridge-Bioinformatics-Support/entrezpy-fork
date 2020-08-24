@@ -52,19 +52,18 @@ class Requester:
   :param int timeout_steps: increase value for timeout errors
   """
 
-  logger = None
-
   def __init__(self, wait, max_retries=9, init_timeout=10, timeout_max=60, timeout_step=5):
     self.wait = wait
     self.max_retries = max_retries
     self.init_timeout = init_timeout
     self.timeout_max = timeout_max
     self.timeout_step = timeout_step
-    Requester.logger = entrezpy.log.logger.get_class_logger(Requester)
-    Requester.logger.debug(json.dumps({'settings':
-      {'wait[s]':self.wait, 'timeout-min[s]':self.init_timeout,
-       'timeout-max[s]':self.timeout_max, 'max-retries':self.max_retries,
-       'timeout-increase[s]':self.timeout_step}}))
+    self.logger = entrezpy.log.logger.get_class_logger(Requester)
+    self.logger.debug(json.dumps({'init':{'wait[s]':self.wait,
+                                          'timeout[s]':self.init_timeout,
+                                          'timeoutMax[s]':self.timeout_max,
+                                          'timeoutStep[s]':self.timeout_step,
+                                          'retries':self.max_retries}}))
 
   def request(self, req):
     """Request the request
@@ -75,53 +74,56 @@ class Requester:
     retries = 0
     success = False
     req_timeout = self.init_timeout
-    data = urllib.parse.urlencode(req.get_post_parameter(), doseq=req.doseq).encode('utf-8')
+    data = urllib.parse.urlencode(req.get_post_parameter(),
+                                  doseq=req.doseq).encode('utf-8')
     req.qry_url = data.decode()
     while not success:
       wait = self.wait
       try:
-        Requester.logger.debug(
-          json.dumps({'Request' : {'qry-url' : req.qry_url, 'req-id' : req.id,
-          'req-query' : req.query_id, 'req-url' : req.url,'try' : retries}}))
+        self.logger.debug(json.dumps({'request':{'qry-url':req.qry_url,
+                                                 'req-id':req.id,
+                                                 'req-query':req.query_id,
+                                                 'req-url':req.url,
+                                                 'try' : retries}}))
         req.set_status_success()
         return urllib.request.urlopen(urllib.request.Request(req.url, data=data),
                                       timeout=req_timeout)
       except urllib.error.HTTPError as http_err:
         log_msg = {'code' : http_err.code, 'reason' : http_err.reason}
+        req.set_request_error(http_err.reason)
         if http_err.code == 400: # Bad request form, stop right now
-          log_msg.update({'action' : 'abort'})
-          Requester.logger.error(json.dumps({'HTTP-error' : log_msg}))
-          sys.exit()
+          log_msg.update({'action':'abort'})
+          sys.exit(self.logger.error(json.dumps({'HTTP-error':log_msg})))
         log_msg.update({'action' : 'retry'})
-        Requester.logger.error(json.dumps({'HTTP-error': log_msg}))
+        self.logger.error(json.dumps({'HTTP-error':log_msg}))
         retries += 1
         wait = random.randint(1, 3)
       except urllib.error.URLError as url_err:
         req.set_request_error(url_err.reason)
-        Requester.logger.error(json.dumps({'URL-error' : url_err.reason,
-                                           'action' : 'retry'}))
+        self.logger.error(json.dumps({'URL-error':url_err.reason, 'action':'retry'}))
         retries += 1
         wait = random.randint(1, 3)
       except socket.timeout:
         req_timeout += self.timeout_step
-        Requester.logger.warning(json.dumps({'Timeout' : {'action' : 'retry'}}))
-        Requester.logger.debug(json.dumps({'Timeout' : {'action' : 'retry',
-          'wait' : wait, 'timeout' : req_timeout, 'step' : self.timeout_step}}))
+        self.logger.warning(json.dumps({'timeout':{'action':'retry'}}))
+        self.logger.debug(json.dumps({'timeout':{'action':'retry',
+                                                 'wait':wait,
+                                                 'timeout':req_timeout,
+                                                 'step':self.timeout_step}}))
         retries += 1
         if req_timeout > self.timeout_max:
-          Requester.logger.warning(json.dumps({'MaxTimeout' :
-            {'action' : 'giving up on request'}}))
-          Requester.logger.debug(json.dumps({'MaxTimeout' :
-            {'action' : 'giving up on request', 'timeout': req_timeout}}))
-          req.set_request_error("MaxTimeout")
+          self.logger.warning(json.dumps({'maxTimeout':{'action':'giving up request'}}))
+          self.logger.debug(json.dumps({'maxTimeout':{'action':'giving up',
+                                                      'timeout':req_timeout}}))
+          req.set_request_error("maxTimeout")
           return None
       else:
         if retries > self.max_retries:
-          Requester.logger.warning(json.dumps({'MaxRetry' :
-            {'action' : 'giving up on this request'}}))
-          Requester.logger.debug(json.dumps({'MaxRetry' : {'retries' : retries,
-          'action' : 'giving up on this request', 'max' : self.max_retries}}))
-          req.set_request_error("MaxRetry")
+          self.logger.warning(json.dumps({'maxRetry':{'action':'giving up request'}}))
+          Requester.logger.debug(json.dumps({'maxRetry':{'retries':retries,
+                                                         'action':'giving up request',
+                                                         'max':self.max_retries}}))
+          req.set_request_error("maxRetry")
           return None
         success = True
       time.sleep(wait)
@@ -140,4 +142,5 @@ class Requester:
     response = self.request(request)
     request.calc_duration()
     o.processed_requests += 1
+    self.logger.debug((response, response.status, response.read(), response.read().decode('utf-8')))
     return response

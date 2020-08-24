@@ -126,7 +126,7 @@ class EutilsRequest:
     """
     self.logger.info(json.dumps({'query':self.query_id,
       'request':self.id, 'status':self.status}))
-    self.logger.debug(json.dumps(self.dump_internals()))
+    self.logger.debug(json.dumps({'status': self.dump_internals()}))
 
   def get_request_id(self):
     """

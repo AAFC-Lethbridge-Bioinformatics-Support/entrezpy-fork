@@ -21,9 +21,7 @@ class ThreadedRequester(threading.Thread):
   :meth:`.run`.
   """
 
-  logger = None
-
-  def __init__(self, requests, failed_requests, monitor, requester):
+  def __init__(self, requests, failed_requests, monitor, requester, stop_event, lock):
     """Inits :class:`.ThreadedRequester` to handle multithreaded requests.
 
     :param reference requests:
@@ -36,19 +34,48 @@ class ThreadedRequester(threading.Thread):
     self.failed_requests = failed_requests
     self.monitor = monitor
     self.requester = requester
-    ThreadedRequester.logger = entrezpy.log.logger.get_class_logger(ThreadedRequester)
-    self.start()
+    self.stop_event = stop_event
+    self.lock = lock
+    self.logger = entrezpy.log.logger.get_class_logger(ThreadedRequester)
 
   def run(self):
     """Overwrite :meth:`threading.Thread.run` for multithreaded requests."""
-    while True:
+    while not self.requests.empty() or not self.stop_event.is_set():
       request, analyzer = self.requests.get()
-      response = self.requester.run_one_request(request, self.monitor)
-      ThreadedRequester.logger.info(json.dumps({'query_id':request.query_id,
-                                                'status': request.status}))
-      if response:
-        analyzer.parse(response, request)
-      else:
-        self.failed_requests.append(request)
+      if self.stop_event.is_set():
+        self.logger.info(json.dumps({'received stop signal':'aborting'}))
+        break
+      self.run_one_request(request, analyzer)
+      self.logger.info(json.dumps({'query':request.query_id,
+                                   'request':request.id,
+                                   'status': request.status}))
+      #if response:
+        #analyzer.parse(response, request)
+      #else:
+        #self.failed_requests.append(request)
       self.requests.task_done()
 
+  def run_one_request(self, request, analyzer):
+    """
+    Processes one request from the queue and logs its progress.
+
+    :param request: single entrezpy request
+    :type  request: :class:`entrezpy.base.request.EutilsRequest`
+    """
+    self.logger.debug(json.dumps({'lock':self.lock.locked()}))
+    #self.lock.acquire()
+    self.logger.debug(json.dumps({'lock':self.lock.locked()}))
+    request.start_stopwatch()
+    o = self.monitor.get_observer(request.query_id)
+    o.observe(request)
+    response = self.requester.request(request)
+    request.calc_duration()
+    o.processed_requests += 1
+    self.logger.debug(response)
+    if response:
+      analyzer.parse(response, request)
+    else:
+      self.failed_requests.append(request)
+    #self.lock.release()
+    self.logger.debug(json.dumps({'lock':self.lock.locked()}))
+    #return response

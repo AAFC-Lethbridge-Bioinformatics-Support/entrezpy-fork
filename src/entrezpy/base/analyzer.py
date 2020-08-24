@@ -65,7 +65,7 @@ class EutilsAnalyzer:
     """
     self.hasErrorResponse = False
     self.result = None
-    EutilsAnalyzer.logger = entrezpy.log.logger.get_class_logger(EutilsAnalyzer)
+    self.logger = entrezpy.log.logger.get_class_logger(EutilsAnalyzer)
 
   def init_result(self, response, request):
     """Virtual function to initialize result instance. This allows to set
@@ -106,9 +106,12 @@ class EutilsAnalyzer:
     :raises NotImplementedError: if request format is not in
       :attr:`EutilsAnalyzer.known_fmts`"""
     if request.retmode not in EutilsAnalyzer.known_fmts:
-      EutilsAnalyzer.logger.error(json.dumps({'unknown format': request.retmode}))
+      self.logger.error(json.dumps({'unknown format': request.retmode}))
       raise NotImplementedError(f"Unknown format: {request.retmode}")
-    response = self.convert_response(raw_response, request)
+    #raw_response_decoded = raw_response.read().decode('utf-8')
+    #self.logger.info((raw_response, raw_response.status, raw_response.read(), raw_response_decoded))
+    #self.logger.info(json.dumps({'parsing':raw_response_decoded, 'req':request.dump()}))
+    response = self.convert_response(raw_response.read().decode('utf-8'), request)
     if self.isErrorResponse(response, request):
       self.hasErrorResponse = True
       self.analyze_error(response, request)
@@ -116,10 +119,10 @@ class EutilsAnalyzer:
       self.analyze_result(response, request)
 
     if self.result is None:
-      sys.exit(EutilsAnalyzer.logger.error(json.dumps({'result attribute': 'not set',
+      sys.exit(self.logger.error(json.dumps({'result attribute': 'not set',
                                                        'action' : 'abort'})))
 
-  def convert_response(self, raw_response, request):
+  def convert_response(self, raw_response_decoded, request):
     """Converts raw_response into the expected format, deduced from request and
     set via the retmode parameter.
 
@@ -130,8 +133,12 @@ class EutilsAnalyzer:
     :return: response in parseable format
     :rtype: dict or :class:`io.stringIO`"""
     if request.retmode == 'json':
-      return json.loads(raw_response.read().decode('utf-8'))
-    return io.StringIO(raw_response.read().decode('utf-8'))
+      self.logger.info(json.dumps({'raw':raw_response_decoded, 'req':request.dump()}))
+      return json.loads(raw_response_decoded)
+    return io.StringIO(raw_response_decoded)
+    #if request.retmode == 'json': # this seems to fail randomly
+      #return json.loads(raw_response.read().decode('utf-8'))
+    #return io.StringIO(raw_response.read().decode('utf-8'))
 
   def isErrorResponse(self, response, request):
     """Checking for error messages in response from Entrez Servers and set flag

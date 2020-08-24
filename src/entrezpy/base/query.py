@@ -176,7 +176,7 @@ class EutilsQuery:
     request.url = self.url
     request.tool = self.tool
     request.apikey = self.apikey
-    request.status = 3
+    request.status = 2
     return request
 
   def add_request(self, request, analyzer):
