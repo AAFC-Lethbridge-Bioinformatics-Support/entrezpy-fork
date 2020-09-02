@@ -32,24 +32,9 @@ import queue
 import threading
 
 import entrezpy.requester.requester
-import entrezpy.requester.requestpool
-import entrezpy.requester.monitor
-import entrezpy.log.logger
+import entrezpy.base.monitor
+import entrezpy.logger
 
-def run_one_request(request):
-  """
-  Processes one request from the queue and logs its progress.
-
-  :param request: single entrezpy request
-  :type  request: :class:`entrezpy.base.request.EutilsRequest`
-  """
-  request.start_stopwatch()
-  o = EutilsQuery.query_monitor.get_observer(request.query_id)
-  o.observe(request)
-  response = EutilsQuery.query_requester.request(request)
-  request.calc_duration()
-  o.processed_requests += 1
-  return response
 
 class EutilsQuery:
   """ EutilsQuery implements the base class for all entrezpy queries to
@@ -117,6 +102,7 @@ class EutilsQuery:
     self.apikey = self.check_ncbi_apikey(apikey, apikey_var)
     self.num_threads = 0 if not threads else threads
     self.failed_requests = []
+    self.request_pool = EutilsQuery.RequestPool(self.num_threads, self.failed_requests)
     self.request_counter = 0
     self.query_monitor = entrezpy.requester.monitor.QueryMonitor(self.id)
     self.request_pool = entrezpy.requester.requestpool.RequestPool(self.num_threads,
@@ -127,7 +113,7 @@ class EutilsQuery:
     self.logger.debug(json.dumps({'init':self.dump()}))
 
   def inquire(self, parameter, analyzer):
-    """Virtual function starting query. Each query requires own implementations.
+    """Virtual function starting query. Each query requires its own implementation.
 
     :param dict parameter: E-Utilities parameters
     :param analzyer: query response analyzer
@@ -135,14 +121,14 @@ class EutilsQuery:
     :returns: analyzer
     :rtype: :class:`entrezpy.base.analyzer.EutilsAnalzyer`
     """
-    raise NotImplementedError(f"{__name__}: inquire() not implemented")
+    raise NotImplementedError("{} requires inquire() implementation".format(__name__))
 
   def check_requests(self):
     """Virtual function testing and handling failed requests. These requests
     fail due to HTTP/URL issues and stored
     :attr:`entrezpy.base.query.EutilsQuery.failed_requests`
     """
-    raise NotImplementedError(f"{__name__}: check_failed_requests() not implemented")
+    raise NotImplementedError("{} requires check_failed_requests() implementation".format(__name__))
 
   def check_ncbi_apikey(self, apikey=None, env_var=None):
     """Checks and sets NCBI apikey.
