@@ -43,11 +43,12 @@ class Esummarizer(entrezpy.base.query.EutilsQuery):
 
   def __init__(self, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
     super().__init__('esummary.fcgi', tool, email, apikey, apikey_var, threads, qid)
-    Esummarizer.logger = entrezpy.log.logger.get_class_logger(Esummarizer)
-    Esummarizer.logger.debug(json.dumps({'init':self.dump()}))
+    self.logger = entrezpy.log.logger.get_class_logger(Esummarizer)
+    self.logger.debug(json.dumps({'init':self.dump()}))
 
   def inquire(self, parameter, analyzer=entrezpy.esummary.esummary_analyzer.EsummaryAnalyzer()):
-    """Implements :meth:`entrezpy.base.quet.EutilsQuery.unquire`.
+    """
+    Implements :meth:`entrezpy.base.quet.EutilsQuery.unquire`.
 
     :param dict parameter: Esummary parameter
     :param analyzer: Esummary analyzer
@@ -57,7 +58,7 @@ class Esummarizer(entrezpy.base.query.EutilsQuery):
       None
     """
     param = entrezpy.esummary.esummary_parameter.EsummaryParameter(parameter)
-    Esummarizer.logger.debug(json.dumps({'parameter':param.dump()}))
+    self.logger.debug(json.dumps({'parameter':param.dump()}))
     req_size = param.reqsize
     self.monitor_start(param)
     for i in range(param.expected_requests):
@@ -78,9 +79,9 @@ class Esummarizer(entrezpy.base.query.EutilsQuery):
       :rtype: bool
     """
     if not self.failed_requests:
-      Esummarizer.logger.info(json.dumps({'query':self.id, 'status':'OK'}))
+      self.logger.info(json.dumps({'query':self.id, 'status':'OK'}))
       return True
-    Esummarizer.logger.warning(json.dumps({'query':self.id, 'status':'failed'}))
-    Esummarizer.logger.debug(json.dumps({'query':self.id, 'status':'failed',
+    self.logger.warning(json.dumps({'query':self.id, 'status':'failed'}))
+    self.logger.debug(json.dumps({'query':self.id, 'status':'failed',
       'request-dumps':[x.dump_internals() for x in self.failed_requests]}))
     return False

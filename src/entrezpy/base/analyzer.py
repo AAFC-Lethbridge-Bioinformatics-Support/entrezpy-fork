@@ -53,8 +53,6 @@ class EutilsAnalyzer:
   known_fmts = {'xml', 'json', 'text'}
   """Store formats known to EutilsAnalzyer"""
 
-  logger = None
-
   def __init__(self):
     """Inits EutilsAnalyzer with unknown type of result yet. The result needs to
     be set upon receiving the first response by :meth:`.init_result`.
@@ -65,7 +63,7 @@ class EutilsAnalyzer:
     """
     self.hasErrorResponse = False
     self.result = None
-    self.logger = entrezpy.log.logger.get_class_logger(EutilsAnalyzer)
+    #self.logger = entrezpy.log.logger.get_class_logger(EutilsAnalyzer)
 
   def init_result(self, response, request):
     """Virtual function to initialize result instance. This allows to set
@@ -119,11 +117,11 @@ class EutilsAnalyzer:
       self.analyze_result(response, request)
 
     if self.result is None:
-      sys.exit(self.logger.error(json.dumps({'result attribute': 'not set',
-                                                       'action' : 'abort'})))
+      sys.exit(json.dumps({'result attribute': 'not set','action' : 'abort'}))
 
   def convert_response(self, raw_response_decoded, request):
-    """Converts raw_response into the expected format, deduced from request and
+    """
+    Converts raw_response into the expected format, deduced from request and
     set via the retmode parameter.
 
     :param raw_response:  response :class:`entrezpy.requester.requester.Requester`
@@ -131,14 +129,18 @@ class EutilsAnalyzer:
     :param request: query request
     :type  request: :class:`entrezpy.base.request.EutilsRequest`
     :return: response in parseable format
-    :rtype: dict or :class:`io.stringIO`"""
+    :rtype: dict or :class:`io.stringIO`
+
+    ..note::
+      Using threads without locks randomly 'looses' the response, i.e. the
+      raw response is emptied between requests. With locks, it works, but
+      threading is not much faster than non-threading. It seems JSON is more
+      prone to this than XML.
+    """
     if request.retmode == 'json':
-      self.logger.info(json.dumps({'raw':raw_response_decoded, 'req':request.dump()}))
+      #self.logger.info(json.dumps({'raw':raw_response_decoded, 'req':request.dump()}))
       return json.loads(raw_response_decoded)
     return io.StringIO(raw_response_decoded)
-    #if request.retmode == 'json': # this seems to fail randomly
-      #return json.loads(raw_response.read().decode('utf-8'))
-    #return io.StringIO(raw_response.read().decode('utf-8'))
 
   def isErrorResponse(self, response, request):
     """Checking for error messages in response from Entrez Servers and set flag
@@ -151,11 +153,12 @@ class EutilsAnalyzer:
     :return: error status
     :rtype: bool"""
     if request.retmode == 'xml':
-      self.hasErrorResponse = self.check_error_xml(response)
+      hasErrorResponse = self.check_error_xml(response)
       response.seek(0)
+      return hasErrorResponse
     if request.retmode == 'json':
-      self.hasErrorResponse = self.check_error_json(response)
-    return self.hasErrorResponse
+      hasErrorResponse = self.check_error_json(response)
+    return hasErrorResponse
 
   def check_error_xml(self, response):
     """Checks for errors in XML responses

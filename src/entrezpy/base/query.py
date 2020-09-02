@@ -81,7 +81,6 @@ class EutilsQuery:
   base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
   """Base url for all Eutil request"""
 
-  logger = None
 
   def __init__(self, eutil, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
     """Inits EutilsQuery instance with eutil, toolname, email, apikey,

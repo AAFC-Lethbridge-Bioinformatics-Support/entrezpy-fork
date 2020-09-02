@@ -37,15 +37,13 @@ class EsummaryAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
   :class:`entrezpy.esummary.esummary_result.EsummaryResult` instance.
   """
 
-  logger = None
-
   def __init__(self):
     """:ivar result: Esummary results
        :type result: :class:`entrezpy.esummary.esummary_result.EsummaryResult`
     """
     super().__init__()
     self.result = None
-    EsummaryAnalyzer.logger = entrezpy.log.logger.get_class_logger(EsummaryAnalyzer)
+    self.logger = entrezpy.log.logger.get_class_logger(EsummaryAnalyzer)
 
   def init_result(self, response, request):
     """
@@ -71,5 +69,5 @@ class EsummaryAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
       log_msg.update({'error' : response.pop('error')})
     if 'esummaryresult' in response:
       log_msg.update({'error' : response.pop('esummaryresult')})
-    EsummaryAnalyzer.logger.error(json.dumps(
+    self.logger.error(json.dumps(
       {'response':log_msg, 'dump':request.dump_internals()}))
