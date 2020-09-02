@@ -31,8 +31,9 @@ import uuid
 import queue
 import threading
 
+import entrezpy.requester.monitor
 import entrezpy.requester.requester
-import entrezpy.base.monitor
+import entrezpy.requester.requestpool
 import entrezpy.logger
 
 
@@ -102,7 +103,6 @@ class EutilsQuery:
     self.apikey = self.check_ncbi_apikey(apikey, apikey_var)
     self.num_threads = 0 if not threads else threads
     self.failed_requests = []
-    self.request_pool = EutilsQuery.RequestPool(self.num_threads, self.failed_requests)
     self.request_counter = 0
     self.query_monitor = entrezpy.requester.monitor.QueryMonitor(self.id)
     self.request_pool = entrezpy.requester.requestpool.RequestPool(self.num_threads,
