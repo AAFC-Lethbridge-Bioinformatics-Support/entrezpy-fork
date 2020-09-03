@@ -46,8 +46,6 @@ class ElinkParameter(entrezpy.base.parameter.EutilsParameter):
   :param dict parameter: Eutils Elink parameter
   """
 
-  logger = None
-
   nodb_cmds = {'acheck', 'ncheck', 'lcheck', 'llinks', 'llinkslib', 'prlinks'}
   """Elink commands not requiring the `db` parameter"""
 
@@ -76,8 +74,8 @@ class ElinkParameter(entrezpy.base.parameter.EutilsParameter):
     self.request_size = 1
     self.expected_requests = 1
     self.check()
-    ElinkParameter.logger = entrezpy.log.logger.get_class_logger(ElinkParameter)
-    ElinkParameter.logger.debug(json.dumps({'init' : self.dump()}))
+    self.logger = entrezpy.log.logger.get_class_logger(ElinkParameter)
+    self.logger.debug(json.dumps({'init':self.dump()}))
 
   def check(self):
     """
@@ -85,17 +83,17 @@ class ElinkParameter(entrezpy.base.parameter.EutilsParameter):
     parameters  are missing.
     """
     if self.cmd not in ElinkParameter.nodb_cmds and not self.haveDb():
-      sys.exit(ElinkParameter.logger.error(json.dumps({'error' :
-        {'Missing required parameters':'db, cmd'},'action':'abort'})))
+      sys.exit(self.logger.error(json.dumps({'Missing required parameters':'db/cmd',
+                                             'action':'abort'})))
     if not self.dbfrom:
-      sys.exit(ElinkParameter.logger.error(json.dumps(
-        {'error': {'Missing required parameter':'dbfrom'}, 'action':'abort'})))
+      sys.exit(self.logger.error(json.dumps({'Missing required parameter':'dbfrom',
+                                             'action':'abort'})))
 
     if not self.uids and not self.haveWebenv and not self.haveQuerykey:
-      ElinkParameter.logger.error(json.dumps({'error':
-        {'Missing required parameters' : {'ids' : self.uids,
-          'QueryKey':self.querykey, 'WebEnv':self.webenv}},'action':'abort'}))
-      sys.exit()
+      sys.exit(self.logger.error(json.dumps({'Missing required parameters': {'ids':self.uids,
+                                                                             'QueryKey':self.querykey,
+                                                                             'WebEnv':self.webenv},
+                                             'action':'abort'})))
 
   def set_retmode(self, retmode):
     """Checks for valid and supported Elink retmodes
@@ -105,8 +103,8 @@ class ElinkParameter(entrezpy.base.parameter.EutilsParameter):
     :rtype: str
     """
     if retmode == 'ref':
-      ElinkParameter.logger.warning(json.dumps(
-        {'Not supported':'retmode ref', 'using':ElinkParameter.def_retmode}))
+      self.logger.warning(json.dumps({'retmode ref':'not supported',
+                                        'using':ElinkParameter.def_retmode}))
       return ElinkParameter.def_retmode
     return ElinkParameter.retmodes.get(self.cmd, ElinkParameter.def_retmode)
 

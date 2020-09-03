@@ -221,3 +221,16 @@ class EutilsQuery:
             'url':self.url, 'req/sec':self.requests_per_sec, 'tool':self.tool,
             'contact':self.contact, 'apikey':self.apikey,
             'threads':self.num_threads}
+
+  def isGoodQuery(self):
+    """
+    Tests for request errors
+
+      :rtype: bool
+    """
+    if not self.failed_requests:
+      self.logger.debug(json.dumps({'query':self.id, 'status':'OK'}))
+      return True
+    self.logger.debug(json.dumps({'query':self.id, 'status':'failed',
+      'request-dumps':[x.dump_internals() for x in self.failed_requests]}))
+    return False

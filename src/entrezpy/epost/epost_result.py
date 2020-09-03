@@ -41,15 +41,12 @@ class EpostResult(entrezpy.base.result.EutilsResult):
   :param dict response: response
   """
 
-  logger = None
-
   def __init__(self, response, request):
     """:ivar list uids: posted UIDs"""
-    super().__init__('epost', request.query_id, request.db, response.pop('webenv'),
-                     response.pop('querykey'))
+    super().__init__('epost', request.query_id, request.db, response.pop('webenv'), response.pop('querykey'))
     self.uids = request.uids
-    EpostResult.logger = entrezpy.log.logger.get_class_logger(EpostResult)
-    EpostResult.logger.debug({'init':self.dump()})
+    self.logger = entrezpy.log.logger.get_class_logger(EpostResult)
+    self.logger.debug({'init':self.dump()})
 
   def dump(self):
     return {'db':self.db, 'size':self.size(), 'len_uids':len(self.uids),

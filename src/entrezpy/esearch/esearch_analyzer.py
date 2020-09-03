@@ -37,13 +37,11 @@ class EsearchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
   :class:`entrezpy.esearch.esearch_result.EsearchResult` instance.
   """
 
-  logger = None
-
   def __init__(self):
     """:ivar result: :class:`entrezpy.esearch.esearch_result.EsearchResult`"""
     super().__init__()
     self.result = None
-    EsearchAnalyzer.logger = entrezpy.log.logger.get_class_logger(EsearchAnalyzer)
+    self.logger = entrezpy.log.logger.get_class_logger(EsearchAnalyzer)
 
   def init_result(self, response, request):
     """
@@ -76,9 +74,9 @@ class EsearchAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
       :param request: Esearch request
       :type request: :class:`entrezpy.esearch.esearch_request.EsearchRequest`
     """
-    EsearchAnalyzer.logger.error(json.dumps({'tool':request.tool,
-      'request':request.id, 'query':request.query_id,
-      'error':response['esearchresult'], 'request-dump':request.dump_internals()}))
+    self.logger.error(json.dumps({'tool':request.tool, 'request':request.id,
+      'query':request.query_id, 'error':response['esearchresult'],
+      'request-dump':request.dump_internals()}))
 
   def size(self):
     """

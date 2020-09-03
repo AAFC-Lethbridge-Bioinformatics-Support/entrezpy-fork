@@ -42,8 +42,6 @@ class EsearchResult(entrezpy.base.result.EutilsResult):
   :ivar list uids: analyzed UIDs from response
   """
 
-  logger = None
-
   def __init__(self, response, request):
     super().__init__(request.eutil, request.query_id, request.db, response.get('webenv'),
                      response.pop('querykey', None))
@@ -51,8 +49,8 @@ class EsearchResult(entrezpy.base.result.EutilsResult):
     self.retmax = int(response.pop('retmax'))
     self.retstart = int(response.pop('retstart'))
     self.uids = response.pop('idlist', [])
-    EsearchResult.logger = entrezpy.log.logger.get_class_logger(EsearchResult)
-    EsearchResult.logger.debug(json.dumps({'init':self.dump()}))
+    self.logger = entrezpy.log.logger.get_class_logger(EsearchResult)
+    self.logger.debug(json.dumps({'init':self.dump()}))
 
   def dump(self):
     """:rtype: dict"""

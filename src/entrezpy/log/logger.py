@@ -34,7 +34,7 @@ import logging.config
 import entrezpy.log.conf
 
 
-logging.config.dictConfig(entrezpy.log.conf.default_config)
+
 LOGLEVEL = 'INFO'
 
 def get_root():
@@ -46,8 +46,11 @@ def resolve_class_namespace(cls):
 
 def get_class_logger(cls):
   """Prepares logger for given class """
+  logging.config.dictConfig(entrezpy.log.conf.default_config)
   logger = logging.getLogger(f"{cls.__module__}.{cls.__qualname__}")
   logger.setLevel(LOGLEVEL)
   return logger
 
+def get_module_logger():
+  return logging.getLogger(get_root()).addHandler(NullHandler())
 

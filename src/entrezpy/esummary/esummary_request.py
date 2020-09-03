@@ -52,8 +52,8 @@ class EsummaryRequest(entrezpy.base.request.EutilsRequest):
     self.uids = parameter.uids[start:start+size]
     self.webenv = parameter.webenv
     self.querykey = parameter.querykey
-    EsummaryRequest.logger = entrezpy.log.logger.get_class_logger(EsummaryRequest)
-    EsummaryRequest.logger.debug(json.dumps({'init':self.dump()}))
+    self.logger = entrezpy.log.logger.get_class_logger(EsummaryRequest)
+    self.logger.debug(json.dumps({'init':self.dump()}))
 
   def get_post_parameter(self):
     qry = self.prepare_base_qry(extend={'retmode':self.retmode})

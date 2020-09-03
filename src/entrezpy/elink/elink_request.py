@@ -41,8 +41,6 @@ class ElinkRequest(entrezpy.base.request.EutilsRequest):
   :param type: :class:`entrezpy.elink.elink_parameter.ElinkParameter`
   """
 
-  logger = None
-
   linkname_cmds = set(['neighbor', 'neighbor_history', 'neighbor_score'])
 
   def __init__(self, eutil, parameter):
@@ -61,7 +59,8 @@ class ElinkRequest(entrezpy.base.request.EutilsRequest):
     self.mindate = parameter.mindate
     self.maxdate = parameter.maxdate
     self.doseq = parameter.doseq
-    ElinkRequest.logger = entrezpy.log.logger.get_class_logger(ElinkRequest)
+    self.logger = entrezpy.log.logger.get_class_logger(ElinkRequest)
+    self.logger.debug({'init':self.dump()})
 
   def get_post_parameter(self):
     """Implements :meth:`entrezpy.base.request.EutilsRequest.get_post_parameter`.
@@ -78,36 +77,37 @@ class ElinkRequest(entrezpy.base.request.EutilsRequest):
     qry = self.prepare_base_qry(extend={'cmd':self.cmd, 'retmode':self.retmode,
                                         'dbfrom':self.dbfrom, 'db':self.db})
     if self.webenv and self.querykey:
-      qry.update({'WebEnv' : self.webenv, 'query_key' : self.querykey})
+      qry.update({'WebEnv':self.webenv, 'query_key':self.querykey})
     else:
       if self.doseq:
-        qry.update({'id' : self.uids})
+        qry.update({'id':self.uids})
       else:
-        qry.update({'id' : ','.join(str(x) for x in self.uids)})
+        qry.update({'id':','.join(str(x) for x in self.uids)})
 
     self.set_linkname(qry)
 
     if self.term:
-      qry.update({'term' : self.term})
+      qry.update({'term':self.term})
     if self.holding:
-      qry.update({'holding' : self.holding})
+      qry.update({'holding':self.holding})
     if self.datetype:
-      qry.update({'datetype' : self.datetype})
+      qry.update({'datetype':self.datetype})
     if self.reldate:
-      qry.update({'reldate' : self.reldate})
+      qry.update({'reldate':self.reldate})
     if self.mindate:
-      qry.update({'mindate' : self.mindate})
+      qry.update({'mindate':self.mindate})
     if self.maxdate:
-      qry.update({'maxdate' : self.maxdate})
+      qry.update({'maxdate':self.maxdate})
     if  not self.db:
       qry.pop('db')
+    self.logger.debug(json.dumps({'POST':self.dump()}))
     return qry
 
   def set_linkname(self, qry):
     if self.cmd in ElinkRequest.linkname_cmds:
       if not self.linkname:
         self.linkname = '_'.join([self.dbfrom, self.db])
-      qry.update({'linkname' : self.linkname})
+      qry.update({'linkname':self.linkname})
 
   def dump(self):
     """Dumps instance attributes
@@ -126,9 +126,3 @@ class ElinkRequest(entrezpy.base.request.EutilsRequest):
                                 'reldate' : self.reldate,
                                 'mindate' : self.mindate,
                                 'maxdate' : self.maxdate})
-
-  def report_status(self, isrequest=None, expectedRequests=None):
-    """Reports the current status the the request"""
-    ElinkRequest.logger.debug((json.dumps({'queryid' : self.query_id, 'reqid':self.id,
-      'status':self.status,
-      'duration':self.duration, 'error':self.request_error, 'url':self.url})))

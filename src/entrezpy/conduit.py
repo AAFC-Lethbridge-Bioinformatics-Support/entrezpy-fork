@@ -38,11 +38,7 @@ import entrezpy.epost.epost_analyzer
 import entrezpy.efetch.efetcher
 import entrezpy.esummary.esummarizer
 import entrezpy.esummary.esummary_analyzer
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-logger.addHandler(logging.StreamHandler())
-
+import entrezpy.log.logger
 
 class Conduit:
   """Conduit simplifies to create pipelines and queries for entrezpy. Conduit
@@ -84,9 +80,8 @@ class Conduit:
 
     def __init__(self, function, parameter, dependency=None, analyzer=None):
       if not parameter and not dependency:
-        sys.exit(logger.error(json.dumps({__name__:{'Error': 'Missing required parameters' \
-                                                    'parameter and/or `dependency`.',
-                                                    'action' : 'abort'}})))
+        sys.exit(self.logger.error(json.dumps({'Missing required arguments':'parameter/dependency',
+                                               'action' : 'abort'})))
       if not parameter:
         parameter = {}
       self.id = base64.urlsafe_b64encode(uuid.uuid4().bytes).decode()
@@ -167,6 +162,7 @@ class Conduit:
     self.apikey = apikey
     self.api_envar = apikey_envar
     self.threads = threads
+    self.logger = entrezpy.log.logger.get_class_logger(Conduit)
 
   def run(self, pipeline):
     """Runs one query in pipeline and checks for errors. If errors are
@@ -178,8 +174,7 @@ class Conduit:
     while not pipeline.queries.empty():
       q = Conduit.queries[pipeline.queries.get()]
       q.resolve_dependency()
-      logger.info(json.dumps({__name__ : {'Inquiring' : {'query_id' : q.id,
-                                                         'function' : q.function}}}))
+      self.logger.info(json.dumps({'querying':{'queryid':q.id, 'util':q.function}}))
       if q.function == 'esearch':
         Conduit.analyzers[q.id] = self.search(q)
       if q.function == 'elink':
@@ -192,8 +187,7 @@ class Conduit:
         Conduit.analyzers[q.id] = self.summarize(q)
       self.check_query(q)
       if Conduit.analyzers[q.id].isEmpty():
-        logger.info(json.dumps({__name__ : {'empty response': {'query_id' : q.id,
-                                                               'action' : 'skip'}}}))
+        self.logger.warning(json.dumps({'empty response':{'queryid':q.id, 'action':'skip'}}))
         return Conduit.analyzers[q.id]
     return Conduit.analyzers[q.id]
 
@@ -204,11 +198,11 @@ class Conduit:
     :type  query: :class:`Conduit.Query`
     """
     if not Conduit.analyzers[query.id]:
-      sys.exit(logger.error(json.dumps({__name__ : {'Request error': {'query_id' : query.id,
-                                                                      'action' : 'abort'}}})))
+      sys.exit(self.logger.error(json.dumps({'request error':{'queryid':query.id,
+                                                              'action':'abort'}})))
     if not Conduit.analyzers[query.id].isSuccess():
-      sys.exit(logger.info(json.dumps({__name__ : {'response error': {'query_id' : query.id,
-                                                                      'action' : 'abort'}}})))
+      sys.exit(self.logger.error(json.dumps({'response error':{'queryid':query.id,
+                                                               'action':'abort'}})))
 
   def get_result(self, query_id):
     """"Returns stored result from previous run.
@@ -228,7 +222,7 @@ class Conduit:
     :return: Conduit pipeline
     :rtype: :class:`Conduit.Pipeline`
     """
-    return self.Pipeline()
+    return Conduit.Pipeline()
 
   def search(self, query, analyzer=entrezpy.esearch.esearch_analyzer.EsearchAnalyzer):
     """Configures and runs an Esearch query. Analyzer are class references and

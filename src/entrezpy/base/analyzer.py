@@ -63,7 +63,7 @@ class EutilsAnalyzer:
     """
     self.hasErrorResponse = False
     self.result = None
-    #self.logger = entrezpy.log.logger.get_class_logger(EutilsAnalyzer)
+    self.logger = entrezpy.log.logger.get_class_logger(EutilsAnalyzer)
 
   def init_result(self, response, request):
     """Virtual function to initialize result instance. This allows to set
