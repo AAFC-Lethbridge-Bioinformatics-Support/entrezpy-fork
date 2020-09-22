@@ -40,8 +40,6 @@ class Eposter(entrezpy.base.query.EutilsQuery):
   [0]: https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.EPost
   """
 
-  logger = None
-
   def __init__(self, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
     """Inits Eposter instance with given attributes.
 
@@ -53,8 +51,8 @@ class Eposter(entrezpy.base.query.EutilsQuery):
       :param str qid: unique query id
     """
     super().__init__('epost.fcgi', tool, email, apikey, apikey_var, threads, qid)
-    Eposter.logger = entrezpy.log.logger.get_class_logger(Eposter)
-    Eposter.logger.debug({'init':self.dump()})
+    self.logger = entrezpy.log.logger.get_class_logger(Eposter)
+    self.logger.debug({'init':self.dump()})
 
   def inquire(self, parameter, analyzer=entrezpy.epost.epost_analyzer.EpostAnalyzer()):
     """Implements :meth:`entrezpy.base.query.inquire` and posts UIDs to Entrez.
@@ -68,22 +66,10 @@ class Eposter(entrezpy.base.query.EutilsQuery):
     """
     p = entrezpy.epost.epost_parameter.EpostParameter(parameter)
     self.monitor_start(p)
+    self.logger.debug(json.dumps({'parameter':p.dump()}))
     self.add_request(entrezpy.epost.epost_request.EpostRequest(self.eutil, p), analyzer)
     self.request_pool.drain()
     self.monitor_stop()
     if self.isGoodQuery():
       return analyzer
     return None
-
-  def isGoodQuery(self):
-    """Tests for request errors
-
-      :rtype: bool
-    """
-    if not self.failed_requests:
-      Eposter.logger.info(json.dumps({'query': self.id, 'status' : 'OK'}))
-      return True
-    Eposter.logger.warning(json.dumps({'query': self.id, 'status' : 'failed'}))
-    Eposter.logger.debug(json.dumps({'query': self.id, 'status' : 'failed',
-      'request-dumps' : [x.dump_internals() for x in self.failed_requests]}))
-    return False

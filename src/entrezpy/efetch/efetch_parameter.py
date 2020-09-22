@@ -43,8 +43,6 @@ class EfetchParameter(entrezpy.base.parameter.EutilsParameter):
   JSON, unfortunately.
   """
 
-  logger = None
-
   req_limits = {'xml' : 10000, 'json' : 500, 'text' : 10000}
   """Max number of UIDs to fetch per request mode"""
 
@@ -71,8 +69,8 @@ class EfetchParameter(entrezpy.base.parameter.EutilsParameter):
     self.seqstop = param.get('seq_stop')
     self.complexity = param.get('complexity')
     self.calculate_expected_requests(reqsize=self.reqsize)
-    EfetchParameter.logger = entrezpy.log.logger.get_class_logger(EfetchParameter)
-    EfetchParameter.logger.debug(json.dumps({'init':self.dump()}))
+    self.logger = entrezpy.log.logger.get_class_logger(EfetchParameter)
+    self.logger.debug(json.dumps({'init':self.dump()}))
 
   def adjust_retmax(self, retmax):
     """Adjusts retmax parameter. Order of check is crucial.
@@ -84,8 +82,7 @@ class EfetchParameter(entrezpy.base.parameter.EutilsParameter):
     if self.uids:           # we got UIDs to fetch
       return len(self.uids)
     if retmax is None:      # we have no clue what to expect, e.g. WebEnv
-      EfetchParameter.logger.debug(json.dumps(
-        {'No retmax': 'fetching 1 request limited by retmode and retmax'}))
+      self.logger.debug(json.dumps({'No retmax': 'fetching 1 request using retmode/retmax'}))
       return EfetchParameter.req_limits(self.retmode)
     return int(retmax)      # we set a limitation
 
@@ -97,14 +94,14 @@ class EfetchParameter(entrezpy.base.parameter.EutilsParameter):
     :rtype: str
     """
     if retmode not in EfetchParameter.req_limits:
-      sys.exit(EfetchParameter.logger.error(json.dumps(
-        {'Unknown retmode': retmode, 'action' : 'abort'})))
+      sys.exit(self.logger.error(json.dumps(
+        {'Unknown retmode':retmode, 'action':'abort'})))
 
     if self.db in EfetchParameter.valid_retmodes and \
        retmode not in EfetchParameter.valid_retmodes[self.db]:
-      sys.exit(EfetchParameter.logger.error(
-        json.dumps({'Bad database retmode': {'db' : self.db, 'retmode' : retmode},
-                    'action' : 'abort'})))
+      sys.exit(self.logger.error(
+        json.dumps({'Bad database retmode':{'db':self.db, 'retmode':retmode},
+                    'action':'abort'})))
     return retmode
 
   def adjust_reqsize(self, reqsize):
@@ -143,17 +140,18 @@ class EfetchParameter(entrezpy.base.parameter.EutilsParameter):
     check for the minumum required parameters. Aborts if any check fails.
     """
     if not self.haveDb():
-      sys.exit(EfetchParameter.logger.error(json.dumps(
-        {'Missing parameter': {'db' : self.db}, 'action' : 'abort'})))
+      sys.exit(self.logger.error(json.dumps(
+        {'Missing parameter':{'db':self.db}, 'action':'abort'})))
 
     if not self.haveExpectedRequets():
-      sys.exit(EfetchParameter.logger.error(json.dumps(
-        {'Bad expected requests' : self.expected_requests, 'action' : 'abort'})))
+      sys.exit(self.logger.error(json.dumps(
+        {'Bad expected requests':self.expected_requests, 'action':'abort'})))
 
     if not self.uids and not self.haveQuerykey() and not self.haveWebenv():
-      sys.exit(EfetchParameter.logger.error(json.dumps(
-        {'Missing parameters' : {'id': self.uids, 'QueryKey': self.querykey,
-         'WebEnv' : self.webenv}, 'action' : 'abort'})))
+      sys.exit(self.logger.error(json.dumps(
+        {'Missing parameters':{'id': self.uids, 'QueryKey':self.querykey,
+                               'WebEnv':self.webenv},
+         'action':'abort'})))
 
   def dump(self):
     return {'db' : self.db,

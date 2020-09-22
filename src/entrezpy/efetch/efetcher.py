@@ -41,13 +41,11 @@ class Efetcher(entrezpy.base.query.EutilsQuery):
   chapter2.T._entrez_unique_identifiers_ui/?report=objectonly
   """
 
-  logger = None
-
   def __init__(self, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
     """:ivar result: :class:`entrezpy.base.result.EutilsResult`"""
     super().__init__('efetch.fcgi', tool, email, apikey=apikey, threads=threads, qid=qid)
-    Efetcher.logger = entrezpy.log.logger.get_class_logger(Efetcher)
-    Efetcher.logger.debug(json.dumps({'init':self.dump()}))
+    self.logger = entrezpy.log.logger.get_class_logger(Efetcher)
+    self.logger.debug(json.dumps({'init':self.dump()}))
 
   def inquire(self, parameter, analyzer=entrezpy.efetch.efetch_analyzer.EfetchAnalyzer()):
     """
@@ -65,8 +63,7 @@ class Efetcher(entrezpy.base.query.EutilsQuery):
     :rtype: :class:`entrezpy.base.analyzer.EutilsAnalyzer` or None
     """
     param = entrezpy.efetch.efetch_parameter.EfetchParameter(parameter)
-    Efetcher.logger.info(json.dumps({'query': self.id, 'status' : 'fetching'}))
-    Efetcher.logger.debug(json.dumps({'Parameter' : param.dump()}))
+    self.logger.debug(json.dumps({'parameter':param.dump()}))
     self.monitor_start(param)
     req_size = param.reqsize
     for i in range(param.expected_requests):
@@ -79,18 +76,3 @@ class Efetcher(entrezpy.base.query.EutilsQuery):
     if self.isGoodQuery():
       return analyzer
     return None
-
-
-  def isGoodQuery(self):
-    """
-    Tests for request errors
-
-      :rtype: bool
-    """
-    if not self.failed_requests:
-      Efetcher.logger.info(json.dumps({'query': self.id, 'status' : 'OK'}))
-      return True
-    Efetcher.logger.warning(json.dumps({'query': self.id, 'status' : 'failed'}))
-    Efetcher.logger.debug(json.dumps({'query': self.id, 'status' : 'failed',
-      'request-dumps' : [x.dump_internals() for x in self.failed_requests]}))
-    return False

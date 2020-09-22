@@ -122,7 +122,7 @@ class EutilsRequest:
 
   def report_status(self, processed_requests=None, expected_requests=None):
     """
-    :return: request status for ongoing request
+    Reports request status when triggered
     """
     self.logger.info(json.dumps({'query':self.query_id,
       'request':self.id, 'status':self.status}))

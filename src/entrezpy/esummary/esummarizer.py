@@ -39,8 +39,6 @@ class Esummarizer(entrezpy.base.query.EutilsQuery):
   # [0]: https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.ESummary
   """
 
-  logger = None
-
   def __init__(self, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
     super().__init__('esummary.fcgi', tool, email, apikey, apikey_var, threads, qid)
     self.logger = entrezpy.log.logger.get_class_logger(Esummarizer)
@@ -71,17 +69,3 @@ class Esummarizer(entrezpy.base.query.EutilsQuery):
     if self.isGoodQuery():
       return analyzer
     return None
-
-  def isGoodQuery(self):
-    """
-    Tests for request errors
-
-      :rtype: bool
-    """
-    if not self.failed_requests:
-      self.logger.info(json.dumps({'query':self.id, 'status':'OK'}))
-      return True
-    self.logger.warning(json.dumps({'query':self.id, 'status':'failed'}))
-    self.logger.debug(json.dumps({'query':self.id, 'status':'failed',
-      'request-dumps':[x.dump_internals() for x in self.failed_requests]}))
-    return False

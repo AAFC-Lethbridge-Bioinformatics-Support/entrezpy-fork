@@ -42,8 +42,6 @@ class EfetchRequest(entrezpy.base.request.EutilsRequest):
   :param int size: requets size
   """
 
-  logger = None
-
   def __init__(self, eutil, parameter, start, size):
     super().__init__(eutil, parameter.db)
     self.start = start
@@ -57,7 +55,8 @@ class EfetchRequest(entrezpy.base.request.EutilsRequest):
     self.seqstart = parameter.seqstart
     self.seqstop = parameter.seqstop
     self.complexity = parameter.complexity
-    EfetchRequest.logger = entrezpy.log.logger.get_class_logger(EfetchRequest)
+    self.logger = entrezpy.log.logger.get_class_logger(EfetchRequest)
+    self.logger.debug(json.dumps({'init': self.dump()}))
 
   def get_post_parameter(self):
     qry = self.prepare_base_qry()
@@ -78,7 +77,7 @@ class EfetchRequest(entrezpy.base.request.EutilsRequest):
                   'retstart' : self.start, 'retmax' : self.retmax})
     else:
       qry.update({'id' : ','.join(str(x) for x in self.uids)})
-    EfetchRequest.logger.debug(json.dumps(self.dump()))
+    self.logger.debug(json.dumps({'POST':self.dump()}))
     return qry
 
   def dump(self):
@@ -96,9 +95,3 @@ class EfetchRequest(entrezpy.base.request.EutilsRequest):
             'seqstart' : self.seqstart,
             'seqstop' : self.seqstop,
             'complexity' : self.complexity}
-
-  def report_status(self, isrequest=None, expectedRequests=None):
-    """Reports the current status the the request"""
-    EfetchRequest.logger.debug((json.dumps({'queryid' : self.query_id, 'reqid':self.id,
-      'retstart':self.start, 'retmax':self.retmax, 'status':self.status,
-      'duration':self.duration, 'error':self.request_error, 'url':self.url})))

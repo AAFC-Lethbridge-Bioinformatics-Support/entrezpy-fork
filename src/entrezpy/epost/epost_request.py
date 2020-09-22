@@ -39,16 +39,14 @@ class EpostRequest(entrezpy.base.request.EutilsRequest):
   :param type: :class:`entrezpy.epost.epost_parameter.EpostParameter`
   """
 
-  logger = None
-
   def __init__(self, eutil, parameter):
     super().__init__(eutil, parameter.db)
     self.uids = parameter.uids
     self.size = len(parameter.uids)
     self.webenv = parameter.webenv
     self.retmode = parameter.retmode
-    EpostRequest.logger = entrezpy.log.logger.get_class_logger(EpostRequest)
-    EpostRequest.logger.debug(json.dumps({'init': self.dump()}))
+    self.logger = entrezpy.log.logger.get_class_logger(EpostRequest)
+    self.logger.debug(json.dumps({'init': self.dump()}))
 
   def get_post_parameter(self):
     """Implements :meth:`entrezpy.base.request.EutilsRequest.get_post_parameter`"""
@@ -62,9 +60,3 @@ class EpostRequest(entrezpy.base.request.EutilsRequest):
     :rtype: dict
     """
     return self.dump_internals({'retmode':self.retmode, 'WebEnv':self.webenv})
-
-  def report_status(self, isrequest=None, expectedRequests=None):
-    """Reports the current status the the request"""
-    EpostRequest.logger.debug((json.dumps({'queryid':self.query_id, 'reqid':self.id,
-      'status':self.status, 'duration':self.duration,
-      'error':self.request_error, 'url':self.url})))

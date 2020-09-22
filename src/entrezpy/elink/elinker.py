@@ -48,12 +48,10 @@ class Elinker(entrezpy.base.query.EutilsQuery):
   :param str qid: unique query id
   """
 
-  logger = None
-
   def __init__(self, tool, email, apikey=None, apikey_var=None, threads=None, qid=None):
     super().__init__('elink.fcgi', tool, email, apikey=apikey, threads=threads, qid=qid)
-    Elinker.logger = entrezpy.log.logger.get_class_logger(Elinker)
-    Elinker.logger.debug(json.dumps({'init':self.dump()}))
+    self.logger = entrezpy.log.logger.get_class_logger(Elinker)
+    self.logger.debug(json.dumps({'init':self.dump()}))
 
   def inquire(self, parameter, analyzer=entrezpy.elink.elink_analyzer.ElinkAnalyzer()):
     """ Implements virtual function inquire()
@@ -70,8 +68,8 @@ class Elinker(entrezpy.base.query.EutilsQuery):
     :return: analyzer  or None if request errors have been encountered
     :rtype: :class:`entrezpy.base.analyzer.EntrezpyAnalyzer` instance or None
     """
-    Elinker.logger.debug(json.dumps({'dump' : self.dump()}))
     p = entrezpy.elink.elink_parameter.ElinkParameter(parameter)
+    self.logger.debug(json.dumps({'parameter':p.dump()}))
     self.monitor_start(p)
     self.add_request(entrezpy.elink.elink_request.ElinkRequest(self.eutil, p), analyzer)
     self.request_pool.drain()
@@ -79,17 +77,3 @@ class Elinker(entrezpy.base.query.EutilsQuery):
     if self.isGoodQuery():
       return analyzer
     return None
-
-  def isGoodQuery(self):
-    """
-    Tests for request errors
-
-      :rtype: bool
-    """
-    if not self.hasFailedRequests():
-      Elinker.logger.info(json.dumps({'query':self.id, 'status':'OK'}))
-      return True
-    Elinker.logger.warning(json.dumps({'query':self.id, 'status':'failed'}))
-    Elinker.logger.debug(json.dumps({'query':self.id, 'status':'failed',
-      'request-dumps': [x.dump_internals() for x in self.failed_requests]}))
-    return False

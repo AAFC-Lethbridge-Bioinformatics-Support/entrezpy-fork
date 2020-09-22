@@ -29,21 +29,6 @@ import json
 import entrezpy.base.result
 import entrezpy.log.logger
 
-def canLink(lset):
-    """
-      Test if linkset can be use to generate automated  follow-up queries
-
-      :param lset: LinkSet
-      :type lset: LinkSet instance
-      :returns: True if empty, False otherwise
-      :rtype: bool
-    """
-    if lset.canLink:
-      return True
-    ElinkResult.logger.warning(json.dumps(
-      {f'linkset {lset.category}': 'no direct follow-up parameters'}))
-    return False
-
 
 class ElinkResult(entrezpy.base.result.EutilsResult):
   """ The ElinkResult class implements the uniform handling of different Elink
@@ -56,8 +41,6 @@ class ElinkResult(entrezpy.base.result.EutilsResult):
   :param str cmd: used Elink command
   """
 
-  logger = None
-
   def __init__(self, qid, cmd):
     """
     :ivar list linksets: list to store analyzed linskets
@@ -66,7 +49,8 @@ class ElinkResult(entrezpy.base.result.EutilsResult):
     super().__init__('elink', qid, db=None)
     self.linksets = []
     self.cmd = cmd
-    ElinkResult.logger = entrezpy.log.logger.get_class_logger(ElinkResult)
+    self.logger = entrezpy.log.logger.get_class_logger(ElinkResult)
+    self.logger.debug(json.dumps({'init':self.dump()}))
 
   def size(self):
     """Implements :meth:`entrezpy.base.result.EutilsResult.size`.
@@ -121,7 +105,7 @@ class ElinkResult(entrezpy.base.result.EutilsResult):
     dbs = {}
     query_keys = []
     for i in self.linksets:
-      if not canLink(i):
+      if not self.canLink(i):
         continue
       for j in i.linkunits:
         dbs[j.db] = 0
@@ -131,12 +115,11 @@ class ElinkResult(entrezpy.base.result.EutilsResult):
     self.check_unexpected_dbnum(dbs)
     if len(query_keys) > 1:
       term = ' OR '.join(str("#{0}".format(x)) for x in query_keys)
-      ElinkResult.logger.debug(json.dumps({'history': {'follow-up term':term}}))
+      self.logger.debug(json.dumps({'history':{'follow-up term':term}}))
       return {'WebEnv' : self.linksets[0].linkunits[0].webenv,
               'db' : self.linksets[0].linkunits[0].db,
               'term' : term}
-    ElinkResult.logger.debug(json.dumps(
-      {'history':{'follow-up querykey':query_keys[0]}}))
+    self.logger.debug(json.dumps({'history':{'follow-up querykey':query_keys[0]}}))
     return {'WebEnv' : self.linksets[0].linkunits[0].webenv,
             'db' : self.linksets[0].linkunits[0].db,
             'query_key' : query_keys[0]}
@@ -150,7 +133,7 @@ class ElinkResult(entrezpy.base.result.EutilsResult):
     """
     dbs = {}
     for i in self.linksets:
-      if not canLink(i):
+      if not self.canLink(i):
         continue
       for j, k in i.get_link_uids().items():
         if j not in dbs:
@@ -160,7 +143,7 @@ class ElinkResult(entrezpy.base.result.EutilsResult):
       return None
     self.check_unexpected_dbnum(dbs)
     for i in dbs:
-      return {'db': i, 'id' : dbs[i]}
+      return {'db':i, 'id':dbs[i]}
 
   def check_unexpected_dbnum(self, dbs):
     """Deal with more databases than expected when linking. Expecting one
@@ -171,6 +154,20 @@ class ElinkResult(entrezpy.base.result.EutilsResult):
     :param dbs dbs: unique database names encountered in all LinkSets
     """
     if len(dbs) > 1:
-      sys.exit(ElinkResult.logger.error(json.dumps(
+      sys.exit(self.logger.error(json.dumps(
        {'Unexpected':'more than 1 dbto in history linking parameter',
         'dbs':[x for x in dbs], 'cmd':self.cmd, 'action':'abort'})))
+
+  def canLink(self, lset):
+    """
+      Test if linkset can be use to generate automated  follow-up queries
+
+      :param lset: LinkSet
+      :type lset: LinkSet instance
+      :returns: True if empty, False otherwise
+      :rtype: bool
+    """
+    if lset.canLink:
+      return True
+    self.logger.warning(json.dumps({f'linkset {lset.category}':'no direct follow-up parameters'}))
+    return False

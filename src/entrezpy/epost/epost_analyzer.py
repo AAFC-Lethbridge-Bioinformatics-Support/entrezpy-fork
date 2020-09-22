@@ -39,11 +39,9 @@ class EpostAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
   :class:`entrezpy.epost.epost_result.EpostResult`
   """
 
-  logger = None
-
   def __init__(self):
     super().__init__()
-    EpostAnalyzer.logger = entrezpy.log.logger.get_class_logger(EpostAnalyzer)
+    self.logger = entrezpy.log.logger.get_class_logger(EpostAnalyzer)
 
   def init_result(self, response, request):
     """Implements :meth:`entrezpy.base.analyzer.EutilsAnalyzer.init_result` and
@@ -81,7 +79,6 @@ class EpostAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
         error = elem.text
         break
       elem.clear()
-
-    EpostAnalyzer.logger.error(json.dumps(
-      {'tool':request.tool, 'error':error, 'request-id':request.id,
-       'query-id':request.query_id, 'request-dump':request.dump_internals()}))
+    self.logger.error(json.dumps({'tool':request.tool, 'error':error,
+                                  'requestid':request.id, 'queryid':request.query_id,
+                                  'request-dump':request.dump_internals()}))

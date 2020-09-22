@@ -38,8 +38,6 @@ class EpostParameter(entrezpy.base.parameter.EutilsParameter):
   :param dict parameter: Eutils Epost parameters
   """
 
-  logger = None
-
   def __init__(self, parameter):
     """
     :ivar list uids: UIDs to post
@@ -55,19 +53,18 @@ class EpostParameter(entrezpy.base.parameter.EutilsParameter):
     self.request_size = self.query_size
     self.expected_requests = 1
     self.check()
-    EpostParameter.logger = entrezpy.log.logger.get_class_logger(EpostParameter)
-    EpostParameter.logger.debug(json.dumps({'init':self.dump()}))
+    self.logger = entrezpy.log.logger.get_class_logger(EpostParameter)
+    self.logger.debug(json.dumps({'init':self.dump()}))
 
   def check(self):
     """Implements :meth:`entrezpy.base.parameter.EutilsParameter.check`
     by checking for missing database parameter and UIDs.
     """
     if not self.haveDb():
-      sys.exit(EpostParameter.logger.error(json.dumps({'Missing parameter':'db',
-                                                       'action':'abort'})))
+      sys.exit(self.logger.error(json.dumps({'Missing db parameter':'abort'})))
     if self.query_size == 0:
-      sys.exit(EpostParameter.logger.error(json.dumps({'Missing uids':self.uids,
-                                                       'action':'abort'})))
+      sys.exit(self.logger.error(json.dumps({'Missing uids':self.uids,
+                                             'action':'abort'})))
 
   def dump(self):
     """Dump instance variables
