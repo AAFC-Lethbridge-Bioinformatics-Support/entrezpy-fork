@@ -162,5 +162,7 @@ class EutilsRequest:
       extend = {}
     reqdump = {'eutil':self.eutil, 'db':self.db, 'id':self.id, 'query_id':self.query_id,
                'tool':self.tool, 'url':self.url, 'email':self.contact, 'size':self.size,
-               'request_error':self.request_error, 'apikey':self.apikey}
+               'request_error':self.request_error, 'apikey':'no'}
+    if self.apikey is not None:
+      reqdump['apikey'] = 'yes'
     return dict(extend, **reqdump)

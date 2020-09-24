@@ -40,6 +40,7 @@ import entrezpy.esummary.esummarizer
 import entrezpy.esummary.esummary_analyzer
 import entrezpy.log.logger
 
+
 class Conduit:
   """Conduit simplifies to create pipelines and queries for entrezpy. Conduit
   stores results from previous requests, allowing to concatenate queries and
@@ -79,6 +80,7 @@ class Conduit:
     """
 
     def __init__(self, function, parameter, dependency=None, analyzer=None):
+      self.logger = entrezpy.log.logger.get_class_logger(Conduit.Query)
       if not parameter and not dependency:
         sys.exit(self.logger.error(json.dumps({'Missing required arguments':'parameter/dependency',
                                                'action' : 'abort'})))
@@ -89,6 +91,7 @@ class Conduit:
       self.parameter = parameter
       self.dependency = dependency
       self.analyzer = analyzer
+      self.logger.debug(json.dumps({'init': self.dump()}))
 
     def resolve_dependency(self):
       """Resolves dependencies to obtain paremeters from earlier query.
@@ -100,6 +103,11 @@ class Conduit:
           parameter['dbfrom'] = parameter['db']
         parameter.update(self.parameter)
         self.parameter = parameter
+        self.logger.debug(json.dumps({'resolved dependency': self.dump()}))
+
+    def dump(self):
+      return {'id':self.id, 'function':self.function, 'param':self.parameter,
+              'dependency':self.dependency}
 
   class Pipeline:
     """The Pipeline class implements a query pipeline with several consecutive

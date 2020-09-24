@@ -36,10 +36,6 @@ import entrezpy.log.conf
 
 CONFIG = {'level':'INFO', 'quiet':True, 'propagate':True}
 
-def configure(config=None):
-  if config is not None:
-    CONFIG.update(config)
-
 def get_root():
   return 'entrezpy'
 
@@ -57,3 +53,7 @@ def get_class_logger(cls):
   logging.config.dictConfig(entrezpy.log.conf.default_config)
   logger.setLevel(CONFIG['level'])
   return logger
+
+def set_level(level):
+  CONFIG['level'] = level
+  CONFIG['quiet'] = False

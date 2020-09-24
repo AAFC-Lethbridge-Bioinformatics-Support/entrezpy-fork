@@ -47,7 +47,7 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
   def __init__(self, parameter):
     super().__init__(parameter)
     self.retmode = 'json'
-    self.uilist = self.set_uilist(parameter.get('rettype'))
+    self.uilist = self.set_uilist(parameter.get('rettype', None))
     self.retmax = self.adjust_retmax(parameter.get('retmax'))
     self.reqsize = self.adjust_reqsize(int(parameter.get('reqsize', MAX_REQUEST_SIZE)))
     self.retstart = int(parameter.get('retstart', 0))
@@ -90,7 +90,7 @@ class EsearchParameter(entrezpy.base.parameter.EutilsParameter):
 
   def set_uilist(self, rettype):
     """:rtype: bool"""
-    if not rettype or (rettype == 'uilist'):
+    if rettype is not None or (rettype == 'uilist'):
       return True
     return False
 

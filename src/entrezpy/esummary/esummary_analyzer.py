@@ -54,12 +54,12 @@ class EsummaryAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
     :rtype: bool
     """
     if not self.result:
-      self.result = entrezpy.esummary.esummary_result.EsummaryResult(response,
-                                                                     request)
+      self.result = entrezpy.esummary.esummary_result.EsummaryResult(response, request)
       return True
     return False
 
   def analyze_result(self, response, request):
+    print(response)
     if not self.init_result(response, request):
       self.result.add_summaries(response.pop('result', None))
 

@@ -34,15 +34,13 @@ class EsummaryResult(entrezpy.base.result.EutilsResult):
   quick access. EsummaryResult has no WebEnv references.
   """
 
-  logger = None
-
   def __init__(self, response, request):
     super().__init__('esummary', request.query_id, request.db)
     self.summaries = {}
     if response:
       self.add_summaries(response['result'])
-    EsummaryResult.logger = entrezpy.log.logger.get_class_logger(EsummaryResult)
-    EsummaryResult.logger.debug(json.dumps({'init':self.dump()}))
+    self.logger = entrezpy.log.logger.get_class_logger(EsummaryResult)
+    self.logger.debug(json.dumps({'init':self.dump()}))
 
   def dump(self):
     """:rtype: dict"""
