@@ -104,7 +104,6 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
     Implements virtual method :meth:`entrezpy.base.analyzer.analyze_result` and
     checks used elink command to run according result parser.
     """
-    #print(response)
     self.init_result(response, request)
     if request.cmd != 'llinkslib' and request.retmode != 'json':
       sys.exit(self.logger.error(json.dumps({'unknown cmd':request.cmd,
