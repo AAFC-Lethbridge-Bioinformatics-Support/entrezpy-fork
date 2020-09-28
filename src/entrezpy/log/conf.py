@@ -15,13 +15,12 @@
   You should have received a copy of the GNU General Public License
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
+.. module:: entrezpy.log.conf
+  :synopsis: Stores default logging configuration.
+
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
 
-
-import os
-import time
-import json
 
 default_config = {
   'disable_existing_loggers': False,
@@ -50,3 +49,4 @@ default_config = {
     }
   }
 }
+"""Dictionary to store logger configuration"""

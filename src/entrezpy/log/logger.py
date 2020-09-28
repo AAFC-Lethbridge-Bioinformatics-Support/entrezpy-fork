@@ -16,10 +16,7 @@
   along with entrezpy.  If not, see <https://www.gnu.org/licenses/>.
 
 .. module:: logger
-
-  :synopsis:
-    This module is part of entrezpy. It configures logging via Python's
-    :mod:`logging`.
+  :synopsis: This module configures logging via Python's :mod:`logging`.
 
 .. moduleauthor:: Jan P Buchmann <jan.buchmann@sydney.edu.au>
 """
@@ -35,8 +32,10 @@ import entrezpy.log.conf
 
 
 CONFIG = {'level':'INFO', 'quiet':True, 'propagate':True}
+"""Store logger settings"""
 
 def get_root():
+  """Returns the module root"""
   return 'entrezpy'
 
 def resolve_class_namespace(cls):
@@ -55,5 +54,6 @@ def get_class_logger(cls):
   return logger
 
 def set_level(level):
+  """Sets logging level for applications using entrezpy."""
   CONFIG['level'] = level
   CONFIG['quiet'] = False

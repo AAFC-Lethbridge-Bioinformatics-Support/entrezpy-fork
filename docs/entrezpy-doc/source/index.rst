@@ -132,6 +132,7 @@ Manual
   :maxdepth: 1
   :caption: Entrezpy functions
 
+  functions/logging
   functions/esearch_func
   functions/efetch_func
   functions/elink_func
@@ -156,6 +157,7 @@ Reference
   :maxdepth: 2
   :caption: Entrezpy module references:
 
+  module_references/logging
   module_references/base
   module_references/elink
   module_references/epost
