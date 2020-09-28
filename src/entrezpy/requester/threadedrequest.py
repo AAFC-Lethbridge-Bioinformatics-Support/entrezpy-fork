@@ -49,10 +49,6 @@ class ThreadedRequester(threading.Thread):
       self.logger.info(json.dumps({'query':request.query_id,
                                    'request':request.id,
                                    'status': request.status}))
-      #if response:
-        #analyzer.parse(response, request)
-      #else:
-        #self.failed_requests.append(request)
       self.requests.task_done()
 
   def run_one_request(self, request, analyzer):
@@ -62,8 +58,7 @@ class ThreadedRequester(threading.Thread):
     :param request: single entrezpy request
     :type  request: :class:`entrezpy.base.request.EutilsRequest`
     """
-    self.logger.debug(json.dumps({'lock':self.lock.locked()}))
-    #self.lock.acquire()
+    self.lock.acquire()
     self.logger.debug(json.dumps({'lock':self.lock.locked()}))
     request.start_stopwatch()
     o = self.monitor.get_observer(request.query_id)
@@ -76,6 +71,5 @@ class ThreadedRequester(threading.Thread):
       analyzer.parse(response, request)
     else:
       self.failed_requests.append(request)
-    #self.lock.release()
+    self.lock.release()
     self.logger.debug(json.dumps({'lock':self.lock.locked()}))
-    #return response
