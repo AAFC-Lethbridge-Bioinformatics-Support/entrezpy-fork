@@ -32,7 +32,7 @@ Importing the logging module and set the level.
 
   def main():
     """
-    your application uisng entrezpy
+    your application using entrezpy
     """
 
 Add logging to a class inheriting a ``entrezpy`` base class
