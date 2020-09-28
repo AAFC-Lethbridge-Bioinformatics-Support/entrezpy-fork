@@ -70,6 +70,8 @@ sys.path.insert(1, os.path.join(sys.path[0], '../src'))
 # Import conduit module
 import entrezpy.conduit
 
+entrezpy.log.logger.set_level('INFO')
+
 def main():
   ap = argparse.ArgumentParser(description='Simple ncbipy-esearch-example')
   ap.add_argument('--email',
