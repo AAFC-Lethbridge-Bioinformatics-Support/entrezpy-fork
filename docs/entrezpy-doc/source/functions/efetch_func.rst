@@ -11,7 +11,7 @@ Usage
 -----
 .. code::
 
-  import entrezpy.efetch.eftecher.Efetcher
+  import entrezpy.efetch.efetcher.Efetcher
 
   e = entrezpy.efetch.efetcher.Efetcher(tool,
                                         email,
