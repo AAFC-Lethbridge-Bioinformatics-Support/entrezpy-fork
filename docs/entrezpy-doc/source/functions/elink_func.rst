@@ -21,7 +21,7 @@ Usage
 -----
 .. code::
 
-  import entrezpy.elink.elinker.Elinker
+  import entrezpy.elink.elinker
 
   e = entrezpy.elink.elinker.Elinker(tool,
                                            email,

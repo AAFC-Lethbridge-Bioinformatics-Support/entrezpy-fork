@@ -11,7 +11,7 @@ Usage
 -----
 .. code::
 
-  import entrezpy.efetch.efetcher.Efetcher
+  import entrezpy.efetch.efetcher
 
   e = entrezpy.efetch.efetcher.Efetcher(tool,
                                         email,
@@ -25,10 +25,10 @@ Usage
                         'rettype' : 'abstract'})
   print(analyzer.count, analyzer.retmax, analyzer.retstart, analyzer.uids)
 
-``Esearcher``
+``Efetcher``
 ~~~~~~~~~~~~~
 
-:class:`entrezpy.esearch.esearcher.Esearcher`
+:class:`entrezpy.efetch.efetcher.Efetcher`
 
  :param str tool: string with no internal spaces uniquely identifying the
                   software producing the request, i.e. your tool/pipeline.

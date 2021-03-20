@@ -12,7 +12,7 @@ Usage
 -----
 .. code::
 
-  import entrezpy.esearch.esearcher.Esearcher
+  import entrezpy.esearch.esearcher
 
   e = entrezpy.esearch.esearcher.Esearcher(tool,
                                            email,
@@ -26,19 +26,29 @@ Usage
                         'rettype' : 'abstract'})
   print(analyzer.count, analyzer.retmax, analyzer.retstart, analyzer.uids)
 
+
+This creates an Esearcher instance with the following parameters:
+
+..  * tool: mandatory, name of the Esearch instance, required for NCBI requests
+..  * email: mandatory, your email, required by NCBI
+..  * apikey: optional, a valid NCBI apikey
+..  * apikey_var: optional, name of the environment variable storing a valid NCBI apikey
+..  * threads: optional, number of threads (not processors) to use
+..  * qid: optional, set the query id manually
+
 ``Esearcher``
 ~~~~~~~~~~~~~
 
 :class:`entrezpy.esearch.esearcher.Esearcher`
 
- :param str tool: string with no internal spaces uniquely identifying the
+ :param str tool: String with no internal spaces uniquely identifying the
                   software producing the request, i.e. your tool/pipeline.
- :param str email: a complete and valid e-mail address of the software developer
-                   and not that of a third-party end user. ``entrezpy`` is this
-                   is a library, not a tool.
+ :param str email: A complete and valid e-mail address of the software developer
+                   and not that of a third-party end user. ``entrezpy`` is a
+                   library, not a tool.
  :param str apikey:     :ref:`ncbi-apikey`
- :param str apikey_var: :ref:`ncbi-apikey`
- :param int threads:    number of threads
+ :param str apikey_var: Environment variable storing an :ref:`ncbi-apikey`
+ :param int threads:    Number of threads (not processors)
  :param str qid:        Unique Esearch query id. Will be generated if not given.
 
 Supported E-Utility parameter
