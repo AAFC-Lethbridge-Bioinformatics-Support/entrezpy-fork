@@ -3,7 +3,13 @@
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 (or tries as best as it can)
 
-## [Unreleased](https://gitlab.com/ncbipy/entrezpy/compare/2.1....master)
+## [Unreleased](https://gitlab.com/ncbipy/entrezpy/compare/2.1.2...master)
+
+## [2.1.2](https://gitlab.com/ncbipy/entrezpy/compare/2.1.0...2.1.2) - 2021-03-24
+
+### Fixed
+
+  - Not declared local variable in base analyzer aborting fetch commands
 
 ## [2.1.0](https://gitlab.com/ncbipy/entrezpy/compare/2.0.5...2.1.0)
 
