@@ -152,6 +152,7 @@ class EutilsAnalyzer:
     :type  request: :class:`entrezpy.base.request.EutilsRequest`
     :return: error status
     :rtype: bool"""
+    hasErrorResponse = None
     if request.retmode == 'xml':
       hasErrorResponse = self.check_error_xml(response)
       response.seek(0)
