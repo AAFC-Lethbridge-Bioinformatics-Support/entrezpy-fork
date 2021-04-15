@@ -72,12 +72,13 @@ class Requester:
     :type  req: :class:`entrezpy.base.request.EutilsRequest`
     """
     retries = 0
-    success = False
     req_timeout = self.init_timeout
     data = urllib.parse.urlencode(req.get_post_parameter(),
                                   doseq=req.doseq).encode('utf-8')
     req.qry_url = data.decode()
-    while not success:
+    response = None
+    while retries < self.max_retries:
+      self.logger.debug(json.dumps({'try':retries}))
       wait = self.wait
       try:
         self.logger.debug(json.dumps({'request':{'qry-url':req.qry_url,
@@ -86,8 +87,8 @@ class Requester:
                                                  'req-url':req.url,
                                                  'try' : retries}}))
         req.set_status_success()
-        return urllib.request.urlopen(urllib.request.Request(req.url, data=data),
-                                      timeout=req_timeout)
+        response = urllib.request.urlopen(urllib.request.Request(req.url,data=data),
+                                          timeout=req_timeout)
       except urllib.error.HTTPError as http_err:
         log_msg = {'code' : http_err.code, 'reason' : http_err.reason}
         req.set_request_error(http_err.reason)
@@ -118,15 +119,16 @@ class Requester:
           req.set_request_error("maxTimeout")
           return None
       else:
-        if retries > self.max_retries:
-          self.logger.warning(json.dumps({'maxRetry':{'action':'giving up request'}}))
-          Requester.logger.debug(json.dumps({'maxRetry':{'retries':retries,
-                                                         'action':'giving up request',
-                                                         'max':self.max_retries}}))
-          req.set_request_error("maxRetry")
-          return None
-        success = True
-      time.sleep(wait)
+        return response
+      finally:
+        time.sleep(wait)
+    # Should print this only if while failed
+    self.logger.warning(json.dumps({'maxRetry':{'action':'giving up request'}}))
+    self.logger.debug(json.dumps({'maxRetry':{'retries':retries,
+                                              'action':'giving up request',
+                                              'max':self.max_retries}}))
+    req.set_request_error("maxRetry")
+    return None
 
 
   def run_one_request(self, request, monitor):
