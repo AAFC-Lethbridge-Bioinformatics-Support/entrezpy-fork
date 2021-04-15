@@ -3,7 +3,13 @@
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 (or tries as best as it can)
 
-## [Unreleased](https://gitlab.com/ncbipy/entrezpy/compare/2.1.2...master)
+## [Unreleased](https://gitlab.com/ncbipy/entrezpy/compare/2.1.3...master)
+
+## [2.1.2](https://gitlab.com/ncbipy/entrezpy/compare/2.1.2...2.1.3) - 2021-03-24
+
+### Fixed
+
+  - Possible infinite looping during requests due to errors not caught in try loop
 
 ## [2.1.2](https://gitlab.com/ncbipy/entrezpy/compare/2.1.0...2.1.2) - 2021-03-24
 
