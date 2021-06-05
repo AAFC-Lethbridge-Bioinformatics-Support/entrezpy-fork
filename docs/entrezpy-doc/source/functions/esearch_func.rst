@@ -13,18 +13,20 @@ Usage
 .. code::
 
   import entrezpy.esearch.esearcher
+  import entrezpy.log.logger
+  entrezpy.log.logger.set_level('DEBUG')
 
-  e = entrezpy.esearch.esearcher.Esearcher(tool,
-                                           email,
+  e = entrezpy.esearch.esearcher.Esearcher("entrezpy",
+                                           "youremail@email.com",
                                            apikey=None,
                                            apikey_var=None,
                                            threads=None,
                                            qid=None)
   analyzer = e.inquire({'db' : 'pubmed',
-                        'id' : [17284678, 9997],
-                        'retmode' : 'text',
-                        'rettype' : 'abstract'})
-  print(analyzer.count, analyzer.retmax, analyzer.retstart, analyzer.uids)
+                        'term' : 'viruses[orgn]',
+                        'retmax' : '20',
+                        'rettype' : 'uilist'})
+  print(analyzer.result.count, analyzer.result.uids)
 
 
 This creates an Esearcher instance with the following parameters:
