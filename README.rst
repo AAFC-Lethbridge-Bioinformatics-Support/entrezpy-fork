@@ -1,3 +1,6 @@
+This is a fork of the Entrezpy repo. Original is here: https://gitlab.com/ncbipy/entrezpy
+------------------------------------------------------------------------------------------
+
 .. image:: https://readthedocs.org/projects/entrezpy/badge/?version=master
   :target: https://entrezpy.readthedocs.io/en/master/?badge=master
   :alt: Documentation Status
