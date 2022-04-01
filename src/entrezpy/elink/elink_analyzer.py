@@ -189,7 +189,7 @@ class ElinkAnalyzer(entrezpy.base.analyzer.EutilsAnalyzer):
           lset.add_linkunit(lset_unit.new(j['dbto'], j['linkname'], i['webenv'], j['querykey']))
           self.logger.debug(json.dumps({'added':lset.linkunits[-1].dump()}))
       else:
-        self.logger.warning(json.dumps({'Empty linkset'}))
+        # self.logger.warning(json.dumps({'Empty linkset'}))
         continue
       self.result.add_linkset(lset)
 
