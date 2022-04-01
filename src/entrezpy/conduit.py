@@ -206,11 +206,13 @@ class Conduit:
     :type  query: :class:`Conduit.Query`
     """
     if not Conduit.analyzers[query.id]:
-      sys.exit(self.logger.error(json.dumps({'request error':{'queryid':query.id,
-                                                              'action':'abort'}})))
+      self.logger.error(json.dumps({'request error':{'queryid':query.id,
+                                                              'action':'abort'}}))
+      raise RuntimeError('Unsuccessful query')
     if not Conduit.analyzers[query.id].isSuccess():
-      sys.exit(self.logger.error(json.dumps({'response error':{'queryid':query.id,
-                                                               'action':'abort'}})))
+      self.logger.error(json.dumps({'response error':{'queryid':query.id,
+                                                               'action':'abort'}}))
+      raise RuntimeError('Unsuccessful query')
 
   def get_result(self, query_id):
     """"Returns stored result from previous run.
