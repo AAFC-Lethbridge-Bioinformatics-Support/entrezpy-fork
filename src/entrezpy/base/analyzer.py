@@ -117,7 +117,7 @@ class EutilsAnalyzer:
       self.analyze_result(response, request)
 
     if self.result is None:
-      sys.exit(json.dumps({'result attribute': 'not set','action' : 'abort'}))
+      json.dumps({'result attribute': 'not set', 'action':'continue'})
 
   def convert_response(self, raw_response_decoded, request):
     """
@@ -221,6 +221,6 @@ class EutilsAnalyzer:
 
     :rtype: bool
     """
-    if self.result.size() == 0:
+    if (self.result is None or self.result.size() == 0):
       return True
     return False
