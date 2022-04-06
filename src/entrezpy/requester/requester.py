@@ -31,7 +31,18 @@ import logging
 import urllib.parse
 import urllib.request
 import urllib.error
+import http.client as httplib
 
+# https://stackoverflow.com/questions/14149100/incompleteread-using-httplib
+def patch_http_response_read(func):
+    def inner(*args):
+        try:
+            return func(*args)
+        except httplib.IncompleteRead as e:
+            return e.partial
+
+    return inner
+httplib.HTTPResponse.read = patch_http_response_read(httplib.HTTPResponse.read)
 
 import entrezpy.log.logger
 
