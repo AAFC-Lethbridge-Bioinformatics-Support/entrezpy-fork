@@ -32,17 +32,7 @@ import urllib.parse
 import urllib.request
 import urllib.error
 import http.client as httplib
-
-# https://stackoverflow.com/questions/14149100/incompleteread-using-httplib
-def patch_http_response_read(func):
-    def inner(*args):
-        try:
-            return func(*args)
-        except httplib.IncompleteRead as e:
-            return e.partial
-
-    return inner
-httplib.HTTPResponse.read = patch_http_response_read(httplib.HTTPResponse.read)
+import ssl
 
 import entrezpy.log.logger
 
@@ -63,7 +53,7 @@ class Requester:
   :param int timeout_steps: increase value for timeout errors
   """
 
-  def __init__(self, wait, max_retries=20, init_timeout=180, timeout_max=270, timeout_step=5):
+  def __init__(self, wait, max_retries=20, init_timeout=90, timeout_max=180, timeout_step=5):
     self.wait = wait
     self.max_retries = max_retries
     self.init_timeout = init_timeout
@@ -100,6 +90,7 @@ class Requester:
         req.set_status_success()
         response = urllib.request.urlopen(urllib.request.Request(req.url,data=data),
                                           timeout=req_timeout)
+        response = response.read().decode('utf-8')
       except urllib.error.HTTPError as http_err:
         log_msg = {'code' : http_err.code, 'reason' : http_err.reason}
         req.set_request_error(http_err.reason)
@@ -110,9 +101,13 @@ class Requester:
         self.logger.error(json.dumps({'HTTP-error':log_msg}))
         retries += 1
         wait = random.randint(1, 3)
+      except socket.gaierror:
+        self.logger.error(json.dumps({'socket.gaierror':{'action':'retry'}}))
+        retries += 1
+        wait = random.randint(2, 4)
       except urllib.error.URLError as url_err:
         req.set_request_error(url_err.reason)
-        self.logger.error(json.dumps({'URL-error':'URL Lib error', 'action':'retry'}))
+        self.logger.error(json.dumps({'URL-error':url_err.reason, 'action':'retry'}))
         retries += 1
         wait = random.randint(1, 3)
       except socket.timeout:
@@ -129,6 +124,14 @@ class Requester:
                                                       'timeout':req_timeout}}))
           req.set_request_error("maxTimeout")
           return None
+      except httplib.IncompleteRead:
+          self.logger.error(json.dumps({'httplib.IncompleteRead':{'action':'retry'}}))
+          retries += 1
+          wait = random.randint(1, 3)
+      except ssl.SSLError:
+          self.logger.error(json.dumps({'ssl.SSLError':{'action':'retry'}}))
+          retries += 1
+          wait = random.randint(1, 3)
       else:
         return response
       finally:

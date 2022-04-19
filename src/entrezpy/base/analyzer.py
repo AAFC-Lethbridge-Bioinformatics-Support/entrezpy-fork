@@ -109,7 +109,7 @@ class EutilsAnalyzer:
     #raw_response_decoded = raw_response.read().decode('utf-8')
     #self.logger.info((raw_response, raw_response.status, raw_response.read(), raw_response_decoded))
     #self.logger.info(json.dumps({'parsing':raw_response_decoded, 'req':request.dump()}))
-    response = self.convert_response(raw_response.read().decode('utf-8'), request)
+    response = self.convert_response(raw_response, request)
     if self.isErrorResponse(response, request):
       self.hasErrorResponse = True
       self.analyze_error(response, request)
