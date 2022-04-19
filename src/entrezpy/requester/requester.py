@@ -112,7 +112,7 @@ class Requester:
         wait = random.randint(1, 3)
       except urllib.error.URLError as url_err:
         req.set_request_error(url_err.reason)
-        self.logger.error(json.dumps({'URL-error':url_err.reason, 'action':'retry'}))
+        self.logger.error(json.dumps({'URL-error':'URL Lib error', 'action':'retry'}))
         retries += 1
         wait = random.randint(1, 3)
       except socket.timeout:
