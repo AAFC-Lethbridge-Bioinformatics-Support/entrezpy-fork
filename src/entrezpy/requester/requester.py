@@ -63,7 +63,7 @@ class Requester:
   :param int timeout_steps: increase value for timeout errors
   """
 
-  def __init__(self, wait, max_retries=20, init_timeout=90, timeout_max=180, timeout_step=5):
+  def __init__(self, wait, max_retries=20, init_timeout=180, timeout_max=270, timeout_step=5):
     self.wait = wait
     self.max_retries = max_retries
     self.init_timeout = init_timeout
