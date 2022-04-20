@@ -24,6 +24,7 @@
 """
 
 import json
+from socket import gaierror
 import time
 
 import entrezpy.log.logger
@@ -160,9 +161,12 @@ class EutilsRequest:
     """
     if extend is None:
       extend = {}
+
     reqdump = {'eutil':self.eutil, 'db':self.db, 'id':self.id, 'query_id':self.query_id,
-               'tool':self.tool, 'url':self.url, 'email':self.contact, 'size':self.size,
-               'request_error':self.request_error, 'apikey':'no'}
+                'tool':self.tool, 'url':self.url, 'email':self.contact, 'size':self.size,
+                'request_error':self.request_error, 'apikey':'no'}
+    if self.request_error is gaierror:
+      reqdump['request_error'] = 'gaierror'
     if self.apikey is not None:
       reqdump['apikey'] = 'yes'
     return dict(extend, **reqdump)
