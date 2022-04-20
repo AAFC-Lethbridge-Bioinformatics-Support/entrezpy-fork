@@ -22,6 +22,7 @@
 """
 
 
+import http
 import sys
 import random
 import json
@@ -132,6 +133,10 @@ class Requester:
           self.logger.error(json.dumps({'ssl.SSLError':{'action':'retry'}}))
           retries += 1
           wait = random.randint(1, 3)
+      except http.client.RemoteDisconnected:
+          self.logger.error(json.dumps({'http.client.RemoteDisconnected':{'action':'retry'}}))
+          retries += 1
+          wait = random.randint(3, 5)
       else:
         return response
       finally:
