@@ -60,9 +60,14 @@ class RequestPool:
   def dispatch_workers(self):
     for _ in range(self.threads):
       w = entrezpy.requester.threadedrequest.ThreadedRequester(
-        self.requests, self.failed_requests, self.monitor, self.requester, self.stop_event, self.lock)
-      w.start()
-      self.logger.debug(json.dumps({'thread':w.name, 'status':'started'}))
+          self.requests, self.failed_requests, self.monitor, self.requester, self.stop_event, self.lock)
+      try:
+        w.start()
+        self.logger.debug(json.dumps({'thread':w.name, 'status':'started'}))
+      except RuntimeError as e:
+        self.logger.error(json.dumps({'thread':'failed to start', 'status':'failed', 'error' : str(e)}))
+        exit(self.logger.error("Thread failed to start, Try decreasing the number of threads."))
+
     self.logger.debug(json.dumps({'threading workers':'dispatched'}))
 
   def add_request(self, request, analyzer):
