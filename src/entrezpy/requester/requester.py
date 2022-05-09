@@ -107,8 +107,9 @@ class Requester:
         retries += 1
         wait = random.randint(2, 4)
       except urllib.error.URLError as url_err:
-        req.set_request_error(url_err.reason)
-        self.logger.error(json.dumps({'URL-error':url_err.reason, 'action':'retry'}))
+        # req.set_request_error(url_err.reason) TODO: fix json not serializing error objects
+        req.set_request_error("urllib.error.URLError")
+        self.logger.error(json.dumps({'urllib.error.URLError': {'action':'retry'}}))
         retries += 1
         wait = random.randint(1, 3)
       except socket.timeout:
