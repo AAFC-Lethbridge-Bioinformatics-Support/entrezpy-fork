@@ -99,11 +99,11 @@ class Requester:
           log_msg.update({'action':'abort'})
           sys.exit(self.logger.error(json.dumps({'HTTP-error':log_msg})))
         log_msg.update({'action' : 'retry'})
-        self.logger.error(json.dumps({'HTTP-error':log_msg}))
+        self.logger.warning(json.dumps({'HTTP-error':log_msg}))
         retries += 1
         wait = random.randint(1, 3)
       except socket.gaierror:
-        self.logger.error(json.dumps({'socket.gaierror':{'action':'retry'}}))
+        self.logger.warning(json.dumps({'socket.gaierror':{'action':'retry'}}))
         retries += 1
         wait = random.randint(2, 4)
       except urllib.error.URLError as url_err:
@@ -127,15 +127,15 @@ class Requester:
           req.set_request_error("maxTimeout")
           return None
       except httplib.IncompleteRead:
-          self.logger.error(json.dumps({'httplib.IncompleteRead':{'action':'retry'}}))
+          self.logger.warning(json.dumps({'httplib.IncompleteRead':{'action':'retry'}}))
           retries += 1
           wait = random.randint(1, 3)
       except ssl.SSLError:
-          self.logger.error(json.dumps({'ssl.SSLError':{'action':'retry'}}))
+          self.logger.warning(json.dumps({'ssl.SSLError':{'action':'retry'}}))
           retries += 1
           wait = random.randint(1, 3)
       except http.client.RemoteDisconnected:
-          self.logger.error(json.dumps({'http.client.RemoteDisconnected':{'action':'retry'}}))
+          self.logger.warning(json.dumps({'http.client.RemoteDisconnected':{'action':'retry'}}))
           retries += 1
           wait = random.randint(3, 5)
       else:
@@ -143,7 +143,7 @@ class Requester:
       finally:
         time.sleep(wait)
     # Should print this only if while failed
-    self.logger.warning(json.dumps({'maxRetry':{'action':'giving up request'}}))
+    self.logger.error(json.dumps({'maxRetry':{'action':'giving up request'}}))
     self.logger.debug(json.dumps({'maxRetry':{'retries':retries,
                                               'action':'giving up request',
                                               'max':self.max_retries}}))
