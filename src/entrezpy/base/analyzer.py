@@ -139,7 +139,7 @@ class EutilsAnalyzer:
     """
     if request.retmode == 'json':
       #self.logger.info(json.dumps({'raw':raw_response_decoded, 'req':request.dump()}))
-      return json.loads(raw_response_decoded)
+      return json.loads(raw_response_decoded, strict=False)
     return io.StringIO(raw_response_decoded)
 
   def isErrorResponse(self, response, request):
