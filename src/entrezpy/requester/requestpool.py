@@ -65,7 +65,7 @@ class RequestPool:
         w.start()
         self.logger.debug(json.dumps({'thread':w.name, 'status':'started'}))
       except RuntimeError as e:
-        exit(self.logger.error(json.dumps({'thread':'failed to start', 'status':'failed', 'error' : str(e)}))
+        sys.exit(self.logger.error(json.dumps({'thread':'failed to start', 'status':'failed', 'error' : str(e)}))
 )
 
     self.logger.debug(json.dumps({'threading workers':'dispatched'}))
